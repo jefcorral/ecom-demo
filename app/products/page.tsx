@@ -6,10 +6,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
 
-async function ProductGrid() {
+interface ProductsPageProps {
+  searchParams: Promise<{ search?: string; categoryId?: string }>;
+}
+
+async function ProductList({ search, categoryId }: { search?: string; categoryId?: string }) {
   unstable_noStore();
   try {
-    const { data } = await fetchProducts({ limit: 12 });
+    const { data } = await fetchProducts({ search, categoryId, limit: 24 });
+    if (data.length === 0) {
+      return <p className="text-center text-muted-foreground">No products found.</p>;
+    }
     return (
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {data.map((product) => (
@@ -26,16 +33,12 @@ async function ProductGrid() {
   }
 }
 
-export default function HomePage() {
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const { search, categoryId } = await searchParams;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <section className="mb-10 rounded-2xl bg-muted px-6 py-12 text-center">
-        <h1 className="text-3xl font-bold tracking-tight md:text-5xl">Welcome to Ecom Store</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          A modern storefront built with Next.js and shadcn/ui.
-        </p>
-      </section>
-      <h2 className="mb-6 text-2xl font-semibold">Featured Products</h2>
+      <h1 className="mb-6 text-3xl font-bold">Products</h1>
       <Suspense
         fallback={
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -45,7 +48,7 @@ export default function HomePage() {
           </div>
         }
       >
-        <ProductGrid />
+        <ProductList search={search} categoryId={categoryId} />
       </Suspense>
     </div>
   );
