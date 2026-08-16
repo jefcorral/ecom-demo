@@ -8,22 +8,25 @@ export const dynamic = "force-dynamic";
 
 async function ProductGrid() {
   unstable_noStore();
-  try {
-    const { data } = await fetchProducts({ limit: 12 });
-    return (
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {data.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    );
-  } catch {
+  const products = await fetchProducts({ limit: 12 })
+    .then((res) => res.data)
+    .catch(() => null);
+
+  if (products === null) {
     return (
       <p className="text-center text-muted-foreground">
         Could not load products. Make sure the API is running.
       </p>
     );
   }
+
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
 }
 
 export default function HomePage() {

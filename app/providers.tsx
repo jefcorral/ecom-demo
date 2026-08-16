@@ -50,7 +50,7 @@ export function useCart() {
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => isAuthenticated());
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -58,8 +58,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         .then(setUser)
         .catch(() => setUser(null))
         .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
     }
   }, []);
 
@@ -107,7 +105,10 @@ function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    refresh();
+    fetchCart()
+      .then(setCart)
+      .catch(() => setCart({ items: [] }))
+      .finally(() => setLoading(false));
   }, []);
 
   const addItem = async (productId: string, quantity: number, note?: string) => {
