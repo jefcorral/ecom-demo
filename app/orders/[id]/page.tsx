@@ -83,7 +83,7 @@ export default function OrderDetailPage() {
           </Card>
         </div>
 
-        <div>
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Summary</CardTitle>
@@ -107,6 +107,40 @@ export default function OrderDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          {order.shippingAddress && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Shipping address</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <p>{order.shippingAddress.line1}</p>
+                {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
+                <p>
+                  {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+                  {order.shippingAddress.postalCode}
+                </p>
+                <p>{order.shippingAddress.country}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {order.billingAddress && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing address</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <p>{order.billingAddress.line1}</p>
+                {order.billingAddress.line2 && <p>{order.billingAddress.line2}</p>}
+                <p>
+                  {order.billingAddress.city}, {order.billingAddress.state}{" "}
+                  {order.billingAddress.postalCode}
+                </p>
+                <p>{order.billingAddress.country}</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

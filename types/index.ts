@@ -105,11 +105,22 @@ export interface Order {
   updatedAt: string;
   items: OrderItem[];
   payment: Payment | null;
+  shippingAddress: Address;
+  billingAddress: Address;
 }
 
 export interface OrdersResponse {
   data: Order[];
   pagination: Pagination;
+}
+
+export interface Address {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
 }
 
 export interface CheckoutResponse {
@@ -120,5 +131,8 @@ export interface CheckoutResponse {
   tax: number;
   shipping: number;
   total: number;
-  clientSecret: string;
+  paymentMethod: string;
+  shippingAddress: Address;
+  billingAddress: Address;
+  clientSecret: string | null;
 }

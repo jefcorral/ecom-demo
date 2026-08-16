@@ -1,8 +1,16 @@
 import { fetchApi } from "@/lib/api";
-import { CheckoutResponse } from "@/types";
+import { Address, CheckoutResponse } from "@/types";
 
-export async function checkout(): Promise<CheckoutResponse> {
-  const res = await fetchApi("/checkout", { method: "POST" });
+export interface CheckoutInput {
+  shippingAddress: Address;
+  billingAddress: Address;
+}
+
+export async function checkout(input: CheckoutInput): Promise<CheckoutResponse> {
+  const res = await fetchApi("/checkout", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
   if (!res.ok) {
     const err = (await res.json()) as { message?: string };
     throw new Error(err.message ?? "Checkout failed");
