@@ -12,25 +12,29 @@ interface ProductsPageProps {
 
 async function ProductList({ search, categoryId }: { search?: string; categoryId?: string }) {
   unstable_noStore();
-  try {
-    const { data } = await fetchProducts({ search, categoryId, limit: 24 });
-    if (data.length === 0) {
-      return <p className="text-center text-muted-foreground">No products found.</p>;
-    }
-    return (
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {data.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    );
-  } catch {
+  const products = await fetchProducts({ search, categoryId, limit: 24 })
+    .then((res) => res.data)
+    .catch(() => null);
+
+  if (products === null) {
     return (
       <p className="text-center text-muted-foreground">
         Could not load products. Make sure the API is running.
       </p>
     );
   }
+
+  if (products.length === 0) {
+    return <p className="text-center text-muted-foreground">No products found.</p>;
+  }
+
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
