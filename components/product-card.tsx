@@ -6,14 +6,42 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/app/providers";
 import { toast } from "sonner";
+import { useState } from "react";
+import { ImageIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const [imgLoading, setImgLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <Card className="flex flex-col overflow-hidden">
       <Link href={`/products/${product.id}`} className="block p-4">
-        <div className="aspect-square rounded-md bg-muted" />
+        <div className="relative aspect-square w-full overflow-hidden rounded-md bg-muted flex items-center justify-center">
+          {product.imageUrl && !imgError ? (
+            <>
+              {imgLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className={`h-full w-full object-cover transition-opacity duration-300 ${
+                  imgLoading ? "opacity-0" : "opacity-100"
+                }`}
+                onLoad={() => setImgLoading(false)}
+                onError={() => {
+                  setImgLoading(false);
+                  setImgError(true);
+                }}
+              />
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-muted-foreground gap-2 p-4">
+              <ImageIcon className="h-10 w-10 stroke-[1.5]" />
+              <span className="text-xs font-medium">No image available</span>
+            </div>
+          )}
+        </div>
       </Link>
       <CardContent className="flex-1 px-4 pb-2">
         <Link href={`/products/${product.id}`}>
