@@ -28,6 +28,7 @@ export interface Product {
   name: string;
   sku: string;
   description: string | null;
+  imageUrl?: string | null;
   price: number;
   stock: number;
   isActive: boolean;

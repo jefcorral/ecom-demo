@@ -9,15 +9,42 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/app/providers";
 import { toast } from "sonner";
+import { ImageIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductDetail({ product }: { product: Product }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
+  const [imgLoading, setImgLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      <div className="aspect-square rounded-lg bg-muted" />
+      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted flex items-center justify-center">
+        {product.imageUrl && !imgError ? (
+          <>
+            {imgLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className={`h-full w-full object-cover transition-opacity duration-300 ${
+                imgLoading ? "opacity-0" : "opacity-100"
+              }`}
+              onLoad={() => setImgLoading(false)}
+              onError={() => {
+                setImgLoading(false);
+                setImgError(true);
+              }}
+            />
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-muted-foreground gap-2 p-4">
+            <ImageIcon className="h-16 w-16 stroke-[1.5]" />
+            <span className="text-sm font-medium">No image available</span>
+          </div>
+        )}
+      </div>
       <div className="flex flex-col justify-center">
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="mt-2 text-xl font-semibold">${Number(product.price).toFixed(2)}</p>
