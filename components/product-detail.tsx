@@ -11,6 +11,7 @@ import { useCart } from "@/app/providers";
 import { toast } from "sonner";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 export function ProductDetail({ product }: { product: Product }) {
   const { addItem } = useCart();
@@ -25,7 +26,7 @@ export function ProductDetail({ product }: { product: Product }) {
         {product.imageUrl && !imgError ? (
           <>
             {imgLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
-            <img
+            <Image
               src={product.imageUrl}
               alt={product.name}
               className={`h-full w-full object-cover transition-opacity duration-300 ${
@@ -36,6 +37,9 @@ export function ProductDetail({ product }: { product: Product }) {
                 setImgLoading(false);
                 setImgError(true);
               }}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              unoptimized
             />
           </>
         ) : (
