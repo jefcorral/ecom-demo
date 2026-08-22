@@ -3,8 +3,14 @@ import { unstable_noStore } from "next/cache";
 import { fetchProducts } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Products",
+  description: "Browse our wide selection of products and find exactly what you need at the best prices.",
+};
 
 interface ProductsPageProps {
   searchParams: Promise<{ search?: string; categoryId?: string }>;
