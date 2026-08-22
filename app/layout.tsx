@@ -9,8 +9,30 @@ import { SiteFooter } from "@/components/site-footer";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Ecom Store",
-  description: "A modern ecommerce storefront powered by Next.js",
+  title: {
+    default: "Ecom Store",
+    template: "%s | Ecom Store",
+  },
+  description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://ecom-store.vercel.app",
+    siteName: "Ecom Store",
+    title: {
+      default: "Ecom Store",
+      template: "%s | Ecom Store",
+    },
+    description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: {
+      default: "Ecom Store",
+      template: "%s | Ecom Store",
+    },
+    description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+  },
 };
 
 export default function RootLayout({
