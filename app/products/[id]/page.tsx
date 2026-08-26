@@ -12,16 +12,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   if (!product) {
     return {
-      title: "Product Not Found | Ecom Store",
+      title: "Product Not Found",
       description: "The product you are looking for does not exist.",
     };
   }
 
   return {
-    title: `${product.name} | Ecom Store`,
+    title: product.name,
     description: product.description || `Buy ${product.name} on Ecom Store. Price: $${product.price}`,
     openGraph: {
-      title: `${product.name} | Ecom Store`,
+      title: product.name,
       description: product.description || `Buy ${product.name} on Ecom Store. Price: $${product.price}`,
       images: product.imageUrl ? [{ url: product.imageUrl }] : [],
     },
