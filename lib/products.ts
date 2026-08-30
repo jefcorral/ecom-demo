@@ -11,7 +11,8 @@ type ProductFilterParams = {
   inStock?: string;
 };
 
-function filterAndPaginateProducts(products: Product[], params?: ProductFilterParams): ProductsResponse {
+export function fetchMockProducts(params?: ProductFilterParams): ProductsResponse {
+  const products = mockProducts;
   let data = products.filter((p) => p.isActive);
 
   if (params?.categoryId) {
@@ -82,7 +83,7 @@ export async function fetchProducts(params?: ProductFilterParams): Promise<Produ
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[fetchProducts] API unavailable, falling back to mock data:", error);
-      return filterAndPaginateProducts(mockProducts, params);
+      return fetchMockProducts(params);
     }
     throw error;
   }

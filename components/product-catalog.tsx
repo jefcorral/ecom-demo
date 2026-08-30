@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters } from "@/components/product-filters";
 import { PaginationControls } from "@/components/pagination-controls";
+import { fetchMockProducts } from "@/lib/products";
 import { Category, Product, ProductsResponse } from "@/types";
 
 const LIMIT = 24;
@@ -87,19 +88,17 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
   useEffect(() => {
     dispatch({ type: "FETCH_START" });
 
-    import("@/lib/products")
-      .then(({ fetchProducts }) =>
-        fetchProducts({
-          search: search || undefined,
-          categoryId: categoryParam || undefined,
-          priceRange: priceParam || undefined,
-          inStock: inStock ? "true" : undefined,
-          page,
-          limit: LIMIT,
-        })
-      )
-      .then((response) => dispatch({ type: "FETCH_SUCCESS", response }))
-      .catch(() => dispatch({ type: "FETCH_ERROR" }));
+    dispatch({
+      type: "FETCH_SUCCESS",
+      response: fetchMockProducts({
+        search: search || undefined,
+        categoryId: categoryParam || undefined,
+        priceRange: priceParam || undefined,
+        inStock: inStock ? "true" : undefined,
+        page,
+        limit: LIMIT,
+      }),
+    });
   }, [search, categoryParam, priceParam, inStock, page]);
 
   let sortedProducts: Product[] = [];
