@@ -8,9 +8,38 @@ import { Button } from "@/components/ui/button";
 import { mockProducts } from "@/lib/mock-data";
 
 const initialItems = [
-  { id: "cart-1", product: mockProducts[0], quantity: 2, variant: "Luxe", note: "Gift note included", delivery: "Fri, May 9 Morning" },
-  { id: "cart-2", product: mockProducts[5], quantity: 1, variant: "12-piece assortment" },
-  { id: "cart-3", product: mockProducts[7], quantity: 1, variant: "Classic" },
+  {
+    id: "cart-1",
+    product: mockProducts[0],
+    name: "Garden Rose & Peony Bouquet",
+    image: "https://lh3.googleusercontent.com/aida/AEtjO1WIFT30l0NvUsHmUEmV-6IGcPU4MN56IFgOgEP1Kq_KBySyi7LHQcz2mZOU3o-qQficFESGoJ9xVhfayNsF13vNF40h0p2wqOqoYj1W7YyW1cbNvgAKn9D0JVlCa6eiaoe2FBCc3XoJqF4opcv8TN03C_m9TeP4U2ilmmX8mAKs-ILAkjX5ssOQZabOHNF__cu2fGmxc4sy4McDbXJpd3ItLYneYvp42Yb3zyPuzwDrvsfpgGvn20ZBpw",
+    price: 86,
+    stock: 8,
+    quantity: 2,
+    variant: "Luxe",
+    note: "Gift note included",
+    delivery: "Fri, May 9 Morning",
+  },
+  {
+    id: "cart-2",
+    product: mockProducts[5],
+    name: "Artisan Chocolates",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA6PqPJ8XNwyWobzSPsIIs8c3KKCjPeFFwGNq0tbd6xMCg5ubZMhStdQT-r80v7eL_snqDc0Rf5L6zjGCzQKzo-YmUHvDMUYz_hn6IuCkY3GYIvvMKsTixn6U75G4HdMi0B-X_uW86Cx21VFv4Mz03FMQSKSuFHLHboFC6kgGQBH9YhKY-f6-np3-QxAeXFenXVbVp3Pct9cBCYsMxAeL2LXvi7nWWrBP99Tzeo6MfTNLkr55C56cjZ",
+    price: 18,
+    stock: 20,
+    quantity: 1,
+    variant: "12-piece assortment",
+  },
+  {
+    id: "cart-3",
+    product: mockProducts[7],
+    name: "Spring Tulip Arrangement",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA3Jcl6rZ9PnIaMz1vNDOhlUsruyPpXqk6Gjhh7K79_Eph--HBz_2H5O_ZZP08daL-F9hyJx1T-Qmx-KI8eQZ_WSzCf1AWqfpbXPu0eI08ewz3BRUdAshS526CeIlxCGKG2CVX4GsHWgMHHTS4FYT6n-LWkxZNRWpWTqv39RrtX877yjQ_Y87zjMkHPCMzjTXabdwTjHuojMbz7s_oDn-VGGF95tSsv7Mcq8I3n92jQ5eaVPtgT7GTs",
+    price: 54,
+    stock: 2,
+    quantity: 1,
+    variant: "Classic",
+  },
 ];
 
 const addOns = [
@@ -27,14 +56,14 @@ export default function CartPage() {
   const [promoInput, setPromoInput] = useState("BLOOM15");
   const [promoApplied, setPromoApplied] = useState(true);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + Number(item.product.salePrice ?? item.product.price) * item.quantity, 0) + addOns.filter((addOn) => selectedAddOns.includes(addOn.id)).reduce((sum, addOn) => sum + addOn.price, 0), [items, selectedAddOns]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0) + addOns.filter((addOn) => selectedAddOns.includes(addOn.id)).reduce((sum, addOn) => sum + addOn.price, 0), [items, selectedAddOns]);
   const discount = promoApplied ? subtotal * 0.15 : 0;
-  const estimatedTax = (subtotal - discount) * 0.075;
+  const estimatedTax = (subtotal - discount) * 0.0815;
   const total = subtotal - discount + estimatedTax;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   function updateQuantity(id: string, quantity: number) {
-    setItems((current) => current.map((item) => item.id === id ? { ...item, quantity: Math.max(1, Math.min(item.product.stock, quantity)) } : item));
+    setItems((current) => current.map((item) => item.id === id ? { ...item, quantity: Math.max(1, Math.min(item.stock, quantity)) } : item));
   }
 
   function removeItem(id: string) {
@@ -110,30 +139,30 @@ export default function CartPage() {
 }
 
 function CartLineItem({ item, onQuantityChange, onRemove }: { item: CartItem; onQuantityChange: (id: string, quantity: number) => void; onRemove: (id: string) => void }) {
-  const price = Number(item.product.salePrice ?? item.product.price);
-  const lowStock = item.product.stock <= (item.product.lowStockThreshold ?? 5);
+  const price = item.price;
+  const lowStock = item.stock <= 2;
 
   return (
     <article className="group relative flex gap-4 py-6 first:pt-0 md:rounded-xl md:bg-surface-container-lowest md:p-6 md:shadow-sm">
       <Link href={`/products/${item.product.id}`} className="relative h-28 w-24 shrink-0 overflow-hidden rounded-lg bg-surface-container md:h-[140px] md:w-[140px]">
-        {item.product.imageUrl ? <Image src={item.product.imageUrl} alt={item.product.name} fill unoptimized sizes="140px" className="object-cover transition-transform duration-700 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center"><Gift className="h-8 w-8 text-outline-variant" /></div>}
+        {item.image ? <Image src={item.image} alt={item.name} fill unoptimized sizes="140px" className="object-cover transition-transform duration-700 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center"><Gift className="h-8 w-8 text-outline-variant" /></div>}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col justify-between">
         <div className="pr-8 md:pr-0">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Link href={`/products/${item.product.id}`} className="font-medium leading-6 text-on-surface hover:text-primary md:font-serif md:text-lg md:font-semibold">{item.product.name}</Link>
+              <Link href={`/products/${item.product.id}`} className="font-medium leading-6 text-on-surface hover:text-primary md:font-serif md:text-lg md:font-semibold">{item.name}</Link>
               <p className="mt-1 text-sm text-on-surface-variant">{item.variant.includes("assortment") ? item.variant : `Size: ${item.variant}`}</p>
               {item.delivery && <p className="mt-2 hidden w-fit items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-xs text-primary md:flex"><Truck className="h-3 w-3" />{item.delivery}</p>}
               {item.note && <p className="mt-2 hidden items-center gap-1 text-xs text-on-surface-variant md:flex"><Gift className="h-3 w-3" />{item.note}</p>}
-              {lowStock && <p className="mt-2 w-fit rounded-full bg-primary-container px-2 py-0.5 text-xs font-medium text-on-primary-container">Only {item.product.stock} left</p>}
+              {lowStock && <p className="mt-2 w-fit rounded-full bg-primary-container px-2 py-0.5 text-xs font-medium text-on-primary-container">Only {item.stock} left</p>}
             </div>
             <strong className="hidden whitespace-nowrap text-sm md:block">${(price * item.quantity).toFixed(2)}</strong>
           </div>
         </div>
-        <button type="button" aria-label={`Remove ${item.product.name}`} onClick={() => onRemove(item.id)} className="absolute right-0 top-6 flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-error-container hover:text-error md:bottom-5 md:top-auto md:h-auto md:w-auto md:rounded-none md:text-xs md:uppercase md:tracking-widest md:underline md:underline-offset-4"><X className="h-5 w-5 md:hidden" /><span className="hidden md:inline">Remove</span></button>
+        <button type="button" aria-label={`Remove ${item.name}`} onClick={() => onRemove(item.id)} className="absolute right-0 top-6 flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-error-container hover:text-error md:bottom-5 md:top-auto md:h-auto md:w-auto md:rounded-none md:text-xs md:uppercase md:tracking-widest md:underline md:underline-offset-4"><X className="h-5 w-5 md:hidden" /><span className="hidden md:inline">Remove</span></button>
         <div className="mt-3 flex items-end justify-between border-outline-variant/30 md:border-t md:pt-4">
-          <QuantityControl value={item.quantity} max={item.product.stock} onChange={(quantity) => onQuantityChange(item.id, quantity)} />
+          <QuantityControl value={item.quantity} max={item.stock} onChange={(quantity) => onQuantityChange(item.id, quantity)} />
           <strong className="text-sm md:hidden">${(price * item.quantity).toFixed(2)}</strong>
         </div>
       </div>
