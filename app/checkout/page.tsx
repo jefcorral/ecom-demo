@@ -102,6 +102,10 @@ export default function CheckoutPage() {
                   <span className="shrink-0 text-sm">${item.price.toFixed(2)}</span>
                 </div>
               ))}
+              <div className="flex items-center gap-sm rounded-full border border-outline-variant/30 bg-surface p-1 pl-md shadow-sm">
+                <input value={promo} onChange={(event) => setPromo(event.target.value)} placeholder="Promo code" aria-label="Promo code" className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-on-surface-variant/50" />
+                <button type="button" onClick={() => { if (promoApplied) { setPromoApplied(false); setPromo(""); } else { setPromoApplied(promo.trim().toUpperCase() === "BLOOM15"); } }} className="h-10 rounded-full bg-secondary-container px-4 text-sm font-medium text-on-secondary-container transition hover:bg-secondary-container/80 active:scale-95">{promoApplied ? "Remove" : "Apply"}</button>
+              </div>
               <dl className="space-y-2 border-t border-outline-variant/30 pt-4 text-sm"><SummaryRow label="Subtotal" value={subtotal} /><SummaryRow label="Delivery Fee" value={delivery} />{promoApplied && <SummaryRow label="Discount (BLOOM15)" value={-discount} accent />}<SummaryRow label="Taxes" value={tax} /></dl>
             </div>
           </div>
