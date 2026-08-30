@@ -12,11 +12,11 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
   const pages = getPageNumbers(page, totalPages);
 
   return (
-    <nav role="navigation" aria-label="Pagination" className="flex items-center justify-center gap-2">
+    <nav role="navigation" aria-label="Pagination" className="mt-10 flex items-center justify-center gap-2">
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface disabled:opacity-30"
+        className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label="Previous page"
@@ -26,7 +26,7 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
 
       {pages.map((p, i) =>
         p === "ellipsis" ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-on-surface-variant">
+          <span key={`ellipsis-${i}`} className="font-label-md text-on-surface-variant">
             ...
           </span>
         ) : (
@@ -37,9 +37,9 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
             aria-current={p === page ? "page" : undefined}
             aria-label={`Page ${p}`}
             className={cn(
-              "h-10 w-10 rounded-full text-sm font-medium transition-colors",
+              "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
               p === page
-                ? "bg-primary text-on-primary hover:bg-primary/90"
+                ? "bg-primary text-on-primary shadow-sm hover:bg-primary/90"
                 : "text-on-surface hover:bg-surface-container"
             )}
             onClick={() => onPageChange(p)}
@@ -52,7 +52,7 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface disabled:opacity-30"
+        className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         aria-label="Next page"

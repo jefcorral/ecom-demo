@@ -11,185 +11,77 @@ export const mockCategories: Category[] = [
 
 const now = new Date().toISOString();
 
-export const mockProducts: Product[] = [
-  {
-    id: "prod-1",
-    name: "The Juliet",
-    sku: "JUL-001",
-    description: "A lush bouquet of pink peonies and deep red roses in a simple glass vase.",
-    imageUrl: "https://images.unsplash.com/photo-1563241527-3004b7be025f?w=600&h=600&fit=crop",
-    price: 85,
-    stock: 12,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-2",
-    category: mockCategories[1],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-2",
-    name: "Morning Sun",
-    sku: "SUN-002",
-    description: "Cheerful sunflowers and daisies wrapped in kraft paper.",
-    imageUrl: "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?w=600&h=600&fit=crop",
-    price: 65,
-    stock: 8,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-1",
-    category: mockCategories[0],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-3",
-    name: "Pure Elegance",
-    sku: "ELE-003",
-    description: "White lilies and orchids for a serene, elegant statement.",
-    imageUrl: "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=600&h=600&fit=crop",
-    price: 95,
-    stock: 20,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-3",
-    category: mockCategories[2],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-4",
-    name: "Wild Meadow",
-    sku: "WLD-004",
-    description: "A garden-style mix of seasonal wildflowers and greenery.",
-    imageUrl: "https://images.unsplash.com/photo-1487530811176-3780de880c0d?w=600&h=600&fit=crop",
-    price: 55,
-    stock: 0,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-6",
-    category: mockCategories[5],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-5",
-    name: "Monstera Deliciosa",
-    sku: "PLT-005",
-    description: "A striking tropical plant in a ceramic planter.",
-    imageUrl: "https://images.unsplash.com/photo-1614594975525-e45890e2e126?w=600&h=600&fit=crop",
-    price: 70,
-    stock: 15,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-4",
-    category: mockCategories[3],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-6",
-    name: "Candle & Bloom Box",
-    sku: "GFT-006",
-    description: "Hand-poured soy candle paired with a petite bouquet.",
-    imageUrl: "https://images.unsplash.com/photo-1602607688737-42708318dc64?w=600&h=600&fit=crop",
-    price: 110,
-    stock: 25,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-5",
-    category: mockCategories[4],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-7",
-    name: "Spring Awakening",
-    sku: "SPR-007",
-    description: "Soft tulips, ranunculus, and sweet peas in pastel hues.",
-    imageUrl: "https://images.unsplash.com/photo-1525310072745-f49212b5ac82?w=600&h=600&fit=crop",
-    price: 125,
-    stock: 6,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-1",
-    category: mockCategories[0],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-8",
-    name: "Tulip Field",
-    sku: "TUL-008",
-    description: "Vibrant tulips arranged loosely in a vintage glass jar.",
-    imageUrl: "https://images.unsplash.com/photo-1559563458-527698bf5295?w=600&h=600&fit=crop",
-    price: 85,
-    stock: 18,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-2",
-    category: mockCategories[1],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-9",
-    name: "Muted Majesty",
-    sku: "MUT-009",
-    description: "A wild-style centerpiece bursting with peach garden roses.",
-    imageUrl: "https://images.unsplash.com/photo-1562690868-60bbe4fc8154?w=600&h=600&fit=crop",
-    price: 160,
-    stock: 4,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-6",
-    category: mockCategories[5],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-10",
-    name: "Modernist Arc",
-    sku: "MOD-010",
-    description: "Minimalist white calla lilies in a sleek black matte vase.",
-    imageUrl: "https://images.unsplash.com/photo-1582794543139-8ac92e93ef08?w=600&h=600&fit=crop",
-    price: 110,
-    stock: 9,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-3",
-    category: mockCategories[2],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-11",
-    name: "Blush Peony Vase",
-    sku: "BLU-011",
-    description: "Delicate blush peonies with trailing eucalyptus.",
-    imageUrl: "https://images.unsplash.com/photo-1494336934272-f0efcedfc8d7?w=600&h=600&fit=crop",
-    price: 140,
-    stock: 11,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-2",
-    category: mockCategories[1],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "prod-12",
-    name: "Succulent Garden",
-    sku: "SUC-012",
-    description: "A charming trio of succulents in a concrete tray.",
-    imageUrl: "https://images.unsplash.com/photo-1459411552884-841db9b3cc5a?w=600&h=600&fit=crop",
-    price: 45,
-    stock: 30,
-    lowStockThreshold: 5,
-    isActive: true,
-    categoryId: "cat-4",
-    category: mockCategories[3],
-    createdAt: now,
-    updatedAt: now,
-  },
+const baseImages = [
+  "https://images.unsplash.com/photo-1563241527-3004b7be025f?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1487530811176-3780de880c0d?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1614594975525-e45890e2e126?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1602607688737-42708318dc64?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1525310072745-f49212b5ac82?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1559563458-527698bf5295?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1562690868-60bbe4fc8154?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1582794543139-8ac92e93ef08?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1494336934272-f0efcedfc8d7?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1459411552884-841db9b3cc5a?w=600&h=600&fit=crop",
 ];
+
+const baseNames = [
+  "The Juliet", "Morning Sun", "Pure Elegance", "Wild Meadow", "Monstera Deliciosa",
+  "Candle & Bloom Box", "Spring Awakening", "Tulip Field", "Muted Majesty", "Modernist Arc",
+  "Blush Peony Vase", "Succulent Garden", "Lavender Mist", "Golden Hour", "Velvet Rose",
+  "Garden Grace", "Orchid Whisper", "Peach Bellini", "Citrus Splash", "Dahlia Dream",
+  "Forest Fern", "Berry Blush", "Sunset Glow", "Eucalyptus Breeze", "Wild Poppy",
+  "Crystal Vase", "Petite Posy", "Grand Gala", "Soft Serenade", "Harvest Hues",
+  "Ocean Mist", "Desert Bloom", "Tropical Paradise", "English Garden", "Parisian Charm",
+];
+
+const descriptors = [
+  "A lush bouquet", "A cheerful arrangement", "An elegant centerpiece", "A garden-style mix",
+  "A striking plant", "A curated gift set", "A soft pastel collection", "A vibrant display",
+  "A wild centerpiece", "A minimalist design", "A delicate vase", "A charming trio",
+  "A fragrant bundle", "A sunny selection", "A romantic classic", "A modern creation",
+  "A thoughtful gift", "A seasonal favorite", "A boutique arrangement", "A premium hand-tied",
+];
+
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function generateProducts(count: number): Product[] {
+  return Array.from({ length: count }, (_, i) => {
+    const index = i + 1;
+    const nameBase = baseNames[i % baseNames.length];
+    const variant = Math.floor(i / baseNames.length) > 0 ? ` ${Math.floor(i / baseNames.length) + 1}` : "";
+    const name = `${nameBase}${variant}`;
+    const category = mockCategories[i % mockCategories.length];
+    const basePrice = 40 + Math.floor(seededRandom(index) * 130);
+    const isSale = seededRandom(index + 100) > 0.85;
+    const salePrice = isSale ? Math.floor(basePrice * 0.8) : null;
+    const sameDayDelivery = seededRandom(index + 200) > 0.6;
+    const isBestSeller = seededRandom(index + 300) > 0.85;
+    const stock = Math.floor(seededRandom(index + 400) * 35);
+
+    return {
+      id: `prod-${index}`,
+      name,
+      sku: `SKU-${String(index).padStart(4, "0")}`,
+      description: `${descriptors[i % descriptors.length]} perfect for any occasion.`,
+      imageUrl: `${baseImages[i % baseImages.length]}&index=${index}`,
+      price: basePrice,
+      stock,
+      lowStockThreshold: 5,
+      isActive: true,
+      categoryId: category.id,
+      category,
+      createdAt: now,
+      updatedAt: now,
+      sameDayDelivery,
+      salePrice,
+      isBestSeller,
+    };
+  });
+}
+
+export const mockProducts: Product[] = generateProducts(124);

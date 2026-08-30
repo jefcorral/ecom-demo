@@ -13,13 +13,40 @@ import { cn } from "@/lib/utils";
 import { Category } from "@/types";
 import { useState } from "react";
 
+const PRICE_OPTIONS = [
+  { value: "under-50", label: "Under $50" },
+  { value: "50-100", label: "$50 - $100" },
+  { value: "100-150", label: "$100 - $150" },
+  { value: "over-150", label: "Over $150" },
+];
+
 interface ProductFiltersProps {
   categories: Category[];
   activeCategoryId: string;
+  activePriceRange: string;
+  sameDay: boolean;
+  inStock: boolean;
+  activeFilterCount: number;
   onCategoryChange: (id: string) => void;
+  onPriceRangeChange: (value: string) => void;
+  onSameDayChange: (value: boolean) => void;
+  onInStockChange: (value: boolean) => void;
+  onClear: () => void;
 }
 
-export function ProductFilters({ categories, activeCategoryId, onCategoryChange }: ProductFiltersProps) {
+export function ProductFilters({
+  categories,
+  activeCategoryId,
+  activePriceRange,
+  sameDay,
+  inStock,
+  activeFilterCount,
+  onCategoryChange,
+  onPriceRangeChange,
+  onSameDayChange,
+  onInStockChange,
+  onClear,
+}: ProductFiltersProps) {
   const [open, setOpen] = useState(false);
 
   const content = (
@@ -29,22 +56,44 @@ export function ProductFilters({ categories, activeCategoryId, onCategoryChange 
           <FilterOption
             label="All Categories"
             checked={activeCategoryId === ""}
-            onChange={() => {
-              onCategoryChange("");
-              setOpen(false);
-            }}
+            onChange={() => onCategoryChange("")}
           />
           {categories.map((category) => (
             <FilterOption
               key={category.id}
               label={category.name}
               checked={activeCategoryId === category.id}
-              onChange={() => {
-                onCategoryChange(category.id);
-                setOpen(false);
-              }}
+              onChange={() => onCategoryChange(category.id)}
             />
           ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Price" defaultOpen>
+        <div className="space-y-2">
+          {PRICE_OPTIONS.map((option) => (
+            <FilterOption
+              key={option.value}
+              label={option.label}
+              checked={activePriceRange === option.value}
+              onChange={() => onPriceRangeChange(option.value)}
+            />
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Availability" defaultOpen>
+        <div className="space-y-2">
+          <CheckboxOption
+            label="Same-Day Delivery"
+            checked={sameDay}
+            onChange={() => onSameDayChange(!sameDay)}
+          />
+          <CheckboxOption
+            label="In Stock Online"
+            checked={inStock}
+            onChange={() => onInStockChange(!inStock)}
+          />
         </div>
       </FilterSection>
     </div>
@@ -53,20 +102,7 @@ export function ProductFilters({ categories, activeCategoryId, onCategoryChange 
   return (
     <>
       <aside className="hidden w-[280px] shrink-0 md:block">
-        <div className="sticky top-[140px] space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Filters</h2>
-            {activeCategoryId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onCategoryChange("")}
-                className="h-auto px-0 py-0 text-xs font-semibold text-primary hover:bg-transparent hover:text-on-primary-container"
-              >
-                Clear
-              </Button>
-            )}
-          </div>
+        <div className="sticky top-[140px] space-y-4">
           {content}
         </div>
       </aside>
@@ -80,9 +116,9 @@ export function ProductFilters({ categories, activeCategoryId, onCategoryChange 
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filters
-              {activeCategoryId && (
+              {activeFilterCount > 0 && (
                 <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
-                  1
+                  {activeFilterCount}
                 </span>
               )}
             </Button>
@@ -135,11 +171,11 @@ function FilterSection({
     <div className="border-b border-outline-variant/30 pb-4">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-2 text-left"
+        className="group flex w-full items-center justify-between py-2 text-left"
       >
         <span className="text-sm font-semibold uppercase tracking-wider text-on-surface">{title}</span>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4 text-primary transition-transform" />
+          <ChevronUp className="h-4 w-4 text-primary transition-transform group-hover:-translate-y-0.5" />
         ) : (
           <ChevronDown className="h-4 w-4 text-primary transition-transform" />
         )}
@@ -150,7 +186,7 @@ function FilterSection({
           isOpen ? "mt-2 max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        {children}
+        <div className="space-y-1">{children}</div>
       </div>
     </div>
   );
@@ -166,15 +202,36 @@ function FilterOption({
   onChange: () => void;
 }) {
   return (
-    <label className="group flex cursor-pointer items-center gap-3 py-1.5">
+    <label className="group flex cursor-pointer items-center gap-3 py-1">
       <input
-        type="radio"
-        name="category"
+        type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="h-4 w-4 cursor-pointer border-outline-variant text-primary accent-primary focus:ring-primary"
+        className="h-4 w-4 cursor-pointer rounded border-outline-variant text-primary accent-primary focus:ring-primary"
       />
-      <span className="text-sm text-on-surface transition-colors group-hover:text-primary">{label}</span>
+      <span className="text-base text-on-surface transition-colors group-hover:text-primary">{label}</span>
+    </label>
+  );
+}
+
+function CheckboxOption({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label className="group flex cursor-pointer items-center gap-3 py-1">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="h-4 w-4 cursor-pointer rounded border-outline-variant text-primary accent-primary focus:ring-primary"
+      />
+      <span className="text-base text-on-surface transition-colors group-hover:text-primary">{label}</span>
     </label>
   );
 }

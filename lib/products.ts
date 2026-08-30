@@ -2,10 +2,17 @@ import { API_URL } from "@/lib/env";
 import { mockProducts } from "@/lib/mock-data";
 import { Product, ProductsResponse } from "@/types";
 
-function filterAndPaginateProducts(
-  products: Product[],
-  params?: { page?: number; limit?: number; categoryId?: string; search?: string }
-): ProductsResponse {
+type ProductFilterParams = {
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  search?: string;
+  priceRange?: string;
+  sameDay?: string;
+  inStock?: string;
+};
+
+function filterAndPaginateProducts(products: Product[], params?: ProductFilterParams): ProductsResponse {
   let data = products.filter((p) => p.isActive);
 
   if (params?.categoryId) {
@@ -22,6 +29,31 @@ function filterAndPaginateProducts(
     );
   }
 
+  if (params?.priceRange) {
+    data = data.filter((p) => {
+      switch (params.priceRange) {
+        case "under-50":
+          return p.price < 50;
+        case "50-100":
+          return p.price >= 50 && p.price <= 100;
+        case "100-150":
+          return p.price > 100 && p.price <= 150;
+        case "over-150":
+          return p.price > 150;
+        default:
+          return true;
+      }
+    });
+  }
+
+  if (params?.sameDay === "true") {
+    data = data.filter((p) => p.sameDayDelivery);
+  }
+
+  if (params?.inStock === "true") {
+    data = data.filter((p) => p.stock > 0);
+  }
+
   const limit = Math.max(1, params?.limit ?? 20);
   const total = data.length;
   const totalPages = Math.ceil(total / limit);
@@ -35,17 +67,15 @@ function filterAndPaginateProducts(
   };
 }
 
-export async function fetchProducts(params?: {
-  page?: number;
-  limit?: number;
-  categoryId?: string;
-  search?: string;
-}): Promise<ProductsResponse> {
+export async function fetchProducts(params?: ProductFilterParams): Promise<ProductsResponse> {
   const searchParams = new URLSearchParams();
   if (params?.page) searchParams.set("page", String(params.page));
   if (params?.limit) searchParams.set("limit", String(params.limit));
   if (params?.categoryId) searchParams.set("categoryId", params.categoryId);
   if (params?.search) searchParams.set("search", params.search);
+  if (params?.priceRange) searchParams.set("priceRange", params.priceRange);
+  if (params?.sameDay) searchParams.set("sameDay", params.sameDay);
+  if (params?.inStock) searchParams.set("inStock", params.inStock);
 
   try {
     const res = await fetch(`${API_URL}/products?${searchParams.toString()}`, {

@@ -5,10 +5,9 @@ import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/app/providers";
 import { useState } from "react";
-import { Heart, ImageIcon, Plus } from "lucide-react";
+import { Heart, ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import { LowStockBadge } from "./low-stock-badge";
 import { showSuccessToast, showErrorToast } from "@/lib/toast-helper";
 import { useRouter } from "next/navigation";
 
@@ -48,17 +47,19 @@ export function ProductCard({ product }: { product: Product }) {
     showSuccessToast(isWishlisted ? "Removed from favorites" : "Saved to favorites");
   }
 
+  const badge = isOutOfStock ? null : product.salePrice ? "sale" : product.stock <= (product.lowStockThreshold ?? 5) ? "low-stock" : product.sameDayDelivery ? "same-day" : null;
+
   return (
-    <article className="group/card relative flex flex-col">
-      <Link href={`/products/${product.id}`} className="block overflow-hidden rounded-2xl bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-        <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-t-2xl bg-surface-container-highest">
+    <article className="group/card relative flex flex-col overflow-hidden rounded-[16px] bg-surface-container-lowest shadow-sm transition-shadow duration-300 active:scale-[0.98]">
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="relative aspect-square w-full overflow-hidden rounded-t-[16px] bg-surface-container-highest">
           {product.imageUrl && !imgError ? (
             <>
               {imgLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
               <Image
                 src={product.imageUrl}
                 alt={product.name}
-                className={`h-full w-full object-cover transition-all duration-500 group-hover/card:scale-[1.03] ${
+                className={`h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover/card:scale-105 ${
                   imgLoading ? "opacity-0" : "opacity-100"
                 }`}
                 onLoad={() => setImgLoading(false)}
@@ -72,7 +73,7 @@ export function ProductCard({ product }: { product: Product }) {
               />
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 p-4 text-on-surface-variant">
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-on-surface-variant">
               <ImageIcon className="h-10 w-10 stroke-[1.5]" />
               <span className="text-xs font-medium">No image available</span>
             </div>
@@ -86,30 +87,38 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          <div className="absolute left-3 top-3 z-10">
-            <LowStockBadge
-              stock={product.stock}
-              lowStockThreshold={product.lowStockThreshold}
-            />
-          </div>
+          {badge === "same-day" && (
+            <div className="absolute left-2 top-2 z-10 rounded-full bg-primary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-primary-container shadow-sm">
+              Same-Day
+            </div>
+          )}
+          {badge === "low-stock" && (
+            <div className="absolute left-2 top-2 z-10 rounded-full bg-tertiary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-tertiary-container shadow-sm">
+              Low Stock
+            </div>
+          )}
+          {badge === "sale" && (
+            <div className="absolute left-2 top-2 z-10 rounded-full bg-secondary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-secondary-container shadow-sm">
+              Sale
+            </div>
+          )}
 
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleWishlist}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-surface/80 text-on-surface backdrop-blur-sm transition-colors hover:bg-surface-container-lowest hover:text-error"
+            className="absolute right-2 top-2 z-10 flex h-8 w-8 translate-y-2 items-center justify-center rounded-full bg-surface/80 text-on-surface opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 group-hover/card:translate-y-0 group-hover/card:opacity-100 hover:bg-surface-container-lowest hover:text-error"
           >
             <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current text-error" : ""}`} />
           </Button>
 
           {!isOutOfStock && (
-            <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center bg-gradient-to-t from-black/50 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
+            <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
               <Button
                 onClick={handleQuickAdd}
-                className="w-full rounded-lg bg-surface-container-lowest/90 text-primary shadow-sm backdrop-blur-md transition-colors hover:bg-surface-container-lowest hover:text-on-primary-container"
+                className="w-full rounded-lg bg-surface-container-lowest/90 py-2 text-sm font-medium text-primary shadow-sm backdrop-blur-md transition-colors hover:bg-surface-container-lowest"
               >
-                <Plus className="mr-1.5 h-4 w-4" />
                 Quick Add
               </Button>
             </div>
@@ -117,13 +126,20 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
 
-      <div className="px-1 pt-3">
+      <div className="flex flex-1 flex-col p-4">
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-serif font-semibold leading-tight text-on-surface transition-colors hover:text-primary line-clamp-1">
+          <h3 className="truncate text-sm font-medium text-on-surface transition-colors hover:text-primary">
             {product.name}
           </h3>
         </Link>
-        <p className="mt-1 text-sm font-medium text-on-surface">${Number(product.price).toFixed(2)}</p>
+        {product.salePrice ? (
+          <div className="mt-1 flex items-center gap-2">
+            <p className="text-base font-medium text-error">${Number(product.salePrice).toFixed(2)}</p>
+            <p className="text-base font-medium text-outline line-through">${Number(product.price).toFixed(2)}</p>
+          </div>
+        ) : (
+          <p className="mt-1 text-base font-medium text-on-surface-variant">${Number(product.price).toFixed(2)}</p>
+        )}
       </div>
     </article>
   );
