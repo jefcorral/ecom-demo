@@ -104,11 +104,15 @@
   --font-label-sm: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-headline-md: var(--font-playfair), ui-serif, Georgia, serif;
   --font-headline-lg: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display-lg: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display-sm: var(--font-playfair), ui-serif, Georgia, serif;
   --text-body-md: 1rem;
   --text-label-md: 0.875rem;
   --text-label-sm: 0.75rem;
   --text-headline-md: 1.75rem;
   --text-headline-lg: 2.5rem;
+  --text-display-lg: 3rem;
+  --text-display-sm: 2rem;
 }
 
 :root {
