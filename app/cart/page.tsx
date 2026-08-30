@@ -53,13 +53,10 @@ type CartItem = (typeof initialItems)[number];
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>(initialItems);
-  const [promoInput, setPromoInput] = useState("BLOOM15");
-  const [promoApplied, setPromoApplied] = useState(true);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0) + addOns.filter((addOn) => selectedAddOns.includes(addOn.id)).reduce((sum, addOn) => sum + addOn.price, 0), [items, selectedAddOns]);
-  const discount = promoApplied ? subtotal * 0.15 : 0;
-  const estimatedTax = (subtotal - discount) * 0.0815;
-  const total = subtotal - discount + estimatedTax;
+  const estimatedTax = subtotal * 0.0815;
+  const total = subtotal + estimatedTax;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   function updateQuantity(id: string, quantity: number) {
@@ -98,8 +95,6 @@ export default function CartPage() {
               ))}
             </div>
 
-            <PromoCode promoInput={promoInput} promoApplied={promoApplied} discount={discount} onInputChange={setPromoInput} onApply={() => setPromoApplied(promoInput.trim().toUpperCase() === "BLOOM15")} onRemove={() => { setPromoApplied(false); setPromoInput(""); }} />
-
             <section className="-mx-4 mt-12 bg-surface-container-low px-4 py-8 md:mx-0 md:bg-transparent md:px-0 md:py-0" aria-labelledby="add-ons-heading">
               <h2 id="add-ons-heading" className="mb-6 font-serif text-2xl font-semibold text-primary">Complete Your Gift</h2>
               <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:px-0">
@@ -123,7 +118,7 @@ export default function CartPage() {
           </section>
 
           <aside className="w-full lg:sticky lg:top-24 lg:w-[35%]" aria-label="Order summary">
-            <OrderSummary itemCount={itemCount} subtotal={subtotal} discount={discount} estimatedTax={estimatedTax} total={total} promoApplied={promoApplied} />
+            <OrderSummary itemCount={itemCount} subtotal={subtotal} estimatedTax={estimatedTax} total={total} />
           </aside>
         </div>
       </div>
@@ -177,31 +172,12 @@ function QuantityControl({ value, max, onChange }: { value: number; max: number;
   );
 }
 
-function PromoCode({ promoInput, promoApplied, discount, onInputChange, onApply, onRemove }: { promoInput: string; promoApplied: boolean; discount: number; onInputChange: (value: string) => void; onApply: () => void; onRemove: () => void }) {
-  if (promoApplied) {
-    return (
-      <div className="mt-8 flex items-center justify-between rounded-xl bg-surface-container-lowest p-5 shadow-sm">
-        <div className="flex items-center gap-3"><span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-primary-container text-primary"><Check className="h-4 w-4" /></span><div><p className="text-xs font-bold uppercase tracking-wide">Promo code applied</p><p className="text-sm text-on-surface-variant">BLOOM15</p></div></div>
-        <div className="text-right"><p className="font-semibold text-primary">-${discount.toFixed(2)}</p><button type="button" onClick={onRemove} className="text-xs uppercase tracking-widest underline underline-offset-4">Remove</button></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-8 rounded-xl bg-surface-container-lowest p-5 shadow-sm">
-      <label htmlFor="promo-code" className="mb-2 block text-xs font-bold uppercase tracking-wide">Promo code</label>
-      <div className="flex gap-2"><input id="promo-code" value={promoInput} onChange={(event) => onInputChange(event.target.value)} placeholder="Enter code" className="h-11 min-w-0 flex-1 rounded-full border border-outline-variant bg-surface-container px-4 text-sm focus:border-primary focus:outline-none" /><Button type="button" onClick={onApply} className="h-11 rounded-full bg-primary-container px-5 text-on-primary-container hover:bg-primary-fixed">Apply</Button></div>
-    </div>
-  );
-}
-
-function OrderSummary({ itemCount, subtotal, discount, estimatedTax, total, promoApplied }: { itemCount: number; subtotal: number; discount: number; estimatedTax: number; total: number; promoApplied: boolean }) {
+function OrderSummary({ itemCount, subtotal, estimatedTax, total }: { itemCount: number; subtotal: number; estimatedTax: number; total: number }) {
   return (
     <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-[0_12px_30px_rgba(44,62,42,0.12)] lg:p-7">
       <h2 className="mb-7 font-serif text-2xl font-semibold text-primary">Order Summary</h2>
       <dl className="space-y-5 text-sm md:text-base">
         <div className="flex justify-between"><dt className="text-on-surface-variant">Subtotal ({itemCount} items)</dt><dd className="font-semibold">${subtotal.toFixed(2)}</dd></div>
-        {promoApplied && <div className="flex justify-between text-primary"><dt>Discount (BLOOM15)</dt><dd className="font-semibold">-${discount.toFixed(2)}</dd></div>}
         <div className="flex justify-between"><dt className="text-on-surface-variant">Estimated Tax</dt><dd className="font-semibold">${estimatedTax.toFixed(2)}</dd></div>
         <div className="flex justify-between gap-4"><dt className="text-on-surface-variant">Shipping</dt><dd className="text-right text-xs uppercase tracking-widest">Calculated at checkout</dd></div>
       </dl>
