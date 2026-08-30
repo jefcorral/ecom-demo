@@ -1,37 +1,38 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "./providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Ecom Store",
-    template: "%s | Ecom Store",
+    default: "Bloom & Stem",
+    template: "%s | Bloom & Stem",
   },
-  description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+  description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://ecom-store.vercel.app",
-    siteName: "Ecom Store",
+    url: "https://bloomandstem.example.com",
+    siteName: "Bloom & Stem",
     title: {
-      default: "Ecom Store",
-      template: "%s | Ecom Store",
+      default: "Bloom & Stem",
+      template: "%s | Bloom & Stem",
     },
-    description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+    description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   },
   twitter: {
     card: "summary_large_image",
     title: {
-      default: "Ecom Store",
-      template: "%s | Ecom Store",
+      default: "Bloom & Stem",
+      template: "%s | Bloom & Stem",
     },
-    description: "A modern ecommerce storefront powered by Next.js, TypeScript, and Tailwind CSS.",
+    description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   },
 };
 
@@ -42,11 +43,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", geist.variable)}>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable, playfair.variable)}>
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pb-16 md:pb-0">{children}</main>
             <SiteFooter />
           </div>
         </Providers>
