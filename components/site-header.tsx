@@ -108,9 +108,9 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="fixed top-0 z-50 w-full border-b border-outline-variant/30 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(44,62,42,0.04)]">
-        <div className="mx-auto flex h-16 max-w-[1140px] items-center justify-between px-4 lg:px-6">
-          <div className="flex items-center gap-6">
+      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(44,62,42,0.04)] transition-all duration-300">
+        <div className="h-16 max-w-[1140px] mx-auto px-lg flex items-center justify-between gap-xl">
+          <div className="flex items-center gap-xl">
             <Sheet>
               <SheetTrigger
                 render={
@@ -149,12 +149,11 @@ export function SiteHeader() {
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center gap-2 text-on-surface">
-              <Flower2 className="h-6 w-6 text-primary" />
-              <span className="font-serif text-xl font-semibold tracking-tight whitespace-nowrap">Bloom & Stem</span>
+            <Link href="/" className="font-headline-md text-headline-md text-primary tracking-tight whitespace-nowrap">
+              Bloom & Stem
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
+            <nav className="hidden lg:flex items-center gap-lg">
               {navLinks.map((link) => (
                 <HeaderNavLink key={link.href} href={link.href} active={pathname === link.href}>
                   {link.label}
@@ -168,31 +167,26 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          <div className="flex flex-1 justify-center px-4 md:px-8" ref={searchRef}>
-            <div
-              className={cn(
-                "relative hidden w-full max-w-[320px] transition-all duration-300 md:block",
-                searchOpen && "max-w-[420px]"
-              )}
-            >
-              <form onSubmit={handleSearchSubmit} className="relative">
+          <div className="flex-1 max-w-md hidden md:block" ref={searchRef}>
+            <div className="relative flex items-center">
+              <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <Input
                   type="search"
-                  placeholder="Search our collection..."
+                  placeholder="Search bouquets, plants..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => setSearchOpen(true)}
                   className={cn(
-                    "h-10 w-full rounded-full border-outline-variant bg-surface-container-low pr-10 pl-4 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary/20",
+                    "w-full h-10 pl-11 pr-4 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-on-surface focus:outline-none focus:border-primary transition-all",
                     searchOpen && "border-primary"
                   )}
                 />
                 <button
                   type="submit"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-primary"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-primary"
                   aria-label="Search"
                 >
-                  <Search className="h-4 w-4" />
+                  <Search className="h-5 w-5" />
                 </button>
               </form>
 
@@ -209,7 +203,7 @@ export function SiteHeader() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-md">
             <Button
               variant="ghost"
               size="icon"
@@ -267,8 +261,6 @@ export function SiteHeader() {
         </div>
       </header>
 
-      <div className="h-16" />
-
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-outline-variant/30 bg-surface/90 pb-safe backdrop-blur-lg md:hidden">
         <div className="flex h-16 items-center justify-around px-2">
           <BottomNavLink href="/" active={pathname === "/"} icon={Home} label="Home" />
@@ -299,18 +291,11 @@ function HeaderNavLink({
     <Link
       href={href}
       className={cn(
-        "group relative px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:text-on-surface",
-        active && "text-on-surface"
+        "font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200",
+        active && "text-primary font-semibold underline underline-offset-8 decoration-2"
       )}
     >
       {children}
-      <span
-        className={cn(
-          "absolute bottom-1 left-1/2 h-[1px] w-0 -translate-x-1/2 bg-primary transition-all group-hover:w-[calc(100%-24px)]",
-          active && "w-[calc(100%-24px)]"
-        )}
-      />
-      {active && <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary-container" />}
     </Link>
   );
 }

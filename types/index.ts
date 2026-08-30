@@ -37,6 +37,10 @@ export interface Product {
   category: Category | null;
   createdAt: string;
   updatedAt: string;
+  // Frontend-only design fields used for mock data / catalog badges
+  sameDayDelivery?: boolean;
+  salePrice?: number | null;
+  isBestSeller?: boolean;
 }
 
 export interface Pagination {
