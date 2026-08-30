@@ -40,20 +40,29 @@ export async function updateCartItem(
   id: string,
   input: UpdateCartItemInput
 ): Promise<CartItem> {
-  const res = await fetchApi(`/cart/items/${id}`, {
+  const res = await fetchApi(`/cart/items/${id}${getCartQuery()}`, {
     method: "PATCH",
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("Failed to update item");
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { message?: string };
+    throw new Error(err.message ?? "Failed to update item");
+  }
   return (await res.json()) as CartItem;
 }
 
 export async function removeCartItem(id: string): Promise<void> {
-  const res = await fetchApi(`/cart/items/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to remove item");
+  const res = await fetchApi(`/cart/items/${id}${getCartQuery()}`, { method: "DELETE" });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { message?: string };
+    throw new Error(err.message ?? "Failed to remove item");
+  }
 }
 
 export async function clearCart(): Promise<void> {
   const res = await fetchApi(`/cart${getCartQuery()}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to clear cart");
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { message?: string };
+    throw new Error(err.message ?? "Failed to clear cart");
+  }
 }
