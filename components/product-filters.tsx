@@ -22,28 +22,24 @@ const PRICE_OPTIONS = [
 
 interface ProductFiltersProps {
   categories: Category[];
-  activeCategoryId: string;
-  activePriceRange: string;
-  sameDay: boolean;
+  activeCategoryIds: string[];
+  activePriceRanges: string[];
   inStock: boolean;
   activeFilterCount: number;
   onCategoryChange: (id: string) => void;
   onPriceRangeChange: (value: string) => void;
-  onSameDayChange: (value: boolean) => void;
   onInStockChange: (value: boolean) => void;
   onClear: () => void;
 }
 
 export function ProductFilters({
   categories,
-  activeCategoryId,
-  activePriceRange,
-  sameDay,
+  activeCategoryIds,
+  activePriceRanges,
   inStock,
   activeFilterCount,
   onCategoryChange,
   onPriceRangeChange,
-  onSameDayChange,
   onInStockChange,
   onClear,
 }: ProductFiltersProps) {
@@ -55,14 +51,14 @@ export function ProductFilters({
         <div className="space-y-2">
           <FilterOption
             label="All Categories"
-            checked={activeCategoryId === ""}
+            checked={activeCategoryIds.length === 0}
             onChange={() => onCategoryChange("")}
           />
           {categories.map((category) => (
             <FilterOption
               key={category.id}
               label={category.name}
-              checked={activeCategoryId === category.id}
+              checked={activeCategoryIds.includes(category.id)}
               onChange={() => onCategoryChange(category.id)}
             />
           ))}
@@ -75,7 +71,7 @@ export function ProductFilters({
             <FilterOption
               key={option.value}
               label={option.label}
-              checked={activePriceRange === option.value}
+              checked={activePriceRanges.includes(option.value)}
               onChange={() => onPriceRangeChange(option.value)}
             />
           ))}
@@ -84,11 +80,6 @@ export function ProductFilters({
 
       <FilterSection title="Availability" defaultOpen>
         <div className="space-y-2">
-          <CheckboxOption
-            label="Same-Day Delivery"
-            checked={sameDay}
-            onChange={() => onSameDayChange(!sameDay)}
-          />
           <CheckboxOption
             label="In Stock Online"
             checked={inStock}

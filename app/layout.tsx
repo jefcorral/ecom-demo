@@ -43,10 +43,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={cn("min-h-screen bg-surface font-sans antialiased", inter.variable, playfair.variable)}>
+      <body
+        suppressHydrationWarning
+        className={cn(
+          "bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container",
+          inter.variable,
+          playfair.variable
+        )}
+      >
         <Providers>
           <SiteHeader />
-          <main className="w-full min-h-screen bg-surface pt-16">
+          <main className="w-full min-h-screen pt-16 flex flex-col bg-surface">
             <div className="flex w-full flex-col">{children}</div>
           </main>
           <SiteFooter />

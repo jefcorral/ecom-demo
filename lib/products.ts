@@ -8,7 +8,6 @@ type ProductFilterParams = {
   categoryId?: string;
   search?: string;
   priceRange?: string;
-  sameDay?: string;
   inStock?: string;
 };
 
@@ -16,7 +15,8 @@ function filterAndPaginateProducts(products: Product[], params?: ProductFilterPa
   let data = products.filter((p) => p.isActive);
 
   if (params?.categoryId) {
-    data = data.filter((p) => p.categoryId === params.categoryId);
+    const categoryIds = params.categoryId.split(",").filter(Boolean);
+    data = data.filter((product) => product.categoryId && categoryIds.includes(product.categoryId));
   }
 
   if (params?.search) {
@@ -30,24 +30,21 @@ function filterAndPaginateProducts(products: Product[], params?: ProductFilterPa
   }
 
   if (params?.priceRange) {
-    data = data.filter((p) => {
-      switch (params.priceRange) {
+    const priceRanges = params.priceRange.split(",").filter(Boolean);
+    data = data.filter((product) => priceRanges.some((range) => {
+      switch (range) {
         case "under-50":
-          return p.price < 50;
+          return product.price < 50;
         case "50-100":
-          return p.price >= 50 && p.price <= 100;
+          return product.price >= 50 && product.price <= 100;
         case "100-150":
-          return p.price > 100 && p.price <= 150;
+          return product.price > 100 && product.price <= 150;
         case "over-150":
-          return p.price > 150;
+          return product.price > 150;
         default:
-          return true;
+          return false;
       }
-    });
-  }
-
-  if (params?.sameDay === "true") {
-    data = data.filter((p) => p.sameDayDelivery);
+    }));
   }
 
   if (params?.inStock === "true") {
@@ -74,7 +71,6 @@ export async function fetchProducts(params?: ProductFilterParams): Promise<Produ
   if (params?.categoryId) searchParams.set("categoryId", params.categoryId);
   if (params?.search) searchParams.set("search", params.search);
   if (params?.priceRange) searchParams.set("priceRange", params.priceRange);
-  if (params?.sameDay) searchParams.set("sameDay", params.sameDay);
   if (params?.inStock) searchParams.set("inStock", params.inStock);
 
   try {

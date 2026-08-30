@@ -67,9 +67,10 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
   const searchParams = useSearchParams();
 
   const search = searchParams.get("search") ?? "";
-  const categoryId = searchParams.get("categoryId") ?? "";
-  const priceRange = searchParams.get("priceRange") ?? "";
-  const sameDay = searchParams.get("sameDay") === "true";
+  const categoryParam = searchParams.get("categoryId") ?? "";
+  const priceParam = searchParams.get("priceRange") ?? "";
+  const categoryIds = categoryParam.split(",").filter(Boolean);
+  const priceRanges = priceParam.split(",").filter(Boolean);
   const inStock = searchParams.get("inStock") === "true";
   const sort = searchParams.get("sort") ?? "best-sellers";
   const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
@@ -79,9 +80,8 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
   const activeFilterCount =
     (search ? 1 : 0) +
-    (categoryId ? 1 : 0) +
-    (priceRange ? 1 : 0) +
-    (sameDay ? 1 : 0) +
+    categoryIds.length +
+    priceRanges.length +
     (inStock ? 1 : 0);
 
   useEffect(() => {
@@ -91,9 +91,8 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
       .then(({ fetchProducts }) =>
         fetchProducts({
           search: search || undefined,
-          categoryId: categoryId || undefined,
-          priceRange: priceRange || undefined,
-          sameDay: sameDay ? "true" : undefined,
+          categoryId: categoryParam || undefined,
+          priceRange: priceParam || undefined,
           inStock: inStock ? "true" : undefined,
           page,
           limit: LIMIT,
@@ -101,7 +100,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
       )
       .then((response) => dispatch({ type: "FETCH_SUCCESS", response }))
       .catch(() => dispatch({ type: "FETCH_ERROR" }));
-  }, [search, categoryId, priceRange, sameDay, inStock, page]);
+  }, [search, categoryParam, priceParam, inStock, page]);
 
   let sortedProducts: Product[] = [];
   if (state.status === "success") {
@@ -138,15 +137,17 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
   }
 
   function setCategory(id: string) {
-    updateParams({ categoryId: id });
+    if (!id) {
+      updateParams({ categoryId: null });
+      return;
+    }
+    const next = categoryIds.includes(id) ? categoryIds.filter((value) => value !== id) : [...categoryIds, id];
+    updateParams({ categoryId: next.join(",") });
   }
 
   function setPriceRange(value: string) {
-    updateParams({ priceRange: value === priceRange ? "" : value });
-  }
-
-  function setSameDay(value: boolean) {
-    updateParams({ sameDay: value ? "true" : null });
+    const next = priceRanges.includes(value) ? priceRanges.filter((range) => range !== value) : [...priceRanges, value];
+    updateParams({ priceRange: next.join(",") });
   }
 
   function setInStock(value: boolean) {
@@ -173,81 +174,83 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
   function clearAll() {
     setSearchInput("");
-    updateParams({ search: null, categoryId: null, priceRange: null, sameDay: null, inStock: null, sort: null });
+    updateParams({ search: null, categoryId: null, priceRange: null, inStock: null, sort: null });
   }
 
-  const activeCategoryName = categoryId
-    ? categories.find((c) => c.id === categoryId)?.name ?? categoryId
-    : null;
-  const activePriceLabel = PRICE_OPTIONS.find((p) => p.value === priceRange)?.label ?? null;
+  const activeCategories = categoryIds.map((id) => ({
+    id,
+    name: categories.find((category) => category.id === id)?.name ?? id,
+  }));
+  const activePrices = priceRanges.map((value) => ({
+    value,
+    label: PRICE_OPTIONS.find((option) => option.value === value)?.label ?? value,
+  }));
 
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
-    <div className="mx-auto max-w-[1140px] px-6">
+    <>
       <div className="sticky top-16 z-40 border-b border-outline-variant/30 bg-surface-container-lowest py-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-serif text-3xl font-semibold tracking-tight text-primary">Shop All Flowers</h1>
-            <p className="mt-2 text-base text-on-surface-variant">
-              {state.status === "loading"
-                ? "Loading arrangements..."
-                : state.status === "success"
-                  ? `${state.response.pagination.total} arrangements`
-                  : "Arrangements"}
-            </p>
+      <div className="max-w-[1140px] mx-auto px-lg py-lg flex flex-col md:flex-row justify-between md:items-end gap-md">
+        <div>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight text-primary">Shop All Flowers</h1>
+          <p className="mt-2 text-base text-on-surface-variant">
+            {state.status === "loading"
+              ? "Loading arrangements..."
+              : state.status === "success"
+                ? `${state.response.pagination.total} arrangements`
+                : "Arrangements"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative hidden flex-1 md:block md:w-64">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+            <Input
+              type="search"
+              placeholder="Search bouquets, plants..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setSearchValue(searchInput);
+                }
+              }}
+              className="h-10 w-full rounded-full border-outline-variant bg-surface-container-lowest pl-11 pr-4 text-base text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-0"
+            />
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative hidden flex-1 md:block md:w-64">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-              <Input
-                type="search"
-                placeholder="Search bouquets, plants..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setSearchValue(searchInput);
-                  }
-                }}
-                className="h-10 w-full rounded-full border-outline-variant bg-surface-container-lowest pl-11 pr-4 text-base text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-0"
-              />
-            </div>
-
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="flex h-10 items-center gap-2 rounded-full border-outline-variant bg-surface-container px-4 py-2 text-base font-medium text-on-surface hover:bg-surface-container-high focus:ring-0 [&>svg]:hidden">
-                <span>Sort by:</span>
-                <SelectValue placeholder="Sort by" />
-                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
-              </SelectTrigger>
-              <SelectContent className="rounded-lg border-outline-variant/30 bg-surface-container-lowest">
-                {SORT_OPTIONS.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className="text-base text-on-surface focus:bg-surface-container focus:text-on-surface"
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={sort} onValueChange={setSort}>
+            <SelectTrigger className="flex h-10 items-center gap-2 rounded-full border-outline-variant bg-surface-container px-4 py-2 text-base font-medium text-on-surface hover:bg-surface-container-high focus:ring-0 [&>svg]:hidden">
+              <span>Sort by:</span>
+              <SelectValue placeholder="Sort by" />
+              <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg border-outline-variant/30 bg-surface-container-lowest">
+              {SORT_OPTIONS.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  className="text-base text-on-surface focus:bg-surface-container focus:text-on-surface"
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
+    </div>
 
-      <div className="flex flex-col gap-16 py-10 md:flex-row">
+    <div className="max-w-[1140px] w-full mx-auto px-lg py-xl flex flex-col md:flex-row gap-2xl">
         <ProductFilters
           categories={categories}
-          activeCategoryId={categoryId}
-          activePriceRange={priceRange}
-          sameDay={sameDay}
+          activeCategoryIds={categoryIds}
+          activePriceRanges={priceRanges}
           inStock={inStock}
           activeFilterCount={activeFilterCount}
           onCategoryChange={setCategory}
           onPriceRangeChange={setPriceRange}
-          onSameDayChange={setSameDay}
           onInStockChange={setInStock}
           onClear={clearAll}
         />
@@ -265,24 +268,20 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
                   }}
                 />
               )}
-              {activeCategoryName && (
+              {activeCategories.map((category) => (
                 <FilterChip
-                  label={activeCategoryName}
-                  onRemove={() => setCategory("")}
+                  key={category.id}
+                  label={category.name}
+                  onRemove={() => setCategory(category.id)}
                 />
-              )}
-              {activePriceLabel && (
+              ))}
+              {activePrices.map((price) => (
                 <FilterChip
-                  label={activePriceLabel}
-                  onRemove={() => setPriceRange("")}
+                  key={price.value}
+                  label={price.label}
+                  onRemove={() => setPriceRange(price.value)}
                 />
-              )}
-              {sameDay && (
-                <FilterChip
-                  label="Same-Day Delivery"
-                  onRemove={() => setSameDay(false)}
-                />
-              )}
+              ))}
               {inStock && (
                 <FilterChip
                   label="In Stock Online"
@@ -338,14 +337,14 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
             </>
           )}
         </div>
-      </div>
     </div>
+    </>
   );
 }
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-4 py-1 text-sm font-medium text-on-surface">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1.5 text-sm font-medium text-on-surface">
       {label}
       <button
         onClick={onRemove}
