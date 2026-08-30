@@ -22,22 +22,22 @@ export function ProductCard({ product }: { product: Product }) {
   const isOutOfStock = product.stock === 0;
 
   return (
-    <Card className="flex flex-col overflow-hidden relative">
-      <div className="absolute top-6 right-6 z-10">
+    <Card className="group/card relative flex flex-col overflow-hidden rounded-2xl border-outline-variant/30 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+      <div className="absolute right-3 top-3 z-10">
         <LowStockBadge
           stock={product.stock}
           lowStockThreshold={product.lowStockThreshold}
         />
       </div>
-      <Link href={`/products/${product.id}`} className="block p-4">
-        <div className="relative aspect-square w-full overflow-hidden rounded-md bg-muted flex items-center justify-center">
+      <Link href={`/products/${product.id}`} className="block p-3">
+        <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-surface-container-highest">
           {product.imageUrl && !imgError ? (
             <>
               {imgLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
               <Image
                 src={product.imageUrl}
                 alt={product.name}
-                className={`h-full w-full object-cover transition-opacity duration-300 ${
+                className={`h-full w-full object-cover transition-all duration-500 group-hover/card:scale-[1.03] ${
                   imgLoading ? "opacity-0" : "opacity-100"
                 }`}
                 onLoad={() => setImgLoading(false)}
@@ -51,7 +51,7 @@ export function ProductCard({ product }: { product: Product }) {
               />
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center text-muted-foreground gap-2 p-4">
+            <div className="flex flex-col items-center justify-center gap-2 p-4 text-on-surface-variant">
               <ImageIcon className="h-10 w-10 stroke-[1.5]" />
               <span className="text-xs font-medium">No image available</span>
             </div>
@@ -60,21 +60,21 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
       <CardContent className="flex-1 px-4 pb-2">
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-semibold leading-tight hover:underline flex items-center gap-1.5">
-            <span>{product.name}</span>
+          <h3 className="font-serif font-semibold leading-tight text-on-surface transition-colors hover:text-primary line-clamp-1">
+            {product.name}
             {isOutOfStock && <span className="sr-only">, Out of Stock</span>}
             {product.stock > 0 && product.stock <= (product.lowStockThreshold ?? 5) && (
               <span className="sr-only">, only {product.stock} left</span>
             )}
           </h3>
         </Link>
-        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{product.description ?? "No description"}</p>
-        <p className="mt-2 font-medium">${Number(product.price).toFixed(2)}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-on-surface-variant">{product.description ?? "No description"}</p>
+        <p className="mt-2 font-medium text-on-surface">${Number(product.price).toFixed(2)}</p>
       </CardContent>
       <CardFooter className="px-4 pb-4">
         <Button
           size="sm"
-          className="w-full"
+          className="w-full rounded-full bg-primary text-on-primary hover:bg-primary/90 active:scale-[0.98]"
           onClick={async () => {
             try {
               await addItem(product.id, 1);
