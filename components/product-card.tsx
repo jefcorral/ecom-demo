@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { IconButton } from "@/components/ui/icon-button";
+import { Price } from "@/components/ui/price";
 import { useCart } from "@/app/providers";
 import { useState } from "react";
 import { Heart, ImageIcon } from "lucide-react";
@@ -87,31 +90,18 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          {badge === "same-day" && (
-            <div className="absolute left-2 top-2 z-10 rounded-full bg-primary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-primary-container shadow-sm">
-              Same-Day
-            </div>
-          )}
-          {badge === "low-stock" && (
-            <div className="absolute left-2 top-2 z-10 rounded-full bg-tertiary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-tertiary-container shadow-sm">
-              Low Stock
-            </div>
-          )}
-          {badge === "sale" && (
-            <div className="absolute left-2 top-2 z-10 rounded-full bg-secondary-container px-2 py-[2px] text-[11px] font-bold uppercase tracking-wider text-on-secondary-container shadow-sm">
-              Sale
-            </div>
-          )}
+          {badge === "same-day" && <Badge variant="primary" className="absolute left-2 top-2 z-10 shadow-sm">Same-Day</Badge>}
+          {badge === "low-stock" && <Badge variant="warning" className="absolute left-2 top-2 z-10 shadow-sm">Low Stock</Badge>}
+          {badge === "sale" && <Badge variant="sale" className="absolute left-2 top-2 z-10 shadow-sm">Sale</Badge>}
 
-          <Button
+          <IconButton
             variant="ghost"
-            size="icon"
             onClick={toggleWishlist}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-surface/85 text-on-surface opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-surface-container-lowest hover:text-error md:h-8 md:w-8 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
           >
             <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current text-error" : ""}`} />
-          </Button>
+          </IconButton>
 
           {!isOutOfStock && (
             <div className="absolute inset-x-0 bottom-0 z-10 hidden justify-center bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100 md:flex">
@@ -132,14 +122,7 @@ export function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h3>
         </Link>
-        {product.salePrice ? (
-          <div className="mt-1 flex items-center gap-2">
-            <p className="text-sm font-medium text-error sm:text-base">${Number(product.salePrice).toFixed(2)}</p>
-            <p className="text-xs font-medium text-outline line-through sm:text-base">${Number(product.price).toFixed(2)}</p>
-          </div>
-        ) : (
-          <p className="mt-1 text-sm font-medium text-on-surface-variant sm:text-base">${Number(product.price).toFixed(2)}</p>
-        )}
+        <Price price={Number(product.price)} salePrice={product.salePrice} className="mt-1 text-sm sm:text-base" />
       </div>
     </article>
   );

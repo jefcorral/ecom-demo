@@ -79,7 +79,7 @@ export function QuantityStepper({
         disabled={isMinusDisabled}
         aria-disabled={isMinusDisabled ? "true" : "false"}
         aria-label="Decrease quantity"
-        className="w-10 h-10 md:w-8 md:h-8 flex items-center justify-center rounded bg-[#F2B705] hover:bg-[#FFF3CD] text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex size-11 items-center justify-center rounded-full bg-primary text-on-primary transition-all hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100"
       >
         <Minus className="h-4 w-4 stroke-[2.5]" />
       </button>
@@ -92,7 +92,7 @@ export function QuantityStepper({
         onChange={(e) => handleInputChange(e.target.value)}
         onBlur={handleBlur}
         disabled={disabled}
-        className="w-[48px] h-10 md:h-8 p-0 text-center text-[15px] font-bold text-[#2C3E2A] dark:text-foreground bg-transparent border border-border rounded focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="h-11 w-12 rounded-lg border border-outline-variant bg-surface-container-lowest p-0 text-center text-sm font-bold text-on-surface [appearance:textfield] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
 
       <button
@@ -101,7 +101,7 @@ export function QuantityStepper({
         disabled={isPlusDisabled}
         aria-disabled={isPlusDisabled ? "true" : "false"}
         aria-label="Increase quantity"
-        className="w-10 h-10 md:w-8 md:h-8 flex items-center justify-center rounded bg-[#F2B705] hover:bg-[#FFF3CD] text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex size-11 items-center justify-center rounded-full bg-primary text-on-primary transition-all hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100"
       >
         <Plus className="h-4 w-4 stroke-[2.5]" />
       </button>
