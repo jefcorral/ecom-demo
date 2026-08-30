@@ -12,7 +12,7 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
   const pages = getPageNumbers(page, totalPages);
 
   return (
-    <nav role="navigation" aria-label="Pagination" className="mt-10 flex items-center justify-center gap-2">
+    <nav role="navigation" aria-label="Pagination" className="mt-8 flex items-center justify-center gap-1 sm:mt-10 sm:gap-2">
       <Button
         variant="ghost"
         size="icon"
@@ -37,7 +37,7 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
             aria-current={p === page ? "page" : undefined}
             aria-label={`Page ${p}`}
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
+              "flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors sm:h-10 sm:w-10",
               p === page
                 ? "bg-primary text-on-primary shadow-sm hover:bg-primary/90"
                 : "text-on-surface hover:bg-surface-container"
@@ -64,17 +64,17 @@ export function PaginationControls({ page, totalPages, onPageChange }: Paginatio
 }
 
 function getPageNumbers(current: number, total: number): (number | "ellipsis")[] {
-  if (total <= 7) {
+  if (total <= 5) {
     return Array.from({ length: total }, (_, i) => i + 1);
   }
 
-  if (current <= 3) {
-    return [1, 2, 3, 4, 5, "ellipsis", total];
+  if (current <= 2) {
+    return [1, 2, 3, "ellipsis", total];
   }
 
-  if (current >= total - 2) {
-    return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+  if (current >= total - 1) {
+    return [1, "ellipsis", total - 2, total - 1, total];
   }
 
-  return [1, "ellipsis", current - 1, current, current + 1, "ellipsis", total];
+  return [1, "ellipsis", current, "ellipsis", total];
 }

@@ -103,7 +103,7 @@ export function ProductFilters({
           render={
             <Button
               variant="outline"
-              className="mb-4 h-10 gap-2 rounded-full border-outline-variant bg-surface-container-low text-on-surface hover:bg-surface-container-high md:hidden"
+              className="mb-4 h-11 gap-2 rounded-full border-outline-variant bg-surface-container-low text-on-surface hover:bg-surface-container-high md:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filters
@@ -126,14 +126,15 @@ export function ProductFilters({
                 variant="ghost"
                 size="icon"
                 onClick={() => setOpen(false)}
+                aria-label="Close filters"
                 className="text-on-surface-variant hover:text-on-surface"
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
           </SheetHeader>
-          <div className="max-h-[calc(85vh-8rem)] overflow-y-auto p-4">{content}</div>
-          <div className="absolute inset-x-0 bottom-0 border-t border-outline-variant/30 bg-surface-container-lowest p-4">
+          <div className="max-h-[calc(85vh-9rem)] overflow-y-auto p-4 pb-24">{content}</div>
+          <div className="absolute inset-x-0 bottom-0 border-t border-outline-variant/30 bg-surface-container-lowest p-4 pb-safe">
             <Button
               className="w-full rounded-full bg-primary text-on-primary hover:bg-primary/90"
               onClick={() => setOpen(false)}

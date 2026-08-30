@@ -189,11 +189,11 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
   return (
     <>
-      <div className="sticky top-16 z-40 border-b border-outline-variant/30 bg-surface-container-lowest py-6">
-      <div className="max-w-[1140px] mx-auto px-lg py-lg flex flex-col md:flex-row justify-between md:items-end gap-md">
+      <div className="sticky top-16 z-40 border-b border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1140px] items-end justify-between gap-3 px-4 py-4 md:px-lg md:py-lg">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight text-primary">Shop All Flowers</h1>
-          <p className="mt-2 text-base text-on-surface-variant">
+          <h1 className="font-serif text-2xl font-semibold tracking-tight text-primary md:text-3xl">Shop All Flowers</h1>
+          <p className="mt-1 text-sm text-on-surface-variant md:mt-2 md:text-base">
             {state.status === "loading"
               ? "Loading arrangements..."
               : state.status === "success"
@@ -202,7 +202,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <div className="relative hidden flex-1 md:block md:w-64">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
             <Input
@@ -220,8 +220,8 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
           </div>
 
           <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger className="flex h-10 items-center gap-2 rounded-full border-outline-variant bg-surface-container px-4 py-2 text-base font-medium text-on-surface hover:bg-surface-container-high focus:ring-0 [&>svg]:hidden">
-              <span>Sort by:</span>
+            <SelectTrigger aria-label="Sort products" className="flex h-11 max-w-[150px] items-center gap-1 rounded-full border-outline-variant bg-surface-container px-3 py-2 text-sm font-medium text-on-surface hover:bg-surface-container-high focus:ring-0 sm:max-w-none sm:gap-2 sm:px-4 sm:text-base [&>svg]:hidden">
+              <span className="hidden sm:inline">Sort by:</span>
               <SelectValue placeholder="Sort by" />
               <ChevronDown className="h-4 w-4 text-on-surface-variant" />
             </SelectTrigger>
@@ -241,7 +241,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
       </div>
     </div>
 
-    <div className="max-w-[1140px] w-full mx-auto px-lg py-xl flex flex-col md:flex-row gap-2xl">
+    <div className="mx-auto flex w-full max-w-[1140px] flex-col gap-6 px-4 py-6 pb-24 md:flex-row md:gap-2xl md:px-lg md:py-xl">
         <ProductFilters
           categories={categories}
           activeCategoryIds={categoryIds}
@@ -256,8 +256,8 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
         <div className="min-w-0 flex-1">
           {hasActiveFilters && (
-            <div className="mb-6 flex flex-wrap items-center gap-2">
-              <span className="mr-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Active Filters:</span>
+            <div className="mb-4 flex flex-wrap items-center gap-2 md:mb-6">
+              <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-on-surface-variant md:mr-2">Active Filters:</span>
               {search && (
                 <FilterChip
                   label={`Search: ${search}`}
@@ -291,7 +291,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
                 variant="ghost"
                 size="sm"
                 onClick={clearAll}
-                className="ml-2 text-base font-medium text-primary underline underline-offset-4 hover:bg-transparent hover:text-primary"
+                className="ml-0 h-9 px-2 text-sm font-medium text-primary underline underline-offset-4 hover:bg-transparent hover:text-primary md:ml-2 md:text-base"
               >
                 Clear All
               </Button>
@@ -320,7 +320,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
             />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
                 {sortedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -358,7 +358,7 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
 
 function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
       {Array.from({ length: LIMIT }).map((_, i) => (
         <Skeleton key={i} className="h-[380px] w-full rounded-[16px]" />
       ))}
