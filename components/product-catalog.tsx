@@ -189,7 +189,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-serif text-3xl font-semibold tracking-tight text-primary">Shop All Flowers</h1>
-            <p className="mt-1 text-base text-on-surface-variant">
+            <p className="mt-2 text-base text-on-surface-variant">
               {state.status === "loading"
                 ? "Loading arrangements..."
                 : state.status === "success"
@@ -237,7 +237,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-10 py-10 md:flex-row">
+      <div className="flex flex-col gap-16 py-10 md:flex-row">
         <ProductFilters
           categories={categories}
           activeCategoryId={categoryId}
@@ -345,7 +345,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1.5 text-sm font-medium text-on-surface">
+    <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-4 py-1 text-sm font-medium text-on-surface">
       {label}
       <button
         onClick={onRemove}

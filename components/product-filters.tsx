@@ -202,7 +202,7 @@ function FilterOption({
   onChange: () => void;
 }) {
   return (
-    <label className="group flex cursor-pointer items-center gap-3 py-1">
+    <label className="group flex cursor-pointer items-center gap-4 py-1">
       <input
         type="checkbox"
         checked={checked}
@@ -224,7 +224,7 @@ function CheckboxOption({
   onChange: () => void;
 }) {
   return (
-    <label className="group flex cursor-pointer items-center gap-3 py-1">
+    <label className="group flex cursor-pointer items-center gap-4 py-1">
       <input
         type="checkbox"
         checked={checked}
