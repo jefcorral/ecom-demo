@@ -315,10 +315,10 @@ html {
   max-width: 42rem;
 }
 
-@utility text-balance {
+.text-balance {
   text-wrap: balance;
 }
 
-@utility pb-safe {
+.pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
