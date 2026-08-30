@@ -2,441 +2,202 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/app/providers";
+import { useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Gift, Info, Leaf, LockKeyhole, Minus, PackageOpen, Plus, ShoppingBag, Truck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ImageIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchProduct } from "@/lib/products";
-import { Product, CartItem } from "@/types";
-import { LowStockBadge } from "@/components/low-stock-badge";
-import { QuantityStepper } from "@/components/quantity-stepper";
-import { showSuccessToast, showErrorToast } from "@/lib/toast-helper";
+import { mockProducts } from "@/lib/mock-data";
+
+const initialItems = [
+  { id: "cart-1", product: mockProducts[0], quantity: 2, variant: "Luxe", note: "Gift note included", delivery: "Fri, May 9 Morning" },
+  { id: "cart-2", product: mockProducts[5], quantity: 1, variant: "12-piece assortment" },
+  { id: "cart-3", product: mockProducts[7], quantity: 1, variant: "Classic" },
+];
+
+const addOns = [
+  { id: "vase", name: "Glass Vase", price: 15, image: "/product-detail/bouquet-main.png" },
+  { id: "balloon", name: "Mylar Balloon", price: 8, image: "/product-detail/peony-detail.png" },
+  { id: "card", name: "Premium Card", price: 5, image: "/product-detail/packaging.png" },
+  { id: "wrap", name: "Gift Wrap", price: 10, image: "/product-detail/lifestyle.png" },
+];
+
+type CartItem = (typeof initialItems)[number];
 
 export default function CartPage() {
-  const { cart, loading: cartLoading, updateItem, removeItem, clear } = useCart();
-  const [products, setProducts] = useState<Record<string, Product>>({});
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [items, setItems] = useState<CartItem[]>(initialItems);
+  const [promoInput, setPromoInput] = useState("BLOOM15");
+  const [promoApplied, setPromoApplied] = useState(true);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + Number(item.product.salePrice ?? item.product.price) * item.quantity, 0) + addOns.filter((addOn) => selectedAddOns.includes(addOn.id)).reduce((sum, addOn) => sum + addOn.price, 0), [items, selectedAddOns]);
+  const discount = promoApplied ? subtotal * 0.15 : 0;
+  const estimatedTax = (subtotal - discount) * 0.075;
+  const total = subtotal - discount + estimatedTax;
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  useEffect(() => {
-    let isCancelled = false;
+  function updateQuantity(id: string, quantity: number) {
+    setItems((current) => current.map((item) => item.id === id ? { ...item, quantity: Math.max(1, Math.min(item.product.stock, quantity)) } : item));
+  }
 
-    if (cart.items.length > 0) {
-      Promise.all(
-        cart.items.map((item) => fetchProduct(item.productId).catch(() => null))
-      )
-        .then((resolved) => {
-          if (isCancelled) return;
-          const productsMap: Record<string, Product> = {};
-          resolved.forEach((prod) => {
-            if (prod) {
-              productsMap[prod.id] = prod;
-            }
-          });
-          setProducts((prev) => ({ ...prev, ...productsMap }));
-        })
-        .catch((err) => {
-          console.error("Failed to load products for cart", err);
-        })
-        .finally(() => {
-          if (!isCancelled) {
-            setProductsLoading(false);
-          }
-        });
-    }
+  function removeItem(id: string) {
+    setItems((current) => current.filter((item) => item.id !== id));
+  }
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [cart.items]);
+  function addExtra(addOnId: string) {
+    setSelectedAddOns((current) => current.includes(addOnId) ? current.filter((id) => id !== addOnId) : [...current, addOnId]);
+  }
 
-  const handleQuantityChange = async (item: CartItem, newQty: number, stock: number) => {
-    if (!item.id) return;
-    setIsRecalculating(true);
-    try {
-      await updateItem(item.id, newQty);
-      showSuccessToast("Cart updated");
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : "Failed to update item";
-      showErrorToast(errMsg, {
-        actionLabel: "Reset to Max",
-        onAction: () => updateItem(item.id!, stock),
-      });
-    } finally {
-      setTimeout(() => setIsRecalculating(false), 300);
-    }
-  };
+  if (items.length === 0) {
+    return <EmptyCart onRestore={() => setItems(initialItems)} />;
+  }
 
-  const handleRemove = (item: CartItem) => {
-    if (!item.id) return;
-    removeItem(item.id)
-      .then(() => showSuccessToast("Removed item"))
-      .catch(() => showErrorToast("Could not remove item"));
-  };
+  return (
+    <div className="pb-40 lg:pb-0">
+      <div className="mx-auto w-full max-w-[1140px] px-4 py-8 md:px-8 md:py-16">
+        <Link href="/products" className="mb-10 hidden items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface-variant transition-colors hover:text-primary md:flex">
+          <ArrowLeft className="h-4 w-4" />Continue shopping
+        </Link>
 
-  const handleClear = () => {
-    clear()
-      .then(() => showSuccessToast("Cleared cart"))
-      .catch(() => showErrorToast("Could not clear cart"));
-  };
-
-  if (cartLoading || (cart.items.length > 0 && productsLoading && Object.keys(products).length === 0)) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="mb-6 text-3xl font-bold text-[#2C3E2A] dark:text-foreground">Your Cart</h1>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 border border-border rounded-lg"
-            >
-              <Skeleton className="h-16 w-16 rounded-md shrink-0 bg-muted" />
-              <div className="flex-1 space-y-2 w-full">
-                <Skeleton className="h-5 w-1/3 bg-muted" />
-                <Skeleton className="h-4 w-1/4 bg-muted" />
-              </div>
-              <Skeleton className="h-10 w-24 bg-muted" />
-              <Skeleton className="h-10 w-20 bg-muted shrink-0" />
+        <div className="relative flex flex-col items-start gap-10 lg:flex-row lg:gap-16">
+          <section className="w-full lg:w-[65%]" aria-labelledby="cart-title">
+            <div className="mb-6 flex items-end justify-between">
+              <h1 id="cart-title" className="font-serif text-3xl font-semibold text-primary md:text-4xl">Your <span className="md:hidden">Bag</span><span className="hidden md:inline">Cart</span></h1>
+              <span className="text-sm text-on-surface-variant md:font-serif md:text-xl">{itemCount} {itemCount === 1 ? "item" : "items"}</span>
             </div>
-          ))}
+
+            <div className="divide-y divide-outline-variant/30 md:flex md:flex-col md:gap-6 md:divide-y-0">
+              {items.map((item) => (
+                <CartLineItem key={item.id} item={item} onQuantityChange={updateQuantity} onRemove={removeItem} />
+              ))}
+            </div>
+
+            <PromoCode promoInput={promoInput} promoApplied={promoApplied} discount={discount} onInputChange={setPromoInput} onApply={() => setPromoApplied(promoInput.trim().toUpperCase() === "BLOOM15")} onRemove={() => { setPromoApplied(false); setPromoInput(""); }} />
+
+            <section className="-mx-4 mt-12 bg-surface-container-low px-4 py-8 md:mx-0 md:bg-transparent md:px-0 md:py-0" aria-labelledby="add-ons-heading">
+              <h2 id="add-ons-heading" className="mb-6 font-serif text-2xl font-semibold text-primary">Complete Your Gift</h2>
+              <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:px-0">
+                {addOns.map((addOn) => {
+                  const selected = selectedAddOns.includes(addOn.id);
+                  return (
+                    <article key={addOn.id} className={`w-[148px] shrink-0 snap-start rounded-xl bg-surface-container-lowest p-2 shadow-sm transition md:w-auto md:p-4 ${selected ? "ring-2 ring-primary" : ""}`}>
+                      <div className="relative aspect-square overflow-hidden rounded-lg md:mx-auto md:h-16 md:w-16 md:rounded-full">
+                        <Image src={addOn.image} alt={addOn.name} fill sizes="148px" className="object-cover" />
+                      </div>
+                      <h3 className="mt-2 truncate text-sm font-medium md:text-center">{addOn.name}</h3>
+                      <p className="text-xs font-semibold text-primary md:text-center">+${addOn.price.toFixed(2)}</p>
+                      <Button type="button" onClick={() => addExtra(addOn.id)} className={`mt-3 h-9 w-full rounded-full text-xs ${selected ? "bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80" : "bg-primary-container text-on-primary-container hover:bg-primary-fixed"}`}>
+                        {selected ? <><Check className="h-4 w-4" />Added</> : "Add"}
+                      </Button>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          </section>
+
+          <aside className="w-full lg:sticky lg:top-24 lg:w-[35%]" aria-label="Order summary">
+            <OrderSummary itemCount={itemCount} subtotal={subtotal} discount={discount} estimatedTax={estimatedTax} total={total} promoApplied={promoApplied} />
+          </aside>
         </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-outline-variant/30 bg-surface/95 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+          <div><span className="block text-xs text-on-surface-variant">Total</span><strong className="font-serif text-2xl text-on-surface">${total.toFixed(2)}</strong></div>
+          <Button render={<Link href="/checkout" />} className="h-12 min-w-40 rounded-full bg-primary text-on-primary shadow-md hover:bg-primary/90">Checkout <ArrowRight className="h-4 w-4" /></Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CartLineItem({ item, onQuantityChange, onRemove }: { item: CartItem; onQuantityChange: (id: string, quantity: number) => void; onRemove: (id: string) => void }) {
+  const price = Number(item.product.salePrice ?? item.product.price);
+  const lowStock = item.product.stock <= (item.product.lowStockThreshold ?? 5);
+
+  return (
+    <article className="group relative flex gap-4 py-6 first:pt-0 md:rounded-xl md:bg-surface-container-lowest md:p-6 md:shadow-sm">
+      <Link href={`/products/${item.product.id}`} className="relative h-28 w-24 shrink-0 overflow-hidden rounded-lg bg-surface-container md:h-[140px] md:w-[140px]">
+        {item.product.imageUrl ? <Image src={item.product.imageUrl} alt={item.product.name} fill unoptimized sizes="140px" className="object-cover transition-transform duration-700 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center"><Gift className="h-8 w-8 text-outline-variant" /></div>}
+      </Link>
+      <div className="flex min-w-0 flex-1 flex-col justify-between">
+        <div className="pr-8 md:pr-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <Link href={`/products/${item.product.id}`} className="font-medium leading-6 text-on-surface hover:text-primary md:font-serif md:text-lg md:font-semibold">{item.product.name}</Link>
+              <p className="mt-1 text-sm text-on-surface-variant">{item.variant.includes("assortment") ? item.variant : `Size: ${item.variant}`}</p>
+              {item.delivery && <p className="mt-2 hidden w-fit items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-xs text-primary md:flex"><Truck className="h-3 w-3" />{item.delivery}</p>}
+              {item.note && <p className="mt-2 hidden items-center gap-1 text-xs text-on-surface-variant md:flex"><Gift className="h-3 w-3" />{item.note}</p>}
+              {lowStock && <p className="mt-2 w-fit rounded-full bg-primary-container px-2 py-0.5 text-xs font-medium text-on-primary-container">Only {item.product.stock} left</p>}
+            </div>
+            <strong className="hidden whitespace-nowrap text-sm md:block">${(price * item.quantity).toFixed(2)}</strong>
+          </div>
+        </div>
+        <button type="button" aria-label={`Remove ${item.product.name}`} onClick={() => onRemove(item.id)} className="absolute right-0 top-6 flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-error-container hover:text-error md:bottom-5 md:top-auto md:h-auto md:w-auto md:rounded-none md:text-xs md:uppercase md:tracking-widest md:underline md:underline-offset-4"><X className="h-5 w-5 md:hidden" /><span className="hidden md:inline">Remove</span></button>
+        <div className="mt-3 flex items-end justify-between border-outline-variant/30 md:border-t md:pt-4">
+          <QuantityControl value={item.quantity} max={item.product.stock} onChange={(quantity) => onQuantityChange(item.id, quantity)} />
+          <strong className="text-sm md:hidden">${(price * item.quantity).toFixed(2)}</strong>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function QuantityControl({ value, max, onChange }: { value: number; max: number; onChange: (value: number) => void }) {
+  return (
+    <div className="flex h-10 items-center rounded-full bg-surface-container px-1">
+      <button type="button" aria-label="Decrease quantity" disabled={value <= 1} onClick={() => onChange(value - 1)} className="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-surface-container-high disabled:opacity-30"><Minus className="h-4 w-4" /></button>
+      <span className="w-7 text-center text-sm" aria-live="polite">{value}</span>
+      <button type="button" aria-label="Increase quantity" disabled={value >= max} onClick={() => onChange(value + 1)} className="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-surface-container-high disabled:opacity-30"><Plus className="h-4 w-4" /></button>
+    </div>
+  );
+}
+
+function PromoCode({ promoInput, promoApplied, discount, onInputChange, onApply, onRemove }: { promoInput: string; promoApplied: boolean; discount: number; onInputChange: (value: string) => void; onApply: () => void; onRemove: () => void }) {
+  if (promoApplied) {
+    return (
+      <div className="mt-8 flex items-center justify-between rounded-xl bg-surface-container-lowest p-5 shadow-sm">
+        <div className="flex items-center gap-3"><span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-primary-container text-primary"><Check className="h-4 w-4" /></span><div><p className="text-xs font-bold uppercase tracking-wide">Promo code applied</p><p className="text-sm text-on-surface-variant">BLOOM15</p></div></div>
+        <div className="text-right"><p className="font-semibold text-primary">-${discount.toFixed(2)}</p><button type="button" onClick={onRemove} className="text-xs uppercase tracking-widest underline underline-offset-4">Remove</button></div>
       </div>
     );
   }
 
-  const total = cart.items.reduce(
-    (sum, item) => sum + (item.price ?? 0) * item.quantity,
-    0
-  );
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Your Cart</h1>
-      {cart.items.length === 0 ? (
-        <p className="text-center text-muted-foreground">
-          Your cart is empty. <Link href="/products" className="underline">Continue shopping</Link>
-        </p>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Items</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {/* Cart Table Layout for desktop (1024px+) */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    <th className="pb-4">Product</th>
-                    <th className="pb-4 text-center">Quantity</th>
-                    <th className="pb-4 text-right">Price</th>
-                    <th className="pb-4 text-right">Total</th>
-                    <th className="pb-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {cart.items.map((item) => {
-                    const product = products[item.productId];
-                    const stock = product ? product.stock : 999;
-                    const imageUrl = product?.imageUrl;
-                    const lowStockThreshold = product?.lowStockThreshold ?? 5;
-                    const price = product ? product.price : (item.price ?? 0);
-                    const itemTotal = price * item.quantity;
+    <div className="mt-8 rounded-xl bg-surface-container-lowest p-5 shadow-sm">
+      <label htmlFor="promo-code" className="mb-2 block text-xs font-bold uppercase tracking-wide">Promo code</label>
+      <div className="flex gap-2"><input id="promo-code" value={promoInput} onChange={(event) => onInputChange(event.target.value)} placeholder="Enter code" className="h-11 min-w-0 flex-1 rounded-full border border-outline-variant bg-surface-container px-4 text-sm focus:border-primary focus:outline-none" /><Button type="button" onClick={onApply} className="h-11 rounded-full bg-primary-container px-5 text-on-primary-container hover:bg-primary-fixed">Apply</Button></div>
+    </div>
+  );
+}
 
-                    return (
-                      <tr key={item.id ?? item.productId} className="align-middle">
-                        <td className="py-6 flex items-center gap-4">
-                          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted shrink-0 flex items-center justify-center border border-border">
-                            {imageUrl ? (
-                              <Image
-                                src={imageUrl}
-                                alt={item.name ?? "Product"}
-                                fill
-                                sizes="64px"
-                                className="object-cover"
-                                unoptimized
-                              />
-                            ) : (
-                              <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-[#2C3E2A] dark:text-foreground text-base truncate">
-                              {item.name ?? "Unknown product"}
-                            </p>
-                            {product && (
-                              <div className="mt-1">
-                                <LowStockBadge
-                                  stock={stock}
-                                  lowStockThreshold={lowStockThreshold}
-                                />
-                                {stock > 0 && stock <= lowStockThreshold && (
-                                  <p className="text-[13px] text-[#D4A373] font-sans mt-0.5">
-                                    only {stock} left
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                            {item.note && (
-                              <p className="text-xs text-muted-foreground mt-1 italic max-w-sm truncate">
-                                Note: {item.note}
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-6 text-center">
-                          <div className="inline-flex justify-center">
-                            <QuantityStepper
-                              value={item.quantity}
-                              max={stock}
-                              onChange={(val) => handleQuantityChange(item, val, stock)}
-                            />
-                          </div>
-                        </td>
-                        <td className="py-6 text-right font-medium font-sans text-sm">
-                          ${Number(price).toFixed(2)}
-                        </td>
-                        <td className="py-6 text-right font-semibold font-sans text-sm text-[#2C3E2A] dark:text-foreground transition-all duration-300">
-                          ${itemTotal.toFixed(2)}
-                        </td>
-                        <td className="py-6 text-right">
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleRemove(item)}
-                          >
-                            Remove
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            {/* Cart Cards Layout for Tablet (768–1023px) */}
-            <div className="hidden md:max-lg:block space-y-4">
-              {cart.items.map((item) => {
-                const product = products[item.productId];
-                const stock = product ? product.stock : 999;
-                const imageUrl = product?.imageUrl;
-                const lowStockThreshold = product?.lowStockThreshold ?? 5;
-                const price = product ? product.price : (item.price ?? 0);
-                const itemTotal = price * item.quantity;
+function OrderSummary({ itemCount, subtotal, discount, estimatedTax, total, promoApplied }: { itemCount: number; subtotal: number; discount: number; estimatedTax: number; total: number; promoApplied: boolean }) {
+  return (
+    <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-[0_12px_30px_rgba(44,62,42,0.12)] lg:p-7">
+      <h2 className="mb-7 font-serif text-2xl font-semibold text-primary">Order Summary</h2>
+      <dl className="space-y-5 text-sm md:text-base">
+        <div className="flex justify-between"><dt className="text-on-surface-variant">Subtotal ({itemCount} items)</dt><dd className="font-semibold">${subtotal.toFixed(2)}</dd></div>
+        {promoApplied && <div className="flex justify-between text-primary"><dt>Discount (BLOOM15)</dt><dd className="font-semibold">-${discount.toFixed(2)}</dd></div>}
+        <div className="flex justify-between"><dt className="text-on-surface-variant">Estimated Tax</dt><dd className="font-semibold">${estimatedTax.toFixed(2)}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-on-surface-variant">Shipping</dt><dd className="text-right text-xs uppercase tracking-widest">Calculated at checkout</dd></div>
+      </dl>
+      <div className="my-7 flex items-end justify-between border-t border-outline-variant/30 pt-5"><span className="font-semibold">Total</span><strong className="font-serif text-3xl text-primary">${total.toFixed(2)}</strong></div>
+      <Button render={<Link href="/checkout" />} className="hidden h-14 w-full rounded-full bg-primary-container font-bold uppercase tracking-widest text-on-primary-container shadow-md hover:bg-primary-fixed lg:flex">Proceed to Checkout <ArrowRight className="h-5 w-5" /></Button>
+      <div className="mt-6 rounded-xl bg-surface-container p-4 text-xs leading-5 text-on-surface-variant lg:hidden"><Info className="mr-2 inline h-4 w-4 text-primary" />Deliveries are made between 9am and 5pm. Specific time requests cannot be guaranteed.</div>
+      <div className="mt-6 hidden justify-center gap-8 text-on-surface-variant lg:flex"><TrustBadge icon={LockKeyhole} label="Secure" /><TrustBadge icon={Truck} label="Tracked" /><TrustBadge icon={Leaf} label="Fresh" /></div>
+    </div>
+  );
+}
 
-                return (
-                  <div
-                    key={item.id ?? item.productId}
-                    className="flex items-start gap-4 p-4 border border-border rounded-lg bg-card shadow-sm"
-                  >
-                    <div className="relative h-20 w-20 overflow-hidden rounded-md bg-muted shrink-0 flex items-center justify-center border border-border">
-                      {imageUrl ? (
-                        <Image
-                          src={imageUrl}
-                          alt={item.name ?? "Product"}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-1 min-w-0">
-                      <p className="font-semibold text-base text-[#2C3E2A] dark:text-foreground truncate">
-                        {item.name ?? "Unknown product"}
-                      </p>
-                      <p className="text-sm text-muted-foreground font-sans">
-                        ${Number(price).toFixed(2)} each
-                      </p>
-                      {product && (
-                        <div className="pt-1">
-                          <LowStockBadge
-                            stock={stock}
-                            lowStockThreshold={lowStockThreshold}
-                          />
-                          {stock > 0 && stock <= lowStockThreshold && (
-                            <p className="text-[13px] text-[#D4A373] font-sans mt-0.5">
-                              only {stock} left
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {item.note && (
-                        <p className="text-xs text-muted-foreground italic mt-1 max-w-md truncate">
-                          Note: {item.note}
-                        </p>
-                      )}
+function TrustBadge({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
+  return <div className="flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container"><Icon className="h-4 w-4" /></span>{label}</div>;
+}
 
-                      <div className="pt-3 flex items-center gap-4 justify-between">
-                        <QuantityStepper
-                          value={item.quantity}
-                          max={stock}
-                          onChange={(val) => handleQuantityChange(item, val, stock)}
-                        />
-                        <span className="font-semibold font-sans text-sm transition-all duration-300">
-                          ${itemTotal.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemove(item)}
-                      className="shrink-0"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Cart Cards Layout for Mobile (Below 768px) */}
-            <div className="block md:hidden space-y-4 pb-4">
-              {cart.items.map((item) => {
-                const product = products[item.productId];
-                const stock = product ? product.stock : 999;
-                const imageUrl = product?.imageUrl;
-                const lowStockThreshold = product?.lowStockThreshold ?? 5;
-                const price = product ? product.price : (item.price ?? 0);
-                const itemTotal = price * item.quantity;
-
-                return (
-                  <div
-                    key={item.id ?? item.productId}
-                    className="flex flex-col gap-3 p-4 border border-border rounded-lg bg-card shadow-sm"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted shrink-0 flex items-center justify-center border border-border">
-                        {imageUrl ? (
-                          <Image
-                            src={imageUrl}
-                            alt={item.name ?? "Product"}
-                            fill
-                            sizes="64px"
-                            className="object-cover"
-                            unoptimized
-                          />
-                        ) : (
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-[#2C3E2A] dark:text-foreground truncate">
-                          {item.name ?? "Unknown product"}
-                        </p>
-                        <p className="text-xs text-muted-foreground font-sans">
-                          ${Number(price).toFixed(2)} each
-                        </p>
-                        {product && (
-                          <div className="mt-1">
-                            <LowStockBadge
-                              stock={stock}
-                              lowStockThreshold={lowStockThreshold}
-                              className="scale-90 origin-left"
-                            />
-                            {stock > 0 && stock <= lowStockThreshold && (
-                              <p className="text-[13px] text-[#D4A373] font-sans mt-0.5">
-                                only {stock} left
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        {item.note && (
-                          <p className="text-xs text-muted-foreground italic truncate mt-0.5">
-                            Note: {item.note}
-                          </p>
-                        )}
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleRemove(item)}
-                        className="shrink-0 h-8 w-8 text-xs font-bold"
-                        aria-label={`Remove ${item.name}`}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between border-t border-border pt-2.5 mt-1">
-                      <QuantityStepper
-                        value={item.quantity}
-                        max={stock}
-                        onChange={(val) => handleQuantityChange(item, val, stock)}
-                      />
-                      <span className="font-semibold font-sans text-sm transition-all duration-300">
-                        ${itemTotal.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Desktop/Tablet Summary Section */}
-            <div className="hidden md:block">
-              <Separator className="my-6" />
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="outline"
-                  onClick={handleClear}
-                  className="font-sans text-sm"
-                >
-                  Clear cart
-                </Button>
-                <div className="flex items-center gap-6">
-                  <p
-                    className={`text-lg font-semibold text-[#2C3E2A] dark:text-foreground transition-all duration-300 ${
-                      isRecalculating ? "opacity-50 scale-95" : "opacity-100 scale-100"
-                    }`}
-                  >
-                    Total: ${total.toFixed(2)}
-                  </p>
-                  <Link href="/checkout">
-                    <Button size="lg" className="font-sans font-bold">
-                      Checkout
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Sticky Summary Bar for Mobile (Below 768px) */}
-      {cart.items.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-4 shadow-lg md:hidden z-40 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground font-sans">Total Summary</p>
-            <p
-              className={`text-lg font-bold font-sans text-[#2C3E2A] dark:text-foreground transition-all duration-300 ${
-                isRecalculating ? "opacity-50 scale-95" : "opacity-100 scale-100"
-              }`}
-            >
-              ${total.toFixed(2)}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClear}
-              className="font-sans text-xs"
-            >
-              Clear
-            </Button>
-            <Link href="/checkout">
-              <Button size="sm" className="font-sans font-bold text-xs">
-                Checkout
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
+function EmptyCart({ onRestore }: { onRestore: () => void }) {
+  return (
+    <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center px-4 py-16 text-center">
+      <span className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-surface-container-low"><PackageOpen className="h-12 w-12 stroke-1 text-primary" /></span>
+      <h1 className="font-serif text-4xl font-semibold text-primary">Your cart is empty</h1>
+      <p className="mt-3 max-w-sm text-on-surface-variant">Discover our seasonal bouquets, plants, and thoughtful gifts.</p>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button render={<Link href="/products" />} className="h-12 rounded-full bg-primary px-7 text-on-primary hover:bg-primary/90"><ShoppingBag className="h-4 w-4" />Shop Best Sellers</Button><Button type="button" variant="outline" onClick={onRestore} className="h-12 rounded-full border-outline-variant px-7">Preview filled cart</Button></div>
     </div>
   );
 }
