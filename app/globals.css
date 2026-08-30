@@ -92,6 +92,11 @@
   --spacing-xl: 2.5rem;
   --spacing-2xl: 4rem;
   --spacing-gutter: 1.5rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
   --font-body-md: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -99,11 +104,15 @@
   --font-label-sm: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-headline-md: var(--font-playfair), ui-serif, Georgia, serif;
   --font-headline-lg: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display-lg: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display-sm: var(--font-playfair), ui-serif, Georgia, serif;
   --text-body-md: 1rem;
   --text-label-md: 0.875rem;
   --text-label-sm: 0.75rem;
   --text-headline-md: 1.75rem;
   --text-headline-lg: 2.5rem;
+  --text-display-lg: 3rem;
+  --text-display-sm: 2rem;
 }
 
 :root {
@@ -290,10 +299,30 @@ html {
   font-family: var(--font-sans);
 }
 
-@utility text-balance {
+.max-w-sm {
+  max-width: 24rem;
+}
+
+.max-w-md {
+  max-width: 28rem;
+}
+
+.max-w-lg {
+  max-width: 32rem;
+}
+
+.max-w-xl {
+  max-width: 36rem;
+}
+
+.max-w-2xl {
+  max-width: 42rem;
+}
+
+.text-balance {
   text-wrap: balance;
 }
 
-@utility pb-safe {
+.pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
