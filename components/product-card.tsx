@@ -68,7 +68,7 @@ export function ProductCard({ product }: { product: Product }) {
                   setImgError(true);
                 }}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                 unoptimized
               />
             </>
@@ -108,13 +108,13 @@ export function ProductCard({ product }: { product: Product }) {
             size="icon"
             onClick={toggleWishlist}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="absolute right-2 top-2 z-10 flex h-8 w-8 translate-y-2 items-center justify-center rounded-full bg-surface/80 text-on-surface opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 group-hover/card:translate-y-0 group-hover/card:opacity-100 hover:bg-surface-container-lowest hover:text-error"
+            className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-surface/85 text-on-surface opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-surface-container-lowest hover:text-error md:h-8 md:w-8 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
           >
             <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current text-error" : ""}`} />
           </Button>
 
           {!isOutOfStock && (
-            <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
+            <div className="absolute inset-x-0 bottom-0 z-10 hidden justify-center bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100 md:flex">
               <Button
                 onClick={handleQuickAdd}
                 className="w-full rounded-lg bg-surface-container-lowest/90 py-2 text-sm font-medium text-primary shadow-sm backdrop-blur-md transition-colors hover:bg-surface-container-lowest"
@@ -126,19 +126,19 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
         <Link href={`/products/${product.id}`}>
-          <h3 className="truncate text-sm font-medium text-on-surface transition-colors hover:text-primary">
+          <h3 className="truncate text-xs font-medium sm:text-sm text-on-surface transition-colors hover:text-primary">
             {product.name}
           </h3>
         </Link>
         {product.salePrice ? (
           <div className="mt-1 flex items-center gap-2">
-            <p className="text-base font-medium text-error">${Number(product.salePrice).toFixed(2)}</p>
-            <p className="text-base font-medium text-outline line-through">${Number(product.price).toFixed(2)}</p>
+            <p className="text-sm font-medium text-error sm:text-base">${Number(product.salePrice).toFixed(2)}</p>
+            <p className="text-xs font-medium text-outline line-through sm:text-base">${Number(product.price).toFixed(2)}</p>
           </div>
         ) : (
-          <p className="mt-1 text-base font-medium text-on-surface-variant">${Number(product.price).toFixed(2)}</p>
+          <p className="mt-1 text-sm font-medium text-on-surface-variant sm:text-base">${Number(product.price).toFixed(2)}</p>
         )}
       </div>
     </article>

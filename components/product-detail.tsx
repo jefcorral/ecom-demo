@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronRight, Heart, ImageIcon, Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import { useCart } from "@/app/providers";
 import { ProductCard } from "@/components/product-card";
@@ -39,6 +39,7 @@ const addOns = [
 
 export function ProductDetail({ product, relatedProducts }: { product: Product; relatedProducts: Product[] }) {
   const { addItem } = useCart();
+  const mobileGalleryRef = useRef<HTMLDivElement>(null);
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState("Classic");
   const [note, setNote] = useState("");
@@ -61,6 +62,12 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
   const totalPrice = unitPrice * quantity + addOnTotal;
   const isOutOfStock = product.stock === 0;
 
+  function selectMobileImage(index: number) {
+    const galleryElement = mobileGalleryRef.current;
+    if (!galleryElement) return;
+    galleryElement.scrollTo({ left: galleryElement.clientWidth * index, behavior: "smooth" });
+  }
+
   async function handleAddToCart() {
     setAdding(true);
     try {
@@ -74,7 +81,7 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
   }
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="pb-40 md:pb-0">
       <div className="mx-auto w-full max-w-[1140px] px-4 py-8 md:px-8 md:py-16">
         <nav aria-label="Breadcrumb" className="mb-6 hidden items-center gap-1 text-xs text-on-surface-variant md:flex">
           <Link href="/" className="transition-colors hover:text-primary">Home</Link>
@@ -102,27 +109,46 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 ))}
               </div>
               <div className="group relative order-1 aspect-square flex-1 overflow-hidden bg-surface-container-high shadow-[0_4px_30px_rgba(44,62,42,0.06)] md:order-2 md:rounded-2xl">
-                {!imageError ? (
-                  <>
-                    {imageLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
-                    <Image
-                      key={gallery[selectedImage].src}
-                      src={gallery[selectedImage].src}
-                      alt={gallery[selectedImage].alt}
-                      fill
-                      priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      onLoad={() => setImageLoading(false)}
-                      onError={() => { setImageLoading(false); setImageError(true); }}
-                      className={`object-cover transition duration-700 group-hover:scale-105 ${imageLoading ? "opacity-0" : "opacity-100"}`}
-                    />
-                  </>
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-on-surface-variant">
-                    <ImageIcon className="h-16 w-16 stroke-1" />
-                    <span>No image available</span>
-                  </div>
-                )}
+                <div
+                  ref={mobileGalleryRef}
+                  tabIndex={0}
+                  aria-label="Product images"
+                  onScroll={(event) => setSelectedImage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowLeft") selectMobileImage(Math.max(0, selectedImage - 1));
+                    if (event.key === "ArrowRight") selectMobileImage(Math.min(gallery.length - 1, selectedImage + 1));
+                  }}
+                  className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth focus-visible:outline-2 focus-visible:outline-primary motion-reduce:scroll-auto md:hidden"
+                >
+                  {gallery.map((image, index) => (
+                    <div key={image.src} className="relative h-full w-full shrink-0 snap-center">
+                      <Image src={image.src} alt={image.alt} fill priority={index === 0} sizes="100vw" className="object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute inset-0 hidden md:block">
+                  {!imageError ? (
+                    <>
+                      {imageLoading && <Skeleton className="absolute inset-0 h-full w-full" />}
+                      <Image
+                        key={gallery[selectedImage].src}
+                        src={gallery[selectedImage].src}
+                        alt={gallery[selectedImage].alt}
+                        fill
+                        priority
+                        sizes="50vw"
+                        onLoad={() => setImageLoading(false)}
+                        onError={() => { setImageLoading(false); setImageError(true); }}
+                        className={`object-cover transition duration-700 group-hover:scale-105 ${imageLoading ? "opacity-0" : "opacity-100"}`}
+                      />
+                    </>
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-3 text-on-surface-variant">
+                      <ImageIcon className="h-16 w-16 stroke-1" />
+                      <span>No image available</span>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   aria-label={favorite ? "Remove from wishlist" : "Add to wishlist"}
@@ -134,7 +160,9 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 </button>
                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 md:hidden">
                   {gallery.map((image, index) => (
-                    <button key={image.src} type="button" aria-label={`View image ${index + 1}`} onClick={() => { setSelectedImage(index); setImageLoading(true); setImageError(false); }} className={`h-2 w-2 rounded-full ${selectedImage === index ? "bg-primary" : "bg-surface-variant"}`} />
+                    <button key={image.src} type="button" aria-label={`View image ${index + 1}`} aria-current={selectedImage === index} onClick={() => selectMobileImage(index)} className="flex h-11 w-11 items-center justify-center rounded-full">
+                      <span className={`h-2 w-2 rounded-full ${selectedImage === index ? "bg-primary" : "bg-surface-variant"}`} />
+                    </button>
                   ))}
                 </div>
               </div>
@@ -240,7 +268,7 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                     <article key={addOn.name} className="w-[140px] shrink-0 snap-start">
                       <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-container-high">
                         <Image src={addOn.image} alt={addOn.name} fill sizes="140px" className="object-cover" />
-                        <button type="button" aria-label={`${selected ? "Remove" : "Add"} ${addOn.name}`} aria-pressed={selected} onClick={() => setSelectedAddOns((current) => selected ? current.filter((name) => name !== addOn.name) : [...current, addOn.name])} className={`absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ${selected ? "bg-surface-container-lowest text-primary" : "bg-primary text-on-primary"}`}>
+                        <button type="button" aria-label={`${selected ? "Remove" : "Add"} ${addOn.name}`} aria-pressed={selected} onClick={() => setSelectedAddOns((current) => selected ? current.filter((name) => name !== addOn.name) : [...current, addOn.name])} className={`absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full shadow-md ${selected ? "bg-surface-container-lowest text-primary" : "bg-primary text-on-primary"}`}>
                           {selected ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                         </button>
                       </div>
