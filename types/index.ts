@@ -113,6 +113,10 @@ export interface Order {
   payment: Payment | null;
   shippingAddress: Address;
   billingAddress: Address;
+  discount?: number;
+  discountCode?: string | null;
+  requestedDeliveryDate?: string | null;
+  requestedDeliverySlot?: string | null;
 }
 
 export interface OrdersResponse {
@@ -141,4 +145,8 @@ export interface CheckoutResponse {
   shippingAddress: Address;
   billingAddress: Address;
   clientSecret: string | null;
+  discount?: number;
+  discountCode?: string | null;
+  requestedDeliveryDate?: string | null;
+  requestedDeliverySlot?: string | null;
 }

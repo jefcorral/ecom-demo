@@ -4,6 +4,9 @@ import { Address, CheckoutResponse } from "@/types";
 export interface CheckoutInput {
   shippingAddress: Address;
   billingAddress: Address;
+  requestedDeliveryDate?: string;
+  requestedDeliverySlot?: string;
+  discountCode?: string;
 }
 
 export async function checkout(input: CheckoutInput): Promise<CheckoutResponse> {

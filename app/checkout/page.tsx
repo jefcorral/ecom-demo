@@ -1,254 +1,148 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { useAuth } from "@/app/providers";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { checkout } from "@/lib/checkout";
-import { STRIPE_PUBLISHABLE_KEY } from "@/lib/env";
-import { Address, CheckoutResponse } from "@/types";
-import { toast } from "sonner";
+import { useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, CircleUserRound, CreditCard, Headphones, Leaf, LockKeyhole, ShieldCheck, Truck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+const steps = ["Delivery", "Payment", "Review", "Done"];
+const orderItems = [
+  { name: "Garden Rose & Peony", detail: "Qty: 1 · Signature Vase", price: 155, image: "/product-detail/bouquet-main.png" },
+  { name: "Artisan Chocolates", detail: "Qty: 1 · 12-Piece Box", price: 45, image: "/product-detail/packaging.png" },
+];
 
-const emptyAddress: Address = {
-  line1: "",
-  line2: "",
-  city: "",
-  state: "",
-  postalCode: "",
-  country: "",
-};
-
-function AddressFields({
-  value,
-  onChange,
-  idPrefix,
-}: {
-  value: Address;
-  onChange: (address: Address) => void;
-  idPrefix: string;
-}) {
-  const update = (field: keyof Address, fieldValue: string) => {
-    onChange({ ...value, [field]: fieldValue });
-  };
-
-  return (
-    <div className="grid gap-3">
-      <div>
-        <Label htmlFor={`${idPrefix}-line1`}>Address line 1</Label>
-        <Input
-          id={`${idPrefix}-line1`}
-          value={value.line1}
-          onChange={(e) => update("line1", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor={`${idPrefix}-line2`}>Address line 2 (optional)</Label>
-        <Input
-          id={`${idPrefix}-line2`}
-          value={value.line2 ?? ""}
-          onChange={(e) => update("line2", e.target.value)}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label htmlFor={`${idPrefix}-city`}>City</Label>
-          <Input
-            id={`${idPrefix}-city`}
-            value={value.city}
-            onChange={(e) => update("city", e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${idPrefix}-state`}>State / Province</Label>
-          <Input
-            id={`${idPrefix}-state`}
-            value={value.state}
-            onChange={(e) => update("state", e.target.value)}
-            required
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label htmlFor={`${idPrefix}-postalCode`}>Postal code</Label>
-          <Input
-            id={`${idPrefix}-postalCode`}
-            value={value.postalCode}
-            onChange={(e) => update("postalCode", e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${idPrefix}-country`}>Country</Label>
-          <Input
-            id={`${idPrefix}-country`}
-            value={value.country}
-            onChange={(e) => update("country", e.target.value)}
-            required
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StripePaymentForm() {
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: `${window.location.origin}/orders` },
-      redirect: "if_required",
-    });
-    if (error) {
-      toast.error(error.message ?? "Payment failed");
-    } else if (paymentIntent?.status === "succeeded") {
-      toast.success("Payment successful");
-      router.push("/orders");
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <PaymentElement />
-      <Button type="submit" className="mt-4 w-full" disabled={!stripe}>
-        Pay now
-      </Button>
-    </form>
-  );
-}
-
-function ManualPaymentConfirmation({ order }: { order: CheckoutResponse }) {
-  const router = useRouter();
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Your order has been placed. We accept manual payment methods (cash on
-        delivery, bank transfer, etc.) — our team will reach out to confirm
-        payment details.
-      </p>
-      <p className="text-sm font-medium">
-        Order total: ${Number(order.total).toFixed(2)}
-      </p>
-      <Button className="w-full" onClick={() => router.push(`/orders/${order.orderId}`)}>
-        View order
-      </Button>
-    </div>
-  );
-}
+const fieldClass = "h-12 w-full rounded-xl border border-transparent bg-surface-container-low px-4 text-base text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-container/30";
 
 export default function CheckoutPage() {
-  const { isLoggedIn, loading } = useAuth();
-  const [shippingAddress, setShippingAddress] = useState<Address>(emptyAddress);
-  const [billingAddress, setBillingAddress] = useState<Address>(emptyAddress);
-  const [sameAsShipping, setSameAsShipping] = useState(true);
+  const [step, setStep] = useState(0);
+  const [sameAsDelivery, setSameAsDelivery] = useState(true);
+  const [giftNoteOpen, setGiftNoteOpen] = useState(false);
+  const [giftNote, setGiftNote] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState("2026-09-01");
+  const [deliverySlot, setDeliverySlot] = useState("afternoon");
+  const [promo, setPromo] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [order, setOrder] = useState<CheckoutResponse | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const [address, setAddress] = useState({ firstName: "", lastName: "", phone: "", line1: "", line2: "", city: "", state: "", postalCode: "", country: "US" });
+  const subtotal = 200;
+  const delivery = 24;
+  const discount = promoApplied ? 16.6 : 0;
+  const tax = 16.9;
+  const total = subtotal + delivery + tax - discount;
+  const deliveryComplete = Boolean(address.firstName && address.lastName && address.line1 && address.city && address.state && address.postalCode && deliveryDate && deliverySlot);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  function updateAddress(field: keyof typeof address, value: string) {
+    setAddress((current) => ({ ...current, [field]: value }));
+  }
+
+  function continueToPayment(event: React.FormEvent) {
+    event.preventDefault();
+    if (deliveryComplete) setStep(1);
+  }
+
+  async function placeOrder() {
     setSubmitting(true);
-    try {
-      const result = await checkout({
-        shippingAddress,
-        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-      });
-      setOrder(result);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Checkout failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (loading) return null;
-
-  if (!isLoggedIn) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold">Please log in to checkout</h1>
-        <Link href="/login" className={cn(buttonVariants(), "mt-4")}>
-          Log in
-        </Link>
-      </div>
-    );
+    setPaymentError("");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setSubmitting(false);
+    setStep(3);
   }
 
-  if (order) {
-    return (
-      <div className="container mx-auto max-w-xl px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">Checkout</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {order.clientSecret ? (
-              <Elements stripe={stripePromise} options={{ clientSecret: order.clientSecret }}>
-                <StripePaymentForm />
-              </Elements>
-            ) : (
-              <ManualPaymentConfirmation order={order} />
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (step === 3) return <Confirmation total={total} address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} />;
 
   return (
-    <div className="container mx-auto max-w-xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Checkout</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Shipping address</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AddressFields value={shippingAddress} onChange={setShippingAddress} idPrefix="shipping" />
-          </CardContent>
-        </Card>
+    <div className="pb-36 lg:pb-0">
+      <div className="mx-auto w-full max-w-[1140px] px-4 py-8 md:px-8 md:py-12">
+        <Link href="/cart" className="mb-8 hidden items-center gap-2 text-sm text-on-surface-variant hover:text-primary md:flex"><ArrowLeft className="h-4 w-4" />Back to Cart</Link>
+        <Progress step={step} />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Billing address</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={sameAsShipping}
-                onChange={(e) => setSameAsShipping(e.target.checked)}
-              />
-              Same as shipping address
-            </label>
-            {!sameAsShipping && (
-              <AddressFields value={billingAddress} onChange={setBillingAddress} idPrefix="billing" />
+        <button type="button" className="-mx-4 mb-8 flex w-[calc(100%+2rem)] items-center justify-between border-y border-outline-variant/30 bg-surface-container-lowest px-6 py-5 text-left lg:hidden">
+          <span><strong className="block font-medium">Your order (2 items)</strong><span className="text-sm text-on-surface-variant">Review details</span></span>
+          <span className="flex items-center gap-3 font-serif text-xl">${total.toFixed(2)}<ChevronDown className="h-4 w-4" /></span>
+        </button>
+
+        <div className="grid items-start gap-10 lg:grid-cols-[1.45fr_1fr] lg:gap-16">
+          <main>
+            {step === 0 && (
+              <form onSubmit={continueToPayment}>
+                <h1 className="mb-8 font-serif text-3xl font-semibold md:text-4xl">Delivery Details</h1>
+                <section className="rounded-2xl bg-surface-container-lowest p-0 md:p-7 md:shadow-sm" aria-labelledby="recipient-title">
+                  <h2 id="recipient-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CircleUserRound className="h-5 w-5 text-primary" />Recipient Information</h2>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="First Name" value={address.firstName} onChange={(value) => updateAddress("firstName", value)} required />
+                    <Field label="Last Name" value={address.lastName} onChange={(value) => updateAddress("lastName", value)} required />
+                    <Field label="Phone Number" type="tel" value={address.phone} onChange={(value) => updateAddress("phone", value)} className="sm:col-span-2" />
+                    <Field label="Street Address" value={address.line1} onChange={(value) => updateAddress("line1", value)} required className="sm:col-span-2" />
+                    <Field label="Apt / Suite" value={address.line2} onChange={(value) => updateAddress("line2", value)} />
+                    <Field label="City" value={address.city} onChange={(value) => updateAddress("city", value)} required />
+                    <Field label="State" value={address.state} onChange={(value) => updateAddress("state", value)} required />
+                    <Field label="Zip Code" value={address.postalCode} onChange={(value) => updateAddress("postalCode", value)} required />
+                  </div>
+                </section>
+
+                <section className="mt-8 rounded-2xl bg-surface-container-lowest p-0 md:p-7 md:shadow-sm" aria-labelledby="timing-title">
+                  <h2 id="timing-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CalendarDays className="h-5 w-5 text-primary" />Delivery Timing</h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <label className="text-sm font-medium">Select Date<input type="date" min="2026-08-31" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} className={`${fieldClass} mt-2`} required /></label>
+                    <fieldset><legend className="mb-2 text-sm font-medium">Select Time Window</legend><div className="space-y-2">{[["morning", "Morning (8am - 12pm)"], ["afternoon", "Afternoon (12pm - 4pm)"], ["evening", "Evening (4pm - 8pm)"]].map(([value, label]) => <button key={value} type="button" aria-pressed={deliverySlot === value} onClick={() => setDeliverySlot(value)} className={`flex h-12 w-full items-center justify-between rounded-xl px-4 text-left transition ${deliverySlot === value ? "bg-primary-fixed text-on-primary-fixed" : "bg-surface-container"}`}><span>{label}</span><span className={`h-5 w-5 rounded-full border ${deliverySlot === value ? "border-[6px] border-primary" : "border-outline-variant"}`} /></button>)}</div></fieldset>
+                  </div>
+                </section>
+
+                <section className="mt-8 rounded-2xl bg-surface-container-lowest p-5 shadow-sm md:p-7">
+                  <button type="button" onClick={() => setGiftNoteOpen((value) => !value)} className="flex min-h-11 w-full items-center justify-between font-serif text-xl font-semibold"><span>Add a Gift Note</span><span className="text-2xl font-normal">{giftNoteOpen ? "−" : "+"}</span></button>
+                  {giftNoteOpen && <div className="relative mt-4"><textarea value={giftNote} maxLength={200} onChange={(event) => setGiftNote(event.target.value)} className="min-h-28 w-full resize-none rounded-xl border border-outline-variant bg-surface-container-low p-4 pb-8 focus:border-primary focus:outline-none" placeholder="Write a heartfelt message..." /><span className="absolute bottom-3 right-3 text-xs text-on-surface-variant">{giftNote.length}/200</span></div>}
+                </section>
+
+                <label className="mt-6 flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={sameAsDelivery} onChange={(event) => setSameAsDelivery(event.target.checked)} className="h-5 w-5 accent-primary" />Billing address is the same as delivery address</label>
+                {!sameAsDelivery && <div className="mt-4 rounded-xl border border-outline-variant p-4 text-sm text-on-surface-variant">Billing address fields will be collected with payment details.</div>}
+                <Button type="submit" disabled={!deliveryComplete} className="mt-8 h-14 w-full rounded-xl bg-primary text-sm font-bold uppercase tracking-[0.14em] text-on-primary hover:bg-primary/90 lg:hidden">Continue to Payment</Button>
+              </form>
             )}
-          </CardContent>
-        </Card>
 
-        <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? "Placing order..." : "Place order"}
-        </Button>
-      </form>
+            {step === 1 && <PaymentStep address={address} sameAsDelivery={sameAsDelivery} setSameAsDelivery={setSameAsDelivery} paymentError={paymentError} errorRef={errorRef} onContinue={() => setStep(2)} onError={() => { setPaymentError("Payment could not be processed. Check your details and try again."); setTimeout(() => errorRef.current?.focus(), 0); }} />}
+            {step === 2 && <ReviewStep address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} onEditDelivery={() => setStep(0)} onEditPayment={() => setStep(1)} />}
+          </main>
+
+          <aside className="hidden lg:block lg:sticky lg:top-24"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></aside>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-outline-variant/30 bg-surface/95 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4"><div><span className="block text-xs font-medium text-on-surface-variant">Total Amount</span><strong className="font-serif text-2xl">${total.toFixed(2)}</strong></div><Button disabled={(step === 0 && !deliveryComplete) || submitting} onClick={() => step === 0 ? setStep(1) : step === 1 ? setStep(2) : placeOrder()} className="h-14 min-w-52 rounded-lg bg-primary text-sm font-bold uppercase tracking-wider text-on-primary hover:bg-primary/90">{step === 0 ? "Continue to Payment" : step === 1 ? "Review Order" : submitting ? "Placing Order..." : "Complete Order"}</Button></div>
+      </div>
     </div>
   );
 }
+
+function Progress({ step }: { step: number }) {
+  return <ol className="relative mb-12 flex justify-between before:absolute before:left-4 before:right-4 before:top-4 before:h-px before:bg-outline-variant md:mx-auto md:max-w-2xl">{steps.map((label, index) => <li key={label} className="relative z-10 flex flex-col items-center gap-1 bg-surface px-1"><span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm ${index < step ? "bg-primary text-on-primary" : index === step ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant"}`}>{index < step ? <Check className="h-4 w-4" /> : index + 1}</span><span className="text-xs">{label}</span></li>)}</ol>;
+}
+
+function Field({ label, value, onChange, required = false, type = "text", className = "" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; className?: string }) {
+  const id = label.toLowerCase().replaceAll(" ", "-").replaceAll("/", "-");
+  return <label htmlFor={id} className={`text-sm font-medium ${className}`}>{label}<input id={id} type={type} value={value} onChange={(event) => onChange(event.target.value)} required={required} className={`${fieldClass} mt-2`} /></label>;
+}
+
+function PaymentStep({ address, sameAsDelivery, setSameAsDelivery, paymentError, errorRef, onContinue, onError }: { address: Record<string, string>; sameAsDelivery: boolean; setSameAsDelivery: (value: boolean) => void; paymentError: string; errorRef: React.RefObject<HTMLDivElement>; onContinue: () => void; onError: () => void }) {
+  const [card, setCard] = useState({ number: "", expiry: "", cvc: "", name: `${address.firstName} ${address.lastName}`.trim() });
+  return <section><h1 className="font-serif text-3xl font-semibold md:text-4xl">Payment Method</h1><p className="mt-2 text-on-surface-variant">All transactions are secure and encrypted.</p>{paymentError && <div ref={errorRef} tabIndex={-1} role="alert" className="mt-6 rounded-xl bg-error-container p-4 text-sm text-on-error-container outline-none"><strong className="block">Payment could not be processed</strong>{paymentError}<button type="button" onClick={onError} className="ml-2 font-semibold underline">Try Again</button></div>}<div className="mt-8 rounded-2xl bg-surface-container-lowest p-6 shadow-sm"><div className="mb-6 flex gap-4 border-b border-outline-variant/30 pb-5"><span className="flex items-center gap-2 rounded-full bg-surface-container px-4 py-2 text-sm"><CreditCard className="h-4 w-4" />Credit Card</span><span className="px-4 py-2 text-sm">PayPal</span></div><div className="grid gap-4 sm:grid-cols-2"><Field label="Card Number" value={card.number} onChange={(value) => setCard((current) => ({ ...current, number: value }))} className="sm:col-span-2" /><Field label="Expiry Date" value={card.expiry} onChange={(value) => setCard((current) => ({ ...current, expiry: value }))} /><Field label="CVC" value={card.cvc} onChange={(value) => setCard((current) => ({ ...current, cvc: value }))} /><Field label="Name on Card" value={card.name} onChange={(value) => setCard((current) => ({ ...current, name: value }))} className="sm:col-span-2" /></div><label className="mt-5 flex min-h-11 items-center gap-3"><input type="checkbox" checked={sameAsDelivery} onChange={(event) => setSameAsDelivery(event.target.checked)} className="h-5 w-5 accent-primary" />Billing address is same as delivery address</label><div className="mt-6 flex items-center gap-3 text-xs text-on-surface-variant"><ShieldCheck className="h-5 w-5 text-primary" />PCI DSS compliant payment form placeholder. Stripe Elements remains the production payment provider.</div><div className="mt-6 flex gap-3"><Button type="button" variant="outline" onClick={onError} className="h-12 flex-1 rounded-full">Simulate Error</Button><Button type="button" onClick={onContinue} className="h-12 flex-1 rounded-full bg-primary text-on-primary">Review Order</Button></div></div></section>;
+}
+
+function ReviewStep({ address, deliveryDate, deliverySlot, onEditDelivery, onEditPayment }: { address: Record<string, string>; deliveryDate: string; deliverySlot: string; onEditDelivery: () => void; onEditPayment: () => void }) {
+  return <section><h1 className="mb-8 font-serif text-3xl font-semibold md:text-4xl">Review Your Order</h1><div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm"><div className="mb-5 flex justify-between text-xs uppercase tracking-wider"><span>Items (2)</span><Link href="/cart" className="text-primary">Edit Cart</Link></div>{orderItems.map((item) => <div key={item.name} className="flex items-center gap-4 border-b border-outline-variant/30 py-4"><div className="relative h-16 w-16 overflow-hidden rounded-lg"><Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" /></div><div className="flex-1"><strong>{item.name}</strong><p className="text-sm text-on-surface-variant">{item.detail}</p></div><span>${item.price.toFixed(2)}</span></div>)}<div className="mt-6 grid gap-6 sm:grid-cols-2"><div><div className="flex justify-between text-xs uppercase tracking-wider"><span>Delivery to</span><button onClick={onEditDelivery} className="text-primary">Edit</button></div><p className="mt-3">{address.firstName} {address.lastName}<br />{address.line1}<br />{address.city}, {address.state} {address.postalCode}</p></div><div className="sm:border-l sm:border-outline-variant/30 sm:pl-6"><div className="flex justify-between text-xs uppercase tracking-wider"><span>Schedule</span><button onClick={onEditDelivery} className="text-primary">Edit</button></div><p className="mt-3 flex gap-2"><CalendarDays className="h-5 w-5 text-primary" />{deliveryDate}<br />{deliverySlot}</p><button onClick={onEditPayment} className="mt-4 text-sm text-primary underline">Edit payment</button></div></div></div></section>;
+}
+
+function OrderSummary({ step, subtotal, delivery, discount, tax, total, promo, promoApplied, onPromoChange, onPromoApply, onContinue, submitting }: { step: number; subtotal: number; delivery: number; discount: number; tax: number; total: number; promo: string; promoApplied: boolean; onPromoChange: (value: string) => void; onPromoApply: () => void; onContinue: () => void; submitting: boolean }) {
+  return <div className="rounded-2xl bg-surface-container-lowest p-7 shadow-[0_10px_30px_rgba(44,62,42,0.12)]"><h2 className="border-b border-outline-variant/30 pb-5 font-serif text-2xl font-semibold">Order Summary</h2><div className="space-y-4 py-5">{orderItems.map((item) => <div key={item.name} className="flex gap-4"><div className="relative h-20 w-20 overflow-hidden rounded-lg"><Image src={item.image} alt={item.name} fill sizes="80px" className="object-cover" /></div><div className="min-w-0 flex-1"><span className="text-xs uppercase tracking-wider text-on-surface-variant">{item.name.includes("Chocolate") ? "Add-on" : "Arrangement"}</span><strong className="block text-lg">{item.name}</strong><span className="text-sm text-on-surface-variant">{item.detail}</span></div><span className="text-sm">${item.price.toFixed(2)}</span></div>)}</div>{step === 0 && <div className="mb-5 flex rounded-full border border-outline-variant bg-surface-container-low px-4"><input value={promo} onChange={(event) => onPromoChange(event.target.value)} placeholder="Promo code" className="h-11 min-w-0 flex-1 bg-transparent outline-none" /><button onClick={onPromoApply} className="text-sm text-primary">{promoApplied ? "Applied" : "Apply"}</button></div>}<dl className="space-y-4 border-y border-outline-variant/30 py-5"><SummaryRow label="Subtotal" value={subtotal} /><SummaryRow label="Delivery Fee" value={delivery} />{promoApplied && <SummaryRow label="Discount" value={-discount} accent />}<SummaryRow label="Taxes" value={tax} /></dl><div className="flex items-end justify-between py-6"><span className="font-serif text-2xl font-semibold">Total</span><strong className="font-serif text-4xl text-primary">${total.toFixed(2)}</strong></div><Button disabled={submitting || (step === 0 && !promoApplied && false)} onClick={onContinue} className="h-14 w-full rounded-full bg-primary text-on-primary hover:bg-primary/90">{step === 0 ? "Continue to Payment" : step === 1 ? "Review Order" : submitting ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}<ArrowRight className="h-4 w-4" /></Button><p className="mt-5 flex items-center justify-center gap-2 text-xs"><LockKeyhole className="h-4 w-4" />Secure, encrypted checkout</p></div>;
+}
+
+function SummaryRow({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) { return <div className={`flex justify-between ${accent ? "text-primary" : ""}`}><dt>{label}</dt><dd>${value.toFixed(2)}</dd></div>; }
+
+function Confirmation({ total, address, deliveryDate, deliverySlot }: { total: number; address: Record<string, string>; deliveryDate: string; deliverySlot: string }) {
+  return <div className="mx-auto w-full max-w-[1000px] px-4 py-16 text-center md:py-24"><div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-lg"><Check className="h-14 w-14" /></div><p className="mt-7 text-xs uppercase tracking-[0.2em]">Order #ORD-9025</p><h1 className="mt-4 font-serif text-4xl font-semibold md:text-5xl">Order Confirmed!</h1><p className="mx-auto mt-5 max-w-2xl text-on-surface-variant">Thank you for choosing Bloom & Stem. Your artisanal arrangement is being carefully prepared.</p><div className="mt-8 flex justify-center gap-3"><Button render={<Link href="/orders" />} className="h-12 rounded-full bg-primary px-7 text-on-primary">Track Your Order</Button><Button render={<Link href="/products" />} variant="outline" className="h-12 rounded-full px-7">Continue Shopping</Button></div><div className="mt-14 grid gap-6 text-left md:grid-cols-[1.5fr_1fr]"><div className="rounded-2xl bg-surface-container-lowest p-7 shadow-sm"><div className="mb-5 flex justify-between"><h2 className="font-serif text-2xl font-semibold">Order Summary</h2><span>2 Items</span></div>{orderItems.map((item) => <div key={item.name} className="flex items-center gap-4 border-t border-outline-variant/30 py-5"><div className="relative h-24 w-24 overflow-hidden rounded-lg"><Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover" /></div><div className="flex-1"><strong className="font-serif text-xl">{item.name}</strong><p className="text-sm text-on-surface-variant">{item.detail}</p></div><span>${item.price.toFixed(2)}</span></div>)}</div><div className="space-y-6"><div className="rounded-2xl bg-primary-fixed p-7"><h2 className="flex items-center gap-2 font-serif text-2xl font-semibold"><Truck className="h-6 w-6" />Delivery Details</h2><p className="mt-5 text-xs uppercase tracking-wider">Date & Time</p><p>{deliveryDate}<br />{deliverySlot}</p><p className="mt-5 text-xs uppercase tracking-wider">Recipient</p><p>{address.firstName} {address.lastName}<br />{address.line1}<br />{address.city}, {address.state} {address.postalCode}</p></div><div className="rounded-2xl bg-surface-container-lowest p-7 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Receipt</h2><dl className="mt-5 space-y-3"><SummaryRow label="Total" value={total} /></dl></div></div></div><div className="mt-16 grid gap-8 border-t border-outline-variant/30 pt-10 text-left md:grid-cols-3"><Trust icon={ShieldCheck} title="Secure Checkout" /><Trust icon={Leaf} title="Freshness Guarantee" /><Trust icon={Headphones} title="Expert Support" /></div></div>;
+}
+
+function Trust({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) { return <div><Icon className="h-6 w-6 text-primary" /><h3 className="mt-3 font-serif text-xl font-semibold">{title}</h3><p className="mt-1 text-sm text-on-surface-variant">Your experience is protected and supported.</p></div>; }
