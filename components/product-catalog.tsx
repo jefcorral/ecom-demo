@@ -150,7 +150,7 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
 
   return (
     <div className="mx-auto max-w-[1140px] px-4 lg:px-6">
-      <div className="border-b border-outline-variant/30 bg-surface-container-lowest py-6 lg:py-8">
+      <div className="sticky top-16 z-30 border-b border-outline-variant/30 bg-surface-container-lowest py-4 lg:py-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-serif text-2xl font-semibold text-primary lg:text-3xl">Shop All Flowers</h1>

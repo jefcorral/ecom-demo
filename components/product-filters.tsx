@@ -89,6 +89,9 @@ export function ProductFilters({ categories, activeCategoryId, onCategoryChange 
           }
         />
         <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl bg-surface-container-lowest p-0">
+          <div className="flex w-full justify-center pt-3 pb-1">
+            <div className="h-1.5 w-12 rounded-full bg-surface-variant" />
+          </div>
           <SheetHeader className="border-b border-outline-variant/30 p-4">
             <div className="flex items-center justify-between">
               <SheetTitle className="font-serif text-xl font-semibold text-on-surface">Filters</SheetTitle>
@@ -102,7 +105,15 @@ export function ProductFilters({ categories, activeCategoryId, onCategoryChange 
               </Button>
             </div>
           </SheetHeader>
-          <div className="p-4">{content}</div>
+          <div className="max-h-[calc(85vh-8rem)] overflow-y-auto p-4">{content}</div>
+          <div className="absolute inset-x-0 bottom-0 border-t border-outline-variant/30 bg-surface-container-lowest p-4">
+            <Button
+              className="w-full rounded-full bg-primary text-on-primary hover:bg-primary/90"
+              onClick={() => setOpen(false)}
+            >
+              Show Results
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     </>
