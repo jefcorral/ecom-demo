@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Gift, Info, Leaf, LockKeyhole, Minus, PackageOpen, Plus, ShoppingBag, Truck, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Gift, Info, Leaf, LockKeyhole, Minus, PackageOpen, Plus, ShoppingBag, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockProducts } from "@/lib/mock-data";
 
@@ -143,27 +143,24 @@ function CartLineItem({ item, onQuantityChange, onRemove }: { item: CartItem; on
   const lowStock = item.stock <= 2;
 
   return (
-    <article className="group relative flex gap-4 py-6 first:pt-0 md:rounded-xl md:bg-surface-container-lowest md:p-6 md:shadow-sm">
-      <Link href={`/products/${item.product.id}`} className="relative h-28 w-24 shrink-0 overflow-hidden rounded-lg bg-surface-container md:h-[140px] md:w-[140px]">
+    <article className="group relative flex flex-col gap-lg overflow-hidden rounded-xl bg-surface-container-lowest p-lg shadow-sm transition-shadow hover:shadow-md sm:flex-row">
+      <Link href={`/products/${item.product.id}`} className="relative h-[140px] w-full shrink-0 overflow-hidden rounded-lg bg-surface-container sm:w-[140px]">
         {item.image ? <Image src={item.image} alt={item.name} fill unoptimized sizes="140px" className="object-cover transition-transform duration-700 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center"><Gift className="h-8 w-8 text-outline-variant" /></div>}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col justify-between">
-        <div className="pr-8 md:pr-0">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <Link href={`/products/${item.product.id}`} className="font-medium leading-6 text-on-surface hover:text-primary md:font-serif md:text-lg md:font-semibold">{item.name}</Link>
-              <p className="mt-1 text-sm text-on-surface-variant">{item.variant.includes("assortment") ? item.variant : `Size: ${item.variant}`}</p>
-              {item.delivery && <p className="mt-2 hidden w-fit items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-xs text-primary md:flex"><Truck className="h-3 w-3" />{item.delivery}</p>}
-              {item.note && <p className="mt-2 hidden items-center gap-1 text-xs text-on-surface-variant md:flex"><Gift className="h-3 w-3" />{item.note}</p>}
-              {lowStock && <p className="mt-2 w-fit rounded-full bg-primary-container px-2 py-0.5 text-xs font-medium text-on-primary-container">Only {item.stock} left</p>}
-            </div>
-            <strong className="hidden whitespace-nowrap text-sm md:block">${(price * item.quantity).toFixed(2)}</strong>
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="truncate font-serif text-lg font-semibold text-on-surface"><Link href={`/products/${item.product.id}`} className="hover:text-primary">{item.name}</Link></h3>
+            <p className="mt-1 text-base text-on-surface-variant">{item.variant.includes("assortment") ? item.variant : `Size: ${item.variant}`}</p>
+            {item.delivery && <p className="mt-3 flex w-fit items-center gap-2 rounded-full bg-surface-container px-3 py-1 text-xs text-primary-container"><Truck className="h-3.5 w-3.5" />{item.delivery}</p>}
+            {item.note && <p className="mt-2 flex items-center gap-2 text-xs text-on-surface-variant"><Gift className="h-3.5 w-3.5" />{item.note}</p>}
+            {lowStock && <p className="mt-2 flex w-fit items-center gap-1 text-xs text-error"><Info className="h-3.5 w-3.5" />Only {item.stock} left</p>}
           </div>
+          <strong className="whitespace-nowrap text-base font-semibold">${(price * item.quantity).toFixed(2)}</strong>
         </div>
-        <button type="button" aria-label={`Remove ${item.name}`} onClick={() => onRemove(item.id)} className="absolute right-0 top-6 flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-error-container hover:text-error md:bottom-5 md:top-auto md:h-auto md:w-auto md:rounded-none md:text-xs md:uppercase md:tracking-widest md:underline md:underline-offset-4"><X className="h-5 w-5 md:hidden" /><span className="hidden md:inline">Remove</span></button>
-        <div className="mt-3 flex items-end justify-between border-outline-variant/30 md:border-t md:pt-4">
+        <div className="relative mt-4 flex items-center justify-between pt-4 before:absolute before:left-0 before:top-0 before:h-px before:w-full before:bg-outline-variant/30 sm:mt-0">
           <QuantityControl value={item.quantity} max={item.stock} onChange={(quantity) => onQuantityChange(item.id, quantity)} />
-          <strong className="text-sm md:hidden">${(price * item.quantity).toFixed(2)}</strong>
+          <button type="button" aria-label={`Remove ${item.name}`} onClick={() => onRemove(item.id)} className="text-xs uppercase tracking-widest text-on-surface-variant underline decoration-outline-variant underline-offset-4 transition-colors hover:text-error hover:decoration-error">Remove</button>
         </div>
       </div>
     </article>
