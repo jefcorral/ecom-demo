@@ -127,14 +127,21 @@ export default function CheckoutPage() {
 
 function Progress({ step }: { step: number }) {
   return (
-    <ol className="flex items-center justify-between max-w-2xl mx-auto mb-2xl relative w-full before:absolute before:left-0 before:top-4 before:h-0.5 before:w-full before:bg-outline-variant">
-      {steps.map((label, index) => (
-        <li key={label} className={`relative z-10 flex flex-col items-center gap-xs ${index > 1 ? "hidden md:flex" : "flex"}`}>
-          <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm shadow-sm ${index <= step ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"}`}>{index < step ? <Check className="h-4 w-4" /> : index + 1}</span>
-          <span className={`text-xs ${index === step ? "font-semibold text-on-surface" : "text-on-surface-variant"}`}>{label}</span>
-        </li>
-      ))}
-    </ol>
+    <div className="flex items-center justify-between max-w-2xl mx-auto mb-2xl relative">
+      <div className="absolute top-1/2 left-0 w-full h-0.5 bg-outline-variant -translate-y-1/2 z-0" />
+      {steps.map((label, index) => {
+        const active = index === step;
+        const complete = index < step;
+        return (
+          <div key={label} className="flex flex-col items-center gap-xs relative z-10">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-label-md text-label-md transform hover:scale-95 transition-transform cursor-default ${active || complete ? "bg-primary text-on-primary shadow-md" : "bg-surface-container-high text-on-surface-variant"}`}>
+              {complete ? <Check className="h-4 w-4" /> : index === 0 ? <Truck className="h-4 w-4" /> : index === 3 ? <Check className="h-4 w-4" /> : index + 1}
+            </div>
+            <span className={`font-label-sm text-label-sm ${active ? "text-on-surface" : "text-on-surface-variant"}`}>{label}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
