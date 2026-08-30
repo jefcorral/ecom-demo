@@ -64,28 +64,29 @@ export default function CheckoutPage() {
           <span className="flex items-center gap-3 font-serif text-xl">${total.toFixed(2)}<ChevronDown className="h-4 w-4" /></span>
         </button>
 
-        <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl relative items-start">
           <main className="flex flex-col gap-xl lg:col-span-7">
             {step === 0 && (
-              <form onSubmit={continueToPayment}>
-                <h1 className="mb-8 font-serif text-3xl font-semibold md:text-4xl">Delivery Details</h1>
-                <section className="rounded-xl bg-surface-container-lowest p-0 md:p-lg md:shadow-sm" aria-labelledby="recipient-title">
-                  <h2 id="recipient-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CircleUserRound className="h-5 w-5 text-primary" />Recipient Information</h2>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="First Name" value={address.firstName} onChange={(value) => updateAddress("firstName", value)} required />
-                    <Field label="Last Name" value={address.lastName} onChange={(value) => updateAddress("lastName", value)} required />
-                    <Field label="Phone Number" type="tel" value={address.phone} onChange={(value) => updateAddress("phone", value)} className="sm:col-span-2" />
-                    <Field label="Street Address" value={address.line1} onChange={(value) => updateAddress("line1", value)} required className="sm:col-span-2" />
-                    <Field label="Apt / Suite" value={address.line2} onChange={(value) => updateAddress("line2", value)} />
-                    <Field label="City" value={address.city} onChange={(value) => updateAddress("city", value)} required />
-                    <Field label="State" value={address.state} onChange={(value) => updateAddress("state", value)} required />
-                    <Field label="Zip Code" value={address.postalCode} onChange={(value) => updateAddress("postalCode", value)} required />
+              <form onSubmit={continueToPayment} className="flex flex-col gap-xl">
+                <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-md">Delivery Details</h1>
+                <section className="bg-surface-container-lowest rounded-xl p-lg shadow-sm" aria-labelledby="recipient-title">
+                  <h2 id="recipient-title" className="font-headline-md text-headline-md text-on-surface mb-lg flex items-center gap-sm"><CircleUserRound className="h-5 w-5 text-primary" />Recipient Information</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <Field label="First Name" placeholder="Jane" value={address.firstName} onChange={(value) => updateAddress("firstName", value)} required />
+                    <Field label="Last Name" placeholder="Doe" value={address.lastName} onChange={(value) => updateAddress("lastName", value)} required />
+                    <Field label="Phone Number" placeholder="(555) 123-4567" type="tel" value={address.phone} onChange={(value) => updateAddress("phone", value)} className="md:col-span-2" />
+                    <Field label="Street Address" placeholder="123 Floral Way, Apt 4B" value={address.line1} onChange={(value) => updateAddress("line1", value)} required className="md:col-span-2" />
+                    <Field label="City" placeholder="New York" value={address.city} onChange={(value) => updateAddress("city", value)} required />
+                    <div className="grid grid-cols-2 gap-md">
+                      <label className="flex flex-col gap-xs"><span className="font-label-sm text-label-sm text-on-surface-variant ml-sm">State</span><select value={address.state} onChange={(event) => updateAddress("state", event.target.value)} className="w-full bg-surface rounded-full px-md py-sm text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-shadow appearance-none cursor-pointer"><option value="">State</option><option>NY</option><option>CA</option></select></label>
+                      <Field label="Zip" placeholder="10001" value={address.postalCode} onChange={(value) => updateAddress("postalCode", value)} required />
+                    </div>
                   </div>
                 </section>
 
-                <section className="mt-8 rounded-xl bg-surface-container-lowest p-0 md:p-lg md:shadow-sm" aria-labelledby="timing-title">
-                  <h2 id="timing-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CalendarDays className="h-5 w-5 text-primary" />Delivery Timing</h2>
-                  <div className="grid gap-6 md:grid-cols-2">
+                <section className="bg-surface-container-lowest rounded-xl p-lg shadow-sm" aria-labelledby="timing-title">
+                  <h2 id="timing-title" className="font-headline-md text-headline-md text-on-surface mb-lg flex items-center gap-sm"><CalendarDays className="h-5 w-5 text-primary" />Delivery Timing</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
                     <div>
                       <label className="mb-sm ml-sm block text-xs font-semibold text-on-surface-variant">Select Date</label>
                       <input type="date" min="2026-08-31" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} className={`${fieldClass} md:hidden`} required />
@@ -99,13 +100,11 @@ export default function CheckoutPage() {
                   </div>
                 </section>
 
-                <section className="mt-8 rounded-2xl bg-surface-container-lowest p-5 shadow-sm md:p-7">
-                  <button type="button" onClick={() => setGiftNoteOpen((value) => !value)} className="flex min-h-11 w-full items-center justify-between font-serif text-xl font-semibold"><span>Add a Gift Note</span><span className="text-2xl font-normal">{giftNoteOpen ? "−" : "+"}</span></button>
+                <section className="bg-surface-container-lowest rounded-xl p-lg shadow-sm">
+                  <button type="button" onClick={() => setGiftNoteOpen((value) => !value)} className="w-full flex items-center justify-between focus:outline-none group transform hover:scale-98 transition-transform"><span className="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">Add a Gift Note</span><span className="text-2xl font-normal text-on-surface-variant group-hover:text-primary">{giftNoteOpen ? "−" : "+"}</span></button>
                   {giftNoteOpen && <div className="relative mt-4"><textarea value={giftNote} maxLength={200} onChange={(event) => setGiftNote(event.target.value)} className="min-h-28 w-full resize-none rounded-xl border border-outline-variant bg-surface-container-low p-4 pb-8 focus:border-primary focus:outline-none" placeholder="Write a heartfelt message..." /><span className="absolute bottom-3 right-3 text-xs text-on-surface-variant">{giftNote.length}/200</span></div>}
                 </section>
 
-                <label className="mt-6 flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={sameAsDelivery} onChange={(event) => setSameAsDelivery(event.target.checked)} className="h-5 w-5 accent-primary" />Billing address is the same as delivery address</label>
-                {!sameAsDelivery && <div className="mt-4 rounded-xl border border-outline-variant p-4 text-sm text-on-surface-variant">Billing address fields will be collected with payment details.</div>}
                 <Button type="submit" disabled={!deliveryComplete} className="mt-8 h-14 w-full rounded-xl bg-primary text-sm font-bold uppercase tracking-[0.14em] text-on-primary hover:bg-primary/90 lg:hidden">Continue to Payment</Button>
               </form>
             )}
@@ -114,7 +113,7 @@ export default function CheckoutPage() {
             {step === 2 && <ReviewStep address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} onEditDelivery={() => setStep(0)} onEditPayment={() => setStep(1)} />}
           </main>
 
-          <aside className="relative hidden lg:col-span-5 lg:block"><div className="sticky top-28"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></div></aside>
+          <aside className="relative hidden lg:col-span-5 lg:block"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></aside>
         </div>
       </div>
 
@@ -145,9 +144,9 @@ function Progress({ step }: { step: number }) {
   );
 }
 
-function Field({ label, value, onChange, required = false, type = "text", className = "" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; className?: string }) {
+function Field({ label, placeholder = "", value, onChange, required = false, type = "text", className = "" }: { label: string; placeholder?: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; className?: string }) {
   const id = label.toLowerCase().replaceAll(" ", "-").replaceAll("/", "-");
-  return <label htmlFor={id} className={`text-sm font-medium ${className}`}>{label}<input id={id} type={type} value={value} onChange={(event) => onChange(event.target.value)} required={required} className={`${fieldClass} mt-2`} /></label>;
+  return <label htmlFor={id} className={`flex flex-col gap-xs ${className}`}><span className="font-label-sm text-label-sm text-on-surface-variant ml-sm">{label}</span><input id={id} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} required={required} className="w-full bg-surface rounded-full px-md py-sm text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-shadow" /></label>;
 }
 
 function PaymentStep({ address, sameAsDelivery, setSameAsDelivery, paymentError, errorRef, onContinue, onError }: { address: Record<string, string>; sameAsDelivery: boolean; setSameAsDelivery: (value: boolean) => void; paymentError: string; errorRef: React.RefObject<HTMLDivElement>; onContinue: () => void; onError: () => void }) {
@@ -159,8 +158,25 @@ function ReviewStep({ address, deliveryDate, deliverySlot, onEditDelivery, onEdi
   return <section><h1 className="mb-8 font-serif text-3xl font-semibold md:text-4xl">Review Your Order</h1><div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm"><div className="mb-5 flex justify-between text-xs uppercase tracking-wider"><span>Items (2)</span><Link href="/cart" className="text-primary">Edit Cart</Link></div>{orderItems.map((item) => <div key={item.name} className="flex items-center gap-4 border-b border-outline-variant/30 py-4"><div className="relative h-16 w-16 overflow-hidden rounded-lg"><Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" /></div><div className="flex-1"><strong>{item.name}</strong><p className="text-sm text-on-surface-variant">{item.detail}</p></div><span>${item.price.toFixed(2)}</span></div>)}<div className="mt-6 grid gap-6 sm:grid-cols-2"><div><div className="flex justify-between text-xs uppercase tracking-wider"><span>Delivery to</span><button onClick={onEditDelivery} className="text-primary">Edit</button></div><p className="mt-3">{address.firstName} {address.lastName}<br />{address.line1}<br />{address.city}, {address.state} {address.postalCode}</p></div><div className="sm:border-l sm:border-outline-variant/30 sm:pl-6"><div className="flex justify-between text-xs uppercase tracking-wider"><span>Schedule</span><button onClick={onEditDelivery} className="text-primary">Edit</button></div><p className="mt-3 flex gap-2"><CalendarDays className="h-5 w-5 text-primary" />{deliveryDate}<br />{deliverySlot}</p><button onClick={onEditPayment} className="mt-4 text-sm text-primary underline">Edit payment</button></div></div></div></section>;
 }
 
-function OrderSummary({ step, subtotal, delivery, discount, tax, total, promo, promoApplied, onPromoChange, onPromoApply, onContinue, submitting }: { step: number; subtotal: number; delivery: number; discount: number; tax: number; total: number; promo: string; promoApplied: boolean; onPromoChange: (value: string) => void; onPromoApply: () => void; onContinue: () => void; submitting: boolean }) {
-  return <div className="rounded-2xl bg-surface-container-lowest p-7 shadow-[0_10px_30px_rgba(44,62,42,0.12)]"><h2 className="border-b border-outline-variant/30 pb-5 font-serif text-2xl font-semibold">Order Summary</h2><div className="space-y-4 py-5">{orderItems.map((item) => <div key={item.name} className="flex gap-4"><div className="relative h-20 w-20 overflow-hidden rounded-lg"><Image src={item.image} alt={item.name} fill sizes="80px" className="object-cover" /></div><div className="min-w-0 flex-1"><span className="text-xs uppercase tracking-wider text-on-surface-variant">{item.name.includes("Chocolate") ? "Add-on" : "Arrangement"}</span><strong className="block text-lg">{item.name}</strong><span className="text-sm text-on-surface-variant">{item.detail}</span></div><span className="text-sm">${item.price.toFixed(2)}</span></div>)}</div>{step === 0 && <div className="mb-5 flex rounded-full border border-outline-variant bg-surface-container-low px-4"><input value={promo} onChange={(event) => onPromoChange(event.target.value)} placeholder="Promo code" className="h-11 min-w-0 flex-1 bg-transparent outline-none" /><button onClick={onPromoApply} className="text-sm text-primary">{promoApplied ? "Applied" : "Apply"}</button></div>}<dl className="space-y-4 border-y border-outline-variant/30 py-5"><SummaryRow label="Subtotal" value={subtotal} /><SummaryRow label="Delivery Fee" value={delivery} />{promoApplied && <SummaryRow label="Discount" value={-discount} accent />}<SummaryRow label="Taxes" value={tax} /></dl><div className="flex items-end justify-between py-6"><span className="font-serif text-2xl font-semibold">Total</span><strong className="font-serif text-4xl text-primary">${total.toFixed(2)}</strong></div><Button disabled={submitting || (step === 0 && !promoApplied && false)} onClick={onContinue} className="h-14 w-full rounded-full bg-primary text-on-primary hover:bg-primary/90">{step === 0 ? "Continue to Payment" : step === 1 ? "Review Order" : submitting ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}<ArrowRight className="h-4 w-4" /></Button><p className="mt-5 flex items-center justify-center gap-2 text-xs"><LockKeyhole className="h-4 w-4" />Secure, encrypted checkout</p></div>;
+function OrderSummary({ step, subtotal, delivery, tax, total, promo, onPromoChange, onPromoApply, onContinue, submitting }: { step: number; subtotal: number; delivery: number; discount: number; tax: number; total: number; promo: string; promoApplied: boolean; onPromoChange: (value: string) => void; onPromoApply: () => void; onContinue: () => void; submitting: boolean }) {
+  return (
+    <div className="sticky top-28 bg-surface-container-lowest rounded-xl p-lg shadow-md flex flex-col gap-lg">
+      <h2 className="font-headline-md text-headline-md text-on-surface border-b-2 border-surface-container-high pb-sm">Order Summary</h2>
+      <div className="flex flex-col gap-md">
+        {orderItems.map((item) => (
+          <div key={item.name} className="flex items-start gap-md">
+            <div className="w-20 h-24 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-sm relative"><Image src={item.image} alt={item.name} fill sizes="80px" className="object-cover absolute inset-0" /></div>
+            <div className="flex-1 flex flex-col pt-xs"><span className="font-label-md text-on-surface-variant uppercase tracking-wider text-[10px] mb-1">{item.name.includes("Chocolate") ? "Add-On" : "Arrangement"}</span><h3 className="font-serif text-headline-md text-on-surface leading-tight">{item.name}</h3><span className="font-body-md text-body-md text-on-surface-variant mt-sm">{item.detail}</span></div>
+            <span className="font-label-md text-label-md text-on-surface pt-xs">${item.price.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+      {step === 0 && <div className="flex items-center gap-sm bg-surface rounded-full p-1 pl-md shadow-sm border border-outline-variant/30"><input value={promo} onChange={(event) => onPromoChange(event.target.value)} placeholder="Promo code" className="flex-1 bg-transparent text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none" /><button onClick={onPromoApply} className="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full font-label-md text-label-md hover:bg-secondary-container/80 transition-colors transform hover:scale-95">Apply</button></div>}
+      <dl className="flex flex-col gap-sm pt-md border-t border-outline-variant/30"><SummaryRow label="Subtotal" value={subtotal} /><SummaryRow label="Delivery Fee" value={delivery} /><SummaryRow label="Taxes" value={tax} /><div className="flex justify-between items-end mt-sm pt-sm border-t-2 border-surface-container-high"><dt className="font-headline-md text-headline-md text-on-surface">Total</dt><dd className="font-serif text-display-lg text-primary tracking-tight">${total.toFixed(2)}</dd></div></dl>
+      <Button disabled={submitting} onClick={onContinue} className="w-full bg-primary text-on-primary rounded-full py-md font-label-md text-label-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-98 transition-all flex items-center justify-center gap-sm mt-md">{step === 0 ? "Continue to Payment" : step === 1 ? "Review Order" : submitting ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}<ArrowRight className="h-4 w-4" /></Button>
+      <div className="flex items-center justify-center gap-xs text-on-surface-variant font-label-sm text-label-sm"><LockKeyhole className="h-3.5 w-3.5" />Secure, encrypted checkout</div>
+    </div>
+  );
 }
 
 function SummaryRow({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) { return <div className={`flex justify-between ${accent ? "text-primary" : ""}`}><dt>{label}</dt><dd>${value.toFixed(2)}</dd></div>; }
