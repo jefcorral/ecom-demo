@@ -12,7 +12,7 @@ const orderItems = [
   { name: "Artisan Chocolates", detail: "Qty: 1 · 12-Piece Box", price: 45, image: "/product-detail/packaging.png" },
 ];
 
-const fieldClass = "h-12 w-full rounded-xl border border-transparent bg-surface-container-low px-4 text-base text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-container/30";
+const fieldClass = "h-14 w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-md text-base text-on-surface outline-none transition focus:border-primary focus:bg-surface md:h-10 md:rounded-full md:border-transparent md:bg-surface md:focus:ring-2 md:focus:ring-primary";
 
 export default function CheckoutPage() {
   const [step, setStep] = useState(0);
@@ -21,8 +21,8 @@ export default function CheckoutPage() {
   const [giftNote, setGiftNote] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("2026-09-01");
   const [deliverySlot, setDeliverySlot] = useState("afternoon");
-  const [promo, setPromo] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [promo, setPromo] = useState("BLOOM15");
+  const [promoApplied, setPromoApplied] = useState(true);
   const [paymentError, setPaymentError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="pb-36 lg:pb-0">
-      <div className="mx-auto w-full max-w-[1140px] px-4 py-8 md:px-8 md:py-12">
+      <div className="mx-auto w-full max-w-[1140px] px-6 py-xl">
         <Link href="/cart" className="mb-8 hidden items-center gap-2 text-sm text-on-surface-variant hover:text-primary md:flex"><ArrowLeft className="h-4 w-4" />Back to Cart</Link>
         <Progress step={step} />
 
@@ -64,12 +64,12 @@ export default function CheckoutPage() {
           <span className="flex items-center gap-3 font-serif text-xl">${total.toFixed(2)}<ChevronDown className="h-4 w-4" /></span>
         </button>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[1.45fr_1fr] lg:gap-16">
-          <main>
+        <div className="grid grid-cols-1 items-start gap-xl lg:grid-cols-12">
+          <main className="flex flex-col gap-xl lg:col-span-7">
             {step === 0 && (
               <form onSubmit={continueToPayment}>
                 <h1 className="mb-8 font-serif text-3xl font-semibold md:text-4xl">Delivery Details</h1>
-                <section className="rounded-2xl bg-surface-container-lowest p-0 md:p-7 md:shadow-sm" aria-labelledby="recipient-title">
+                <section className="rounded-xl bg-surface-container-lowest p-0 md:p-lg md:shadow-sm" aria-labelledby="recipient-title">
                   <h2 id="recipient-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CircleUserRound className="h-5 w-5 text-primary" />Recipient Information</h2>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="First Name" value={address.firstName} onChange={(value) => updateAddress("firstName", value)} required />
@@ -83,10 +83,18 @@ export default function CheckoutPage() {
                   </div>
                 </section>
 
-                <section className="mt-8 rounded-2xl bg-surface-container-lowest p-0 md:p-7 md:shadow-sm" aria-labelledby="timing-title">
+                <section className="mt-8 rounded-xl bg-surface-container-lowest p-0 md:p-lg md:shadow-sm" aria-labelledby="timing-title">
                   <h2 id="timing-title" className="mb-6 flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl"><CalendarDays className="h-5 w-5 text-primary" />Delivery Timing</h2>
                   <div className="grid gap-6 md:grid-cols-2">
-                    <label className="text-sm font-medium">Select Date<input type="date" min="2026-08-31" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} className={`${fieldClass} mt-2`} required /></label>
+                    <div>
+                      <label className="mb-sm ml-sm block text-xs font-semibold text-on-surface-variant">Select Date</label>
+                      <input type="date" min="2026-08-31" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} className={`${fieldClass} md:hidden`} required />
+                      <div className="hidden rounded-xl bg-surface p-sm md:block">
+                        <div className="mb-sm flex items-center justify-between px-sm"><button type="button" className="h-8 w-8">‹</button><span className="text-sm font-medium">September 2026</span><button type="button" className="h-8 w-8">›</button></div>
+                        <div className="mb-xs grid grid-cols-7 gap-xs text-center text-[10px] text-on-surface-variant">{"SMTWTFS".split("").map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}</div>
+                        <div className="grid grid-cols-7 gap-xs text-center">{Array.from({ length: 15 }, (_, index) => { const day = index + 1; const selected = deliveryDate === `2026-09-${String(day).padStart(2, "0")}`; return <button key={day} type="button" onClick={() => setDeliveryDate(`2026-09-${String(day).padStart(2, "0")}`)} className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm transition hover:scale-95 ${selected ? "bg-primary text-on-primary shadow-sm" : "hover:bg-surface-container-highest"}`}>{day}</button>; })}</div>
+                      </div>
+                    </div>
                     <fieldset><legend className="mb-2 text-sm font-medium">Select Time Window</legend><div className="space-y-2">{[["morning", "Morning (8am - 12pm)"], ["afternoon", "Afternoon (12pm - 4pm)"], ["evening", "Evening (4pm - 8pm)"]].map(([value, label]) => <button key={value} type="button" aria-pressed={deliverySlot === value} onClick={() => setDeliverySlot(value)} className={`flex h-12 w-full items-center justify-between rounded-xl px-4 text-left transition ${deliverySlot === value ? "bg-primary-fixed text-on-primary-fixed" : "bg-surface-container"}`}><span>{label}</span><span className={`h-5 w-5 rounded-full border ${deliverySlot === value ? "border-[6px] border-primary" : "border-outline-variant"}`} /></button>)}</div></fieldset>
                   </div>
                 </section>
@@ -102,11 +110,11 @@ export default function CheckoutPage() {
               </form>
             )}
 
-            {step === 1 && <PaymentStep address={address} sameAsDelivery={sameAsDelivery} setSameAsDelivery={setSameAsDelivery} paymentError={paymentError} errorRef={errorRef} onContinue={() => setStep(2)} onError={() => { setPaymentError("Payment could not be processed. Check your details and try again."); setTimeout(() => errorRef.current?.focus(), 0); }} />}
+            {step === 1 && <><PaymentStep address={address} sameAsDelivery={sameAsDelivery} setSameAsDelivery={setSameAsDelivery} paymentError={paymentError} errorRef={errorRef} onContinue={() => setStep(2)} onError={() => { setPaymentError("Payment could not be processed. Check your details and try again."); setTimeout(() => errorRef.current?.focus(), 0); }} /><ReviewStep address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} onEditDelivery={() => setStep(0)} onEditPayment={() => setStep(1)} /></>}
             {step === 2 && <ReviewStep address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} onEditDelivery={() => setStep(0)} onEditPayment={() => setStep(1)} />}
           </main>
 
-          <aside className="hidden lg:block lg:sticky lg:top-24"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></aside>
+          <aside className="relative hidden lg:col-span-5 lg:block"><div className="sticky top-28"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></div></aside>
         </div>
       </div>
 
@@ -118,7 +126,16 @@ export default function CheckoutPage() {
 }
 
 function Progress({ step }: { step: number }) {
-  return <ol className="relative mb-12 flex justify-between before:absolute before:left-4 before:right-4 before:top-4 before:h-px before:bg-outline-variant md:mx-auto md:max-w-2xl">{steps.map((label, index) => <li key={label} className="relative z-10 flex flex-col items-center gap-1 bg-surface px-1"><span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm ${index < step ? "bg-primary text-on-primary" : index === step ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant"}`}>{index < step ? <Check className="h-4 w-4" /> : index + 1}</span><span className="text-xs">{label}</span></li>)}</ol>;
+  return (
+    <ol className="relative mx-auto mb-2xl flex w-full max-w-2xl items-center justify-between before:absolute before:left-0 before:top-4 before:h-0.5 before:w-full before:bg-outline-variant">
+      {steps.map((label, index) => (
+        <li key={label} className={`relative z-10 flex flex-col items-center gap-xs ${index > 1 ? "hidden md:flex" : "flex"}`}>
+          <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm shadow-sm ${index <= step ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"}`}>{index < step ? <Check className="h-4 w-4" /> : index + 1}</span>
+          <span className={`text-xs ${index === step ? "font-semibold text-on-surface" : "text-on-surface-variant"}`}>{label}</span>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 function Field({ label, value, onChange, required = false, type = "text", className = "" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; className?: string }) {
