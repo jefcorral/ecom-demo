@@ -43,13 +43,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={cn("min-h-screen bg-background font-sans antialiased", inter.variable, playfair.variable)}>
+      <body suppressHydrationWarning className={cn("min-h-screen bg-surface font-sans antialiased", inter.variable, playfair.variable)}>
         <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1 pb-16 md:pb-0">{children}</main>
-            <SiteFooter />
-          </div>
+          <SiteHeader />
+          <main className="w-full min-h-screen bg-surface pt-16">
+            <div className="flex w-full flex-col">{children}</div>
+          </main>
+          <SiteFooter />
         </Providers>
       </body>
     </html>
