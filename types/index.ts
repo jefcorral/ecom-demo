@@ -31,6 +31,7 @@ export interface Product {
   imageUrl?: string | null;
   price: number;
   stock: number;
+  lowStockThreshold?: number | null;
   isActive: boolean;
   categoryId: string | null;
   category: Category | null;
