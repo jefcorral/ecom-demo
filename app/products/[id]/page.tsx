@@ -1,14 +1,11 @@
-import { unstable_noStore } from "next/cache";
-import { notFound } from "next/navigation";
-import { fetchProduct } from "@/lib/products";
-import { ProductDetail } from "@/components/product-detail";
 import type { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
+import { notFound } from "next/navigation";
+import { ProductDetail } from "@/components/product-detail";
+import { mockProducts } from "@/lib/mock-data";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const product = await fetchProduct(id).catch(() => null);
+  const product = mockProducts.find((item) => item.id === id);
 
   if (!product) {
     return {
@@ -19,27 +16,24 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   return {
     title: product.name,
-    description: product.description || `Buy ${product.name} on Ecom Store. Price: $${product.price}`,
+    description: product.description || `Discover ${product.name} from Bloom & Stem.`,
     openGraph: {
       title: product.name,
-      description: product.description || `Buy ${product.name} on Ecom Store. Price: $${product.price}`,
+      description: product.description || `Discover ${product.name} from Bloom & Stem.`,
       images: product.imageUrl ? [{ url: product.imageUrl }] : [],
     },
   };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  unstable_noStore();
   const { id } = await params;
-  const product = await fetchProduct(id).catch(() => null);
+  const product = mockProducts.find((item) => item.id === id);
 
-  if (!product) {
-    notFound();
-  }
+  if (!product) notFound();
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <ProductDetail product={product} />
-    </div>
-  );
+  const relatedProducts = mockProducts
+    .filter((item) => item.id !== product.id && item.categoryId === product.categoryId)
+    .slice(0, 4);
+
+  return <ProductDetail product={product} relatedProducts={relatedProducts} />;
 }
