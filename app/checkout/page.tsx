@@ -17,6 +17,7 @@ const checkoutActionClass = "h-14 bg-primary-container hover:bg-primary-fixed te
 
 export default function CheckoutPage() {
   const [step, setStep] = useState(0);
+  const [orderSummaryOpen, setOrderSummaryOpen] = useState(false);
   const [sameAsDelivery, setSameAsDelivery] = useState(true);
   const [giftNoteOpen, setGiftNoteOpen] = useState(false);
   const [giftNote, setGiftNote] = useState("");
@@ -87,10 +88,24 @@ export default function CheckoutPage() {
         <Link href="/cart" className="mb-8 hidden items-center gap-2 text-sm text-on-surface-variant hover:text-primary md:flex"><ArrowLeft className="h-4 w-4" />Back to Cart</Link>
         <Progress step={step} />
 
-        <button type="button" className="-mx-4 mb-8 flex w-[calc(100%+2rem)] items-center justify-between border-y border-outline-variant/30 bg-surface-container-lowest px-6 py-5 text-left lg:hidden">
-          <span><strong className="block font-medium">Your order (2 items)</strong><span className="text-sm text-on-surface-variant">Review details</span></span>
-          <span className="flex items-center gap-3 font-serif text-xl">${total.toFixed(2)}<ChevronDown className="h-4 w-4" /></span>
-        </button>
+        <div className="-mx-6 mb-8 border-y border-outline-variant/30 bg-surface-container-lowest lg:hidden">
+          <button type="button" aria-expanded={orderSummaryOpen} aria-controls="mobile-order-summary" onClick={() => setOrderSummaryOpen((open) => !open)} className="flex w-full items-center justify-between px-6 py-5 text-left active:scale-[0.98] transition-transform">
+            <span><strong className="block font-medium">Your order (2 items)</strong><span className="text-sm text-on-surface-variant">{orderSummaryOpen ? "Hide details" : "Review details"}</span></span>
+            <span className="flex items-center gap-3 font-serif text-xl">${total.toFixed(2)}<ChevronDown className={`h-4 w-4 transition-transform duration-300 ${orderSummaryOpen ? "rotate-180" : ""}`} /></span>
+          </button>
+          <div id="mobile-order-summary" className={`overflow-hidden px-6 transition-all duration-300 ${orderSummaryOpen ? "max-h-[600px] pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
+            <div className="flex flex-col gap-md border-t border-outline-variant/30 pt-lg">
+              {orderItems.map((item) => (
+                <div key={item.name} className="flex items-center gap-md">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-container"><Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" /></div>
+                  <div className="min-w-0 flex-1"><strong className="block truncate text-sm">{item.name}</strong><span className="block truncate text-xs text-on-surface-variant">{item.detail}</span></div>
+                  <span className="shrink-0 text-sm">${item.price.toFixed(2)}</span>
+                </div>
+              ))}
+              <dl className="space-y-2 border-t border-outline-variant/30 pt-4 text-sm"><SummaryRow label="Subtotal" value={subtotal} /><SummaryRow label="Delivery Fee" value={delivery} />{promoApplied && <SummaryRow label="Discount (BLOOM15)" value={-discount} accent />}<SummaryRow label="Taxes" value={tax} /></dl>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl relative items-start">
           <main className="flex flex-col gap-xl lg:col-span-7">
