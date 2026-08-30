@@ -128,7 +128,7 @@ export default function CheckoutPage() {
 function Progress({ step }: { step: number }) {
   return (
     <div className="flex items-center justify-between max-w-2xl mx-auto mb-2xl relative">
-      <div className="absolute top-1/2 left-0 w-full h-0.5 bg-outline-variant -translate-y-1/2 z-0" />
+      <div className="absolute top-4 left-0 w-full h-0.5 bg-outline-variant -translate-y-1/2 z-0" />
       {steps.map((label, index) => {
         const active = index === step;
         const complete = index < step;
