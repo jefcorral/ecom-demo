@@ -19,7 +19,21 @@ export default function CheckoutPage() {
   const [sameAsDelivery, setSameAsDelivery] = useState(true);
   const [giftNoteOpen, setGiftNoteOpen] = useState(false);
   const [giftNote, setGiftNote] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState("2026-09-01");
+  const [minimumDeliveryDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split("T")[0];
+  });
+  const [deliveryDate, setDeliveryDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split("T")[0];
+  });
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    return new Date(date.getFullYear(), date.getMonth(), 1);
+  });
   const [deliverySlot, setDeliverySlot] = useState("afternoon");
   const [promo, setPromo] = useState("BLOOM15");
   const [promoApplied, setPromoApplied] = useState(true);
@@ -33,6 +47,19 @@ export default function CheckoutPage() {
   const tax = 16.9;
   const total = subtotal + delivery + tax - discount;
   const deliveryComplete = Boolean(address.firstName && address.lastName && address.line1 && address.city && address.state && address.postalCode && deliveryDate && deliverySlot);
+  const calendarLabel = calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const firstWeekday = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1).getDay();
+  const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate();
+  const calendarDays = Array.from({ length: firstWeekday + daysInMonth }, (_, index) => index < firstWeekday ? null : index - firstWeekday + 1);
+
+  function selectCalendarDate(day: number) {
+    const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day, 12);
+    setDeliveryDate(date.toISOString().split("T")[0]);
+  }
+
+  function changeCalendarMonth(offset: number) {
+    setCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() + offset, 1));
+  }
 
   function updateAddress(field: keyof typeof address, value: string) {
     setAddress((current) => ({ ...current, [field]: value }));
@@ -89,11 +116,17 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
                     <div>
                       <label className="mb-sm ml-sm block text-xs font-semibold text-on-surface-variant">Select Date</label>
-                      <input type="date" min="2026-08-31" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} className={`${fieldClass} md:hidden`} required />
+                      <input type="date" min={minimumDeliveryDate} value={deliveryDate} onChange={(event) => { setDeliveryDate(event.target.value); const date = new Date(`${event.target.value}T12:00:00`); setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1)); }} className={`${fieldClass} md:hidden`} required />
                       <div className="hidden rounded-xl bg-surface p-sm md:block">
-                        <div className="mb-sm flex items-center justify-between px-sm"><button type="button" className="h-8 w-8">‹</button><span className="text-sm font-medium">September 2026</span><button type="button" className="h-8 w-8">›</button></div>
+                        <div className="mb-sm flex items-center justify-between px-sm"><button type="button" aria-label="Previous month" onClick={() => changeCalendarMonth(-1)} className="h-8 w-8 transition hover:scale-95 hover:text-primary">‹</button><span className="text-sm font-medium">{calendarLabel}</span><button type="button" aria-label="Next month" onClick={() => changeCalendarMonth(1)} className="h-8 w-8 transition hover:scale-95 hover:text-primary">›</button></div>
                         <div className="mb-xs grid grid-cols-7 gap-xs text-center text-[10px] text-on-surface-variant">{"SMTWTFS".split("").map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}</div>
-                        <div className="grid grid-cols-7 gap-xs text-center">{Array.from({ length: 15 }, (_, index) => { const day = index + 1; const selected = deliveryDate === `2026-09-${String(day).padStart(2, "0")}`; return <button key={day} type="button" onClick={() => setDeliveryDate(`2026-09-${String(day).padStart(2, "0")}`)} className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm transition hover:scale-95 ${selected ? "bg-primary text-on-primary shadow-sm" : "hover:bg-surface-container-highest"}`}>{day}</button>; })}</div>
+                        <div className="grid grid-cols-7 gap-xs text-center">{calendarDays.map((day, index) => {
+                          if (!day) return <span key={`blank-${index}`} />;
+                          const value = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                          const selected = deliveryDate === value;
+                          const disabled = value < minimumDeliveryDate;
+                          return <button key={value} type="button" disabled={disabled} onClick={() => selectCalendarDate(day)} className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm transition ${selected ? "bg-primary text-on-primary shadow-sm" : disabled ? "text-outline-variant" : "text-on-surface hover:scale-95 hover:bg-surface-container-highest"}`}>{day}</button>;
+                        })}</div>
                       </div>
                     </div>
                     <fieldset><legend className="mb-2 text-sm font-medium">Select Time Window</legend><div className="space-y-2">{[["morning", "Morning (8am - 12pm)"], ["afternoon", "Afternoon (12pm - 4pm)"], ["evening", "Evening (4pm - 8pm)"]].map(([value, label]) => <button key={value} type="button" aria-pressed={deliverySlot === value} onClick={() => setDeliverySlot(value)} className={`flex h-12 w-full items-center justify-between rounded-xl px-4 text-left transition ${deliverySlot === value ? "bg-primary-fixed text-on-primary-fixed" : "bg-surface-container"}`}><span>{label}</span><span className={`h-5 w-5 rounded-full border ${deliverySlot === value ? "border-[6px] border-primary" : "border-outline-variant"}`} /></button>)}</div></fieldset>
@@ -113,7 +146,7 @@ export default function CheckoutPage() {
             {step === 2 && <ReviewStep address={address} deliveryDate={deliveryDate} deliverySlot={deliverySlot} onEditDelivery={() => setStep(0)} onEditPayment={() => setStep(1)} />}
           </main>
 
-          <aside className="relative hidden lg:col-span-5 lg:block"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></aside>
+          <aside className="relative hidden lg:sticky lg:top-28 lg:col-span-5 lg:block"><OrderSummary step={step} subtotal={subtotal} delivery={delivery} discount={discount} tax={tax} total={total} promo={promo} promoApplied={promoApplied} onPromoChange={setPromo} onPromoApply={() => setPromoApplied(promo.trim().toUpperCase() === "BLOOM15")} onContinue={() => step === 0 ? deliveryComplete && setStep(1) : step === 1 ? setStep(2) : placeOrder()} submitting={submitting} /></aside>
         </div>
       </div>
 
@@ -160,7 +193,7 @@ function ReviewStep({ address, deliveryDate, deliverySlot, onEditDelivery, onEdi
 
 function OrderSummary({ step, subtotal, delivery, tax, total, promo, onPromoChange, onPromoApply, onContinue, submitting }: { step: number; subtotal: number; delivery: number; discount: number; tax: number; total: number; promo: string; promoApplied: boolean; onPromoChange: (value: string) => void; onPromoApply: () => void; onContinue: () => void; submitting: boolean }) {
   return (
-    <div className="sticky top-28 bg-surface-container-lowest rounded-xl p-lg shadow-md flex flex-col gap-lg">
+    <div className="bg-surface-container-lowest rounded-xl p-lg shadow-md flex flex-col gap-lg">
       <h2 className="font-headline-md text-headline-md text-on-surface border-b-2 border-surface-container-high pb-sm">Order Summary</h2>
       <div className="flex flex-col gap-md">
         {orderItems.map((item) => (
