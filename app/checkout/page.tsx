@@ -127,7 +127,7 @@ export default function CheckoutPage() {
 
 function Progress({ step }: { step: number }) {
   return (
-    <ol className="relative mx-auto mb-2xl flex w-full max-w-2xl items-center justify-between before:absolute before:left-0 before:top-4 before:h-0.5 before:w-full before:bg-outline-variant">
+    <ol className="flex items-center justify-between max-w-2xl mx-auto mb-2xl relative w-full before:absolute before:left-0 before:top-4 before:h-0.5 before:w-full before:bg-outline-variant">
       {steps.map((label, index) => (
         <li key={label} className={`relative z-10 flex flex-col items-center gap-xs ${index > 1 ? "hidden md:flex" : "flex"}`}>
           <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm shadow-sm ${index <= step ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"}`}>{index < step ? <Check className="h-4 w-4" /> : index + 1}</span>
