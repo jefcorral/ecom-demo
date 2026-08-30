@@ -92,6 +92,11 @@
   --spacing-xl: 2.5rem;
   --spacing-2xl: 4rem;
   --spacing-gutter: 1.5rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
   --font-body-md: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -288,6 +293,26 @@ main > :last-child {
 
 html {
   font-family: var(--font-sans);
+}
+
+.max-w-sm {
+  max-width: 24rem;
+}
+
+.max-w-md {
+  max-width: 28rem;
+}
+
+.max-w-lg {
+  max-width: 32rem;
+}
+
+.max-w-xl {
+  max-width: 36rem;
+}
+
+.max-w-2xl {
+  max-width: 42rem;
 }
 
 @utility text-balance {
