@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Flower2,
   Search,
@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { MobileMenu } from "@/components/mobile-menu";
 import { NavMegaMenu } from "@/components/nav-mega-menu";
+import { RecentSearchChips } from "@/components/recent-search-chips";
+import { saveRecentSearch, searchProducts } from "@/lib/search";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,18 +65,9 @@ export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<{ id: string; name: string; price: number; imageUrl: string | null }[]>([]);
   const debouncedQuery = useDebounce(query, 300);
+  const results = useMemo(() => searchProducts(debouncedQuery).slice(0, 5).map(({ id, name, price, imageUrl }) => ({ id, name, price, imageUrl: imageUrl ?? null })), [debouncedQuery]);
   const searchRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!debouncedQuery.trim()) return;
-    import("@/lib/products").then(({ fetchProducts }) => {
-      fetchProducts({ search: debouncedQuery.trim(), limit: 4 })
-        .then((res) => setResults(res.data.map(({ id, name, price, imageUrl }) => ({ id, name, price, imageUrl: imageUrl ?? null }))))
-        .catch(() => setResults([]));
-    });
-  }, [debouncedQuery]);
 
   useEffect(() => {
     const updateScrolled = () => setScrolled(window.scrollY > 16);
@@ -101,7 +94,8 @@ export function SiteHeader() {
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (query.trim()) {
-      router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+      saveRecentSearch(query);
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
       setSearchOpen(false);
       setQuery("");
     }
@@ -260,10 +254,24 @@ function SearchDropdown({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const [selected, setSelected] = useState(-1);
+
+  useEffect(() => {
+    function navigate(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+      if (!results.length) return;
+      if (event.key === "ArrowDown") { event.preventDefault(); setSelected((value) => (value + 1) % results.length); }
+      if (event.key === "ArrowUp") { event.preventDefault(); setSelected((value) => value <= 0 ? results.length - 1 : value - 1); }
+      if (event.key === "Enter" && selected >= 0) { event.preventDefault(); router.push(`/products/${results[selected].id}`); onClose(); }
+    }
+    window.addEventListener("keydown", navigate);
+    return () => window.removeEventListener("keydown", navigate);
+  }, [onClose, results, router, selected]);
 
   return (
     <div className="absolute top-12 left-0 z-50 w-full overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_12px_48px_rgba(44,62,42,0.08)]">
       <div className="p-4">
+        {!query.trim() && <div className="mb-6"><RecentSearchChips onSelect={(term) => { saveRecentSearch(term); router.push(`/search?q=${encodeURIComponent(term)}`); onClose(); }} /></div>}
         <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Trending</span>
         <div className="mt-3 flex flex-wrap gap-2">
           {trending.map((term) => (
@@ -283,14 +291,16 @@ function SearchDropdown({
         {results.length > 0 && (
           <div className="mt-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Products</span>
-            <div className="mt-3 flex flex-col gap-2">
-              {results.map((product) => (
+            <div role="listbox" aria-label="Product suggestions" className="mt-3 flex flex-col gap-2">
+              {results.map((product, index) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
+                  role="option"
+                  aria-selected={selected === index}
                   onClick={onClose}
                 >
-                  <div className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-surface-container">
+                  <div className={cn("group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-secondary-container", selected === index && "bg-secondary-container")}>
                     <div className="relative h-10 w-10 overflow-hidden rounded-md bg-surface-variant">
                       {product.imageUrl ? (
                         <Image
@@ -319,7 +329,7 @@ function SearchDropdown({
       </div>
       <div className="border-t border-outline-variant/30 bg-surface-container-low p-3 text-center">
         <Link
-          href={query.trim() ? `/products?search=${encodeURIComponent(query.trim())}` : "/products"}
+          href={query.trim() ? `/search?q=${encodeURIComponent(query.trim())}` : "/search"}
           onClick={onClose}
           className="text-sm font-medium text-primary hover:text-on-primary-container"
         >
