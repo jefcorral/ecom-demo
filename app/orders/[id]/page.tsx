@@ -8,10 +8,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const shortId = id ? id.slice(0, 8) : "";
   return {
     title: `Order #${shortId}`,
-    description: `View details for order #${id} on Ecom Store.`,
+    description: `Track delivery and view details for order #${id} at Bloom & Stem.`,
     openGraph: {
       title: `Order #${shortId}`,
-      description: `View details for order #${id} on Ecom Store.`,
+      description: `Track delivery and view details for order #${id} at Bloom & Stem.`,
     },
   };
 }
