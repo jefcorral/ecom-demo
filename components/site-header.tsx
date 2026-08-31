@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Flower2,
   Search,
@@ -15,22 +15,17 @@ import {
   ShoppingCart,
   Package,
   MapPin,
-  Sun,
-  Moon,
   Home,
   Store,
   LogOut,
   CircleHelp,
+  X,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import { MobileMenu } from "@/components/mobile-menu";
+import { NavMegaMenu } from "@/components/nav-mega-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +35,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth, useCart } from "@/app/providers";
-import { useTheme } from "next-themes";
 
 const navLinks = [
   { href: "/products", label: "Shop All" },
@@ -64,11 +58,10 @@ function useDebounce(value: string, delay = 200) {
 export function SiteHeader() {
   const { user, isLoggedIn, logout } = useAuth();
   const { cart } = useCart();
-  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ id: string; name: string; price: number; imageUrl: string | null }[]>([]);
   const debouncedQuery = useDebounce(query, 300);
@@ -82,6 +75,13 @@ export function SiteHeader() {
         .catch(() => setResults([]));
     });
   }, [debouncedQuery]);
+
+  useEffect(() => {
+    const updateScrolled = () => setScrolled(window.scrollY > 16);
+    updateScrolled();
+    window.addEventListener("scroll", updateScrolled, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrolled);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -107,71 +107,27 @@ export function SiteHeader() {
     }
   }
 
-  if (["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname)) return null;
-
   return (
     <>
-      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(44,62,42,0.04)] transition-all duration-300">
-        <div className="h-16 max-w-[1140px] mx-auto px-lg flex items-center justify-between gap-xl">
-          <div className="flex items-center gap-xl">
+      <header className={cn("fixed top-0 z-50 w-full border-b border-transparent bg-surface/80 backdrop-blur-xl transition-all duration-300", scrolled && "border-outline-variant/30 shadow-header")}>
+        <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-5 px-4 lg:h-16 lg:px-6">
+          <div className={cn("flex items-center gap-6 transition-opacity", searchOpen && "lg:opacity-40")}>
             <Sheet>
-              <SheetTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-on-surface-variant hover:text-primary hover:bg-surface-container-low lg:hidden"
-                    aria-label="Open menu"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                }
-              />
-              <SheetContent side="left" className="w-[280px] bg-surface p-0">
-                <SheetHeader className="border-b border-outline-variant/30 p-4">
-                  <SheetTitle className="flex items-center gap-2 text-on-surface">
-                    <Flower2 className="h-6 w-6 text-primary" />
-                    <span className="font-serif text-xl font-semibold tracking-tight">Bloom & Stem</span>
-                  </SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col p-2">
-                  {navLinks.map((link) => (
-                    <MobileNavLink key={link.href} href={link.href} active={pathname === link.href}>
-                      {link.label}
-                    </MobileNavLink>
-                  ))}
-                  {isAdmin && (
-                    <MobileNavLink href="/dashboard" active={pathname === "/dashboard"}>
-                      Dashboard
-                    </MobileNavLink>
-                  )}
-                </nav>
-                <div className="mt-auto space-y-3 border-t border-outline-variant/30 p-4">
-                  {!isLoggedIn && <Link href="/login" className={cn(buttonVariants({ className: "w-full" }))}>Sign In / Register</Link>}
-                  <p className="text-sm text-on-surface-variant">Artisanal florals for life&apos;s most beautiful moments.</p>
-                </div>
-              </SheetContent>
+              <SheetTrigger render={<Button variant="ghost" size="icon" className="text-on-surface hover:bg-surface-container-low lg:hidden" aria-label="Open navigation menu"><Menu className="h-6 w-6" /></Button>} />
+              <MobileMenu isLoggedIn={isLoggedIn} />
             </Sheet>
 
-            <Link href="/" className="font-headline-md text-headline-md text-primary tracking-tight whitespace-nowrap">
-              Bloom & Stem
+            <Link href="/" aria-label="Bloom and Stem home" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap font-serif text-2xl font-semibold tracking-tight text-primary lg:static lg:translate-x-0 lg:text-on-surface">
+              <Flower2 className="hidden h-6 w-6 text-primary lg:block" />Bloom &amp; Stem
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-lg">
-              {navLinks.map((link) => (
-                <HeaderNavLink key={link.href} href={link.href} active={pathname === link.href}>
-                  {link.label}
-                </HeaderNavLink>
-              ))}
-              {isAdmin && (
-                <HeaderNavLink href="/dashboard" active={pathname === "/dashboard"}>
-                  Dashboard
-                </HeaderNavLink>
-              )}
+            <nav className="hidden items-center gap-6 lg:flex xl:gap-8">
+              {navLinks.map((link) => link.label === "Occasions" ? <div key={link.href} className="group/nav relative"><HeaderNavLink href={link.href} active={pathname === "/products"}>Occasions</HeaderNavLink><NavMegaMenu /></div> : <HeaderNavLink key={link.href} href={link.href} active={pathname === link.href}>{link.label}</HeaderNavLink>)}
+              {isAdmin && <HeaderNavLink href="/dashboard" active={pathname === "/dashboard"}>Dashboard</HeaderNavLink>}
             </nav>
           </div>
 
-          <div className="flex-1 max-w-md hidden md:block" ref={searchRef}>
+          <div className={cn("hidden flex-1 transition-all duration-200 lg:block", searchOpen ? "max-w-[400px]" : "max-w-[320px]")} ref={searchRef}>
             <div className="relative flex items-center">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <Input
@@ -181,8 +137,8 @@ export function SiteHeader() {
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => setSearchOpen(true)}
                   className={cn(
-                    "w-full h-10 pl-11 pr-4 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-on-surface focus:outline-none focus:border-primary transition-all",
-                    searchOpen && "border-primary"
+                    "h-11 w-full rounded-full border border-outline-variant bg-surface-container-low pl-11 pr-11 font-body-md text-on-surface transition-all focus:outline-none",
+                    searchOpen && "border-primary ring-2 ring-primary/20"
                   )}
                 />
                 <button
@@ -192,6 +148,7 @@ export function SiteHeader() {
                 >
                   <Search className="h-5 w-5" />
                 </button>
+                {query && <button type="button" onClick={() => setQuery("")} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-primary hover:bg-surface-container" aria-label="Clear search"><X className="h-4 w-4" /></button>}
               </form>
 
               {searchOpen && (
@@ -207,19 +164,8 @@ export function SiteHeader() {
             </div>
           </div>
 
-          <div className="flex items-center gap-md">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden text-on-surface-variant hover:text-primary hover:bg-surface-container-low md:flex"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              title="Toggle theme"
-              aria-label="Toggle theme"
-            >
-              {!mounted || theme !== "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </Button>
-
-            <Link href="/wishlist">
+          <div className={cn("flex items-center gap-1 transition-opacity lg:gap-2", searchOpen && "lg:opacity-40")}>
+            <Link href="/wishlist" className="hidden lg:block">
               <Button
                 variant="ghost"
                 size="icon"
@@ -236,7 +182,7 @@ export function SiteHeader() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-on-surface-variant hover:text-primary hover:bg-surface-container-low"
+                    className="hidden text-on-surface-variant hover:bg-surface-container-low hover:text-primary lg:flex"
                     aria-label="Account"
                   >
                     <User className="h-5 w-5" />
@@ -295,8 +241,8 @@ function HeaderNavLink({
     <Link
       href={href}
       className={cn(
-        "font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200",
-        active && "text-primary font-semibold underline underline-offset-8 decoration-2"
+        "relative py-5 font-label-md text-label-md text-on-surface-variant transition-colors duration-200 hover:text-primary after:absolute after:bottom-3 after:left-1/2 after:h-1 after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-primary after:opacity-0",
+        active && "font-semibold text-primary after:opacity-100"
       )}
     >
       {children}
@@ -500,29 +446,6 @@ function AccountDropdown({
         Log Out
       </DropdownMenuItem>
     </DropdownMenuContent>
-  );
-}
-
-function MobileNavLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium transition-colors",
-        active ? "bg-surface-container text-primary" : "text-on-surface hover:bg-surface-container hover:text-primary"
-      )}
-    >
-      {children}
-      {active && <ChevronRight className="h-4 w-4" />}
-    </Link>
   );
 }
 
