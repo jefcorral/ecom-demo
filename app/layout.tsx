@@ -53,7 +53,7 @@ export default function RootLayout({
       >
         <Providers>
           <SiteHeader />
-          <main className="w-full min-h-screen pt-16 flex flex-col bg-surface">
+          <main className="flex min-h-screen w-full flex-col bg-surface pt-14 lg:pt-16">
             <div className="flex w-full flex-col">{children}</div>
           </main>
           <SiteFooter />
