@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, Eye, EyeOff, LoaderCircle, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,18 +10,19 @@ import { cn } from "@/lib/utils";
 export function FormField({ id, label, error, children }: { id: string; label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="ml-2 text-xs font-semibold text-on-surface-variant">{label}</Label>
       {children}
       {error && <p id={`${id}-error`} className="text-xs font-semibold text-error">{error}</p>}
     </div>
   );
 }
 
-export function PasswordInput({ id, error, ...props }: Omit<React.ComponentProps<typeof Input>, "type"> & { id: string; error?: string }) {
+export function PasswordInput({ id, error, icon: Icon, className, ...props }: Omit<React.ComponentProps<typeof Input>, "type"> & { id: string; error?: string; icon?: LucideIcon }) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
-      <Input id={id} type={visible ? "text" : "password"} className="pr-12" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : props["aria-describedby"]} {...props} />
+      {Icon && <Icon className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-outline-variant" />}
+      <Input id={id} type={visible ? "text" : "password"} className={cn("bg-surface-container-low pr-12", Icon && "pl-12", className)} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : props["aria-describedby"]} {...props} />
       <button type="button" onClick={() => setVisible((value) => !value)} className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-on-surface" aria-label={visible ? "Hide password" : "Show password"}>
         {visible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
       </button>
@@ -35,13 +36,13 @@ export function FormErrorSummary({ message }: { message?: string }) {
 }
 
 export function AuthSubmitButton({ loading, children }: { loading: boolean; children: React.ReactNode }) {
-  return <Button type="submit" className="w-full" disabled={loading}>{loading && <LoaderCircle className="h-4 w-4 animate-spin" />}{children}</Button>;
+  return <Button type="submit" className="w-full bg-[#785900] text-white hover:bg-[#9a7300]" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ArrowRight className="order-2 h-4 w-4" />}{children}</Button>;
 }
 
 export function AuthSuccess({ title, message, children }: { title: string; message: string; children: React.ReactNode }) {
   return (
     <div role="status" className="flex flex-col items-center text-center motion-safe:animate-in motion-safe:zoom-in-95">
-      <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-[#9a7300]"><Check className="h-8 w-8" strokeWidth={2.5} /></span>
+      <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-sm"><Check className="h-8 w-8" strokeWidth={2.5} /></span>
       <h2 className="font-serif text-2xl font-semibold text-on-surface">{title}</h2>
       <p className="mt-2 text-on-surface-variant">{message}</p>
       <div className="mt-6 w-full">{children}</div>

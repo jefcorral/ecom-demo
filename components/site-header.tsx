@@ -107,6 +107,8 @@ export function SiteHeader() {
     }
   }
 
+  if (["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname)) return null;
+
   return (
     <>
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(44,62,42,0.04)] transition-all duration-300">
