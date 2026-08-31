@@ -7,12 +7,6 @@ export function AuthCard({ title, description, icon: Icon, children, className, 
     <div className="relative -mt-16 flex min-h-screen flex-col items-center overflow-hidden bg-surface px-4 py-10 sm:px-6 sm:py-14 lg:py-10">
       <div className="pointer-events-none absolute -right-32 -top-20 h-[560px] w-[560px] rounded-full bg-surface-container-low/60" />
       <Flower2 className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 text-primary opacity-[0.025] md:hidden" />
-      <Link href="/" className="relative z-10 flex flex-col items-center text-on-surface">
-        <Flower2 className="h-10 w-10 text-[#785900] sm:h-12 sm:w-12" strokeWidth={2.5} />
-        <span className="mt-3 font-serif text-[32px] font-semibold leading-none tracking-tight sm:mt-5 sm:text-5xl">Bloom &amp; Stem</span>
-        <span className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-outline sm:hidden">Artisanal Florist</span>
-        <span className="mt-3 hidden h-px w-12 bg-outline-variant sm:block" />
-      </Link>
       <section className={cn("relative z-10 mt-10 w-full max-w-[440px] overflow-hidden rounded-xl bg-surface-container-lowest p-6 shadow-md transition-transform duration-300 hover:scale-[1.01] sm:mt-28", className)} aria-labelledby={hideHeader ? undefined : "auth-title"} aria-label={hideHeader ? title : undefined}>
         <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-primary-fixed/20 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-secondary-container/20 blur-2xl" />
