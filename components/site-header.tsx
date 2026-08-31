@@ -369,7 +369,7 @@ function AccountDropdown({
             Sign In / Register
           </Link>
           <div className="flex items-center justify-center gap-5">
-            <Link href="/orders" className="flex items-center gap-2 text-sm font-medium text-primary hover:text-on-primary-container">
+            <Link href="/track-order" className="flex items-center gap-2 text-sm font-medium text-primary hover:text-on-primary-container">
               <Package className="h-4 w-4" />
               Track your order
             </Link>

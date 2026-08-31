@@ -69,7 +69,7 @@ export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
         <Link href={isLoggedIn ? "/account" : "/login"} className={cn(buttonVariants({ className: "mt-6 w-full" }))}>{isLoggedIn ? "My Account" : "Sign In / Register"}</Link>
       </div>
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-4 border-t border-outline-variant bg-surface-container-low px-1 pb-safe">
-        <UtilityLink href="/orders" icon={Package} label="Track" /><UtilityLink href="/help" icon={CircleHelp} label="Help" /><UtilityLink href="/contact" icon={Mail} label="Contact" /><UtilityLink href="tel:+18005550199" icon={Phone} label="Call" />
+        <UtilityLink href="/track-order" icon={Package} label="Track" /><UtilityLink href="/help" icon={CircleHelp} label="Help" /><UtilityLink href="/contact" icon={Mail} label="Contact" /><UtilityLink href="tel:+18005550199" icon={Phone} label="Call" />
       </div>
     </SheetContent>
   );
