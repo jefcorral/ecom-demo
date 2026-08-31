@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Flower2, Truck, BadgeCheck, Leaf, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,12 +54,15 @@ const footerLinks = [
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
 
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     setEmail("");
   }
+
+  if (["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname)) return null;
 
   return (
     <footer className="mt-auto">

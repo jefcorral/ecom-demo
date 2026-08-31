@@ -20,6 +20,7 @@ import {
   Home,
   Store,
   LogOut,
+  CircleHelp,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,8 @@ export function SiteHeader() {
     }
   }
 
+  if (["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname)) return null;
+
   return (
     <>
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(44,62,42,0.04)] transition-all duration-300">
@@ -143,7 +146,8 @@ export function SiteHeader() {
                     </MobileNavLink>
                   )}
                 </nav>
-                <div className="mt-auto border-t border-outline-variant/30 p-4">
+                <div className="mt-auto space-y-3 border-t border-outline-variant/30 p-4">
+                  {!isLoggedIn && <Link href="/login" className={cn(buttonVariants({ className: "w-full" }))}>Sign In / Register</Link>}
                   <p className="text-sm text-on-surface-variant">Artisanal florals for life&apos;s most beautiful moments.</p>
                 </div>
               </SheetContent>
@@ -408,10 +412,16 @@ function AccountDropdown({
           >
             Sign In / Register
           </Link>
-          <Link href="/orders" className="flex items-center gap-2 text-sm font-medium text-primary hover:text-on-primary-container">
-            <Package className="h-4 w-4" />
-            Track your order
-          </Link>
+          <div className="flex items-center justify-center gap-5">
+            <Link href="/orders" className="flex items-center gap-2 text-sm font-medium text-primary hover:text-on-primary-container">
+              <Package className="h-4 w-4" />
+              Track your order
+            </Link>
+            <Link href="/help" className="flex items-center gap-2 text-sm font-medium text-primary hover:text-on-primary-container">
+              <CircleHelp className="h-4 w-4" />
+              Help
+            </Link>
+          </div>
         </div>
       </DropdownMenuContent>
     );
