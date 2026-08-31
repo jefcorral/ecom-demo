@@ -32,12 +32,12 @@ export default function HomePage() {
       <section className="relative flex h-[90vh] min-h-[600px] w-full flex-col justify-end bg-surface-container pb-2xl md:h-[700px] md:items-center md:justify-center md:pb-0">
         <Image src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTzcf4ikKWHoS6H1hC56Ygiv_8vsEBnJgN3630wOHVVyjbivyQsS_wNiu95eRgdf4b-cb0QrlnbTUZYphrPf4xXuYs2wnitVdFQKuF0JOB9QO2IeNbiaX3HBdXALFbfCvX8JUpopxQW64-WkyJ7QpfbKDPTZH0AGxTImeS2SywB2Vvg2CkcwGwttVTK5RWGfxWzP58dCmJ4mJh9pP9JtXyN9Ph5YQH6S8M5NQNo44CIgTYWQ55xbtx" alt="Pastel seasonal bouquet arranged on a sunlit table" fill priority unoptimized sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent md:bg-gradient-to-r md:from-surface/90 md:via-surface/50" />
-        <div className="relative z-10 mx-auto w-full max-w-[1140px] px-md md:px-gutter">
-          <div className="flex w-full flex-col gap-md md:max-w-md md:rounded-xl md:bg-surface-container-lowest/95 md:p-xl md:shadow-lg md:backdrop-blur-md">
-            <span className="inline-flex w-fit items-center gap-xs rounded-full bg-surface-container-lowest/80 px-3 py-1.5 text-xs font-semibold text-on-surface shadow-sm backdrop-blur-md md:mb-sm md:bg-transparent md:p-0 md:uppercase md:tracking-widest md:text-primary md:shadow-none"><Flower2 className="h-4 w-4 text-primary md:hidden" /><span className="md:hidden">Spring Collection 2024</span><span className="hidden md:inline">Mother&apos;s Day Collection</span></span>
-            <h1 className="font-serif text-display-lg font-bold leading-[1.08] tracking-tight text-on-surface">Artisan Bouquets,<br className="hidden md:block" /> Delivered Fresh.</h1>
-            <p className="max-w-[90%] text-lg leading-7 text-on-surface-variant md:mb-lg md:max-w-none">Curated arrangements crafted with care, bringing the beauty of the season into your home.</p>
-            <Button render={<Link href="/products" />} className="mt-sm w-full md:mt-0 md:w-auto md:self-start"><span className="md:hidden">Shop Now</span><span className="hidden md:inline">Shop Best Sellers</span><ArrowRight className="h-4 w-4" /></Button>
+        <div className="relative mx-auto w-full max-w-[1140px] px-gutter">
+          <div className="w-full max-w-md rounded-xl bg-surface-container-lowest/95 p-xl shadow-xl backdrop-blur-md transition-transform hover:scale-[1.01]">
+            <span className="mb-sm inline-block font-label-md text-label-md uppercase tracking-widest text-primary">Mother&apos;s Day Collection</span>
+            <h1 className="mb-md font-display-lg text-display-lg text-on-surface">Artisan Bouquets,<br />Delivered Fresh.</h1>
+            <p className="mb-lg font-body-lg text-body-lg text-on-surface-variant">Express your deepest sentiments with our hand-tied, ethically sourced seasonal arrangements.</p>
+            <Button render={<Link href="/products" />} className="bg-primary-container px-lg py-3 font-label-md text-label-md text-on-primary-container hover:bg-primary-fixed hover:shadow-md">Shop Best Sellers</Button>
           </div>
         </div>
       </section>
