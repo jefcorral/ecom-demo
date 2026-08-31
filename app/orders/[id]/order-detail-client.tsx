@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PackageSearch } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/providers";
 import { fetchOrder } from "@/lib/orders";
@@ -8,7 +9,8 @@ import { Order } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SkeletonPage } from "@/components/ui/skeleton-patterns";
 import { toast } from "sonner";
 
 export default function OrderDetailClient({ id }: { id: string }) {
@@ -25,13 +27,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
       .finally(() => setLoading(false));
   }, [isLoggedIn, id]);
 
-  if (authLoading || loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
-  }
+  if (authLoading || (isLoggedIn && loading)) return <SkeletonPage variant="orders" />;
 
   if (!isLoggedIn) {
     return (
@@ -44,13 +40,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
     );
   }
 
-  if (!order) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <p className="text-center text-muted-foreground">Order not found.</p>
-      </div>
-    );
-  }
+  if (!order) return <EmptyState icon={PackageSearch} title="Order not found" description="We couldn't find an order with that reference. Check the order number and try again." action={<Button onClick={() => router.push("/orders")}>Back to Orders</Button>} />;
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, ArrowRight, Check, Eye, EyeOff, LoaderCircle, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle, ArrowRight, Check, Eye, EyeOff, type LucideIcon } from "lucide-react";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,7 @@ export function FormErrorSummary({ message }: { message?: string }) {
 }
 
 export function AuthSubmitButton({ loading, children }: { loading: boolean; children: React.ReactNode }) {
-  return <Button type="submit" className="w-full bg-[#785900] text-white hover:bg-[#9a7300]" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ArrowRight className="order-2 h-4 w-4" />}{children}</Button>;
+  return <LoadingButton type="submit" loading={loading} loadingLabel={typeof children === "string" ? children : "Loading..."} className="w-full bg-[#785900] text-white hover:bg-[#9a7300]">{children}<ArrowRight className="order-2 h-4 w-4" /></LoadingButton>;
 }
 
 export function AuthSuccess({ title, message, children }: { title: string; message: string; children: React.ReactNode }) {
