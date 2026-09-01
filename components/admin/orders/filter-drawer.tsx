@@ -1,13 +1,9 @@
 "use client";
 
-import { Calendar, ChevronDown, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, Calendar, ChevronDown, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -98,153 +94,150 @@ export function OrderFilterDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="border-l border-outline-variant/20 bg-surface-container-lowest p-0 data-[side=right]:w-3/4 data-[side=right]:sm:max-w-md data-starting-style:opacity-100 data-starting-style:translate-x-0"
+        showCloseButton={false}
+        className="gap-0 border-l border-outline-variant/20 bg-surface p-0 shadow-2xl data-[side=right]:w-96 data-[side=right]:max-w-96 data-starting-style:opacity-100"
       >
-        <SheetHeader className="border-b border-outline-variant/20 p-5">
-          <SheetTitle className="font-serif text-2xl text-on-surface">Filters</SheetTitle>
-        </SheetHeader>
-
-        <div className="flex-1 space-y-8 overflow-y-auto p-5">
-          <FilterSection title="Order Status">
-            <div className="space-y-3">
-              {statusOptions.map((option) => (
-                <label key={option} className="flex cursor-pointer items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-5 w-5 items-center justify-center rounded border transition-colors",
-                      draft.status.has(option)
-                        ? "border-secondary bg-secondary text-on-secondary"
-                        : "border-outline-variant bg-surface-container-low"
-                    )}
-                  >
-                    {draft.status.has(option) && <X className="h-3.5 w-3.5" />}
-                  </div>
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={draft.status.has(option)}
-                    onChange={() => toggle(option, "status", draft.status)}
-                  />
-                  <span className="text-sm text-on-surface">{option}</span>
-                </label>
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Date Range">
-            <div className="grid grid-cols-2 gap-3">
-              {dateOptions.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => update({ date: draft.date === option ? null : option })}
-                  className={cn(
-                    "h-12 rounded-full text-sm font-medium transition-colors",
-                    draft.date === option
-                      ? "bg-secondary-container text-on-secondary-container border border-secondary/20"
-                      : "bg-surface-container text-on-surface border border-outline-variant/30"
-                  )}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-            <button className="mt-3 flex h-12 w-full items-center gap-3 rounded-full border border-outline-variant/40 bg-surface-container-low px-4 text-sm text-on-surface hover:bg-surface-container transition-colors">
-              <Calendar className="h-4 w-4" />
-              Select custom range...
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-outline-variant/30 px-6 py-5">
+            <h2 className="font-serif text-2xl text-on-surface">Filters</h2>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-variant/30"
+            >
+              <X className="h-5 w-5" />
             </button>
-          </FilterSection>
+          </div>
 
-          <FilterSection title="Fulfillment">
-            <div className="flex flex-wrap gap-2">
-              {fulfillmentOptions.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => toggle(option, "fulfillment", draft.fulfillment)}
-                  className={cn(
-                    "h-10 rounded-full px-4 text-sm font-medium transition-colors",
-                    draft.fulfillment.has(option)
-                      ? "bg-secondary-container text-on-secondary-container border border-secondary/20"
-                      : "bg-surface-container text-on-surface border border-outline-variant/30"
-                  )}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </FilterSection>
+          <div className="flex-1 space-y-8 overflow-y-auto p-6">
+            <section>
+              <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">Order Status</h3>
+              <div className="space-y-3">
+                {statusOptions.map((option) => (
+                  <label key={option} className="group flex cursor-pointer items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                        draft.status.has(option)
+                          ? "border-secondary bg-secondary text-on-secondary"
+                          : "border-outline-variant bg-surface-container-low"
+                      )}
+                    >
+                      {draft.status.has(option) && <Check className="h-3.5 w-3.5" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={draft.status.has(option)}
+                      onChange={() => toggle(option, "status", draft.status)}
+                    />
+                    <span className="text-sm text-on-surface transition-colors group-hover:text-secondary">{option}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
 
-          <FilterSection title="Customer Type">
-            <div className="space-y-3">
-              {customerOptions.map((option) => (
-                <label key={option} className="flex cursor-pointer items-center gap-3">
-                  <div
+            <section>
+              <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">Date Range</h3>
+              <div className="mb-4 grid grid-cols-2 gap-2">
+                {dateOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => update({ date: draft.date === option ? null : option })}
                     className={cn(
-                      "flex h-5 w-5 items-center justify-center rounded-full border transition-colors",
-                      draft.customer === option
-                        ? "border-secondary bg-secondary"
-                        : "border-outline-variant bg-surface-container-low"
+                      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                      draft.date === option
+                        ? "border border-secondary/20 bg-secondary-container/30 text-on-secondary-container"
+                        : "bg-surface-container text-on-surface-variant hover:bg-surface-variant"
                     )}
                   >
-                    {draft.customer === option && <div className="h-2 w-2 rounded-full bg-on-secondary" />}
-                  </div>
-                  <input
-                    type="radio"
-                    name="customer-type"
-                    className="sr-only"
-                    checked={draft.customer === option}
-                    onChange={() => update({ customer: option })}
-                  />
-                  <span className="text-sm text-on-surface">{option}</span>
-                </label>
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Location">
-            <div className="relative">
-              <select
-                value={draft.location}
-                onChange={(e) => update({ location: e.target.value })}
-                className="h-12 w-full appearance-none rounded-full border border-outline-variant/40 bg-surface-container-low px-4 pr-10 text-sm text-on-surface outline-none"
-              >
-                {locationOptions.map((option) => (
-                  <option key={option} value={option}>
                     {option}
-                  </option>
+                  </button>
                 ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-            </div>
-          </FilterSection>
-        </div>
+              </div>
+              <button className="relative flex w-full items-center rounded-xl border border-outline-variant/40 bg-surface-container-low py-2.5 pl-10 pr-4 text-left text-sm text-on-surface transition-colors hover:bg-surface-container">
+                <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant/60" />
+                Select custom range...
+              </button>
+            </section>
 
-        <SheetFooter className="border-t border-outline-variant/20 p-5">
-          <div className="flex w-full gap-4">
-            <Button
+            <section>
+              <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">Fulfillment</h3>
+              <div className="flex flex-wrap gap-2">
+                {fulfillmentOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => toggle(option, "fulfillment", draft.fulfillment)}
+                    className={cn(
+                      "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                      draft.fulfillment.has(option)
+                        ? "bg-secondary-container/30 text-on-secondary-container border border-secondary/20"
+                        : "bg-surface-container text-on-surface-variant hover:bg-surface-variant"
+                    )}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">Customer Type</h3>
+              <div className="space-y-3">
+                {customerOptions.map((option) => (
+                  <label key={option} className="group flex cursor-pointer items-center gap-3">
+                    <input
+                      type="radio"
+                      name="customer-type"
+                      className={cn(
+                        "h-5 w-5 appearance-none rounded-full border bg-surface transition-all",
+                        draft.customer === option
+                          ? "border-[6px] border-secondary"
+                          : "border-outline-variant"
+                      )}
+                      checked={draft.customer === option}
+                      onChange={() => update({ customer: option })}
+                    />
+                    <span className="text-sm text-on-surface transition-colors group-hover:text-secondary">{option}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">Location</h3>
+              <div className="relative">
+                <select
+                  value={draft.location}
+                  onChange={(e) => update({ location: e.target.value })}
+                  className="w-full appearance-none rounded-xl border border-outline-variant/40 bg-surface-container-low py-2.5 pl-4 pr-10 text-base text-on-surface outline-none"
+                >
+                  {locationOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant/60" />
+              </div>
+            </section>
+          </div>
+
+          <div className="flex items-center gap-3 border-t border-outline-variant/30 bg-surface-container-lowest p-6">
+            <button
               onClick={handleClear}
-              variant="ghost"
-              className="flex-1 rounded-full py-6 text-base font-medium text-on-surface hover:bg-surface-container"
+              className="flex-1 rounded-full py-3 text-sm font-medium text-secondary transition-colors hover:bg-surface-variant/20"
             >
               Clear All
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleApply}
-              className="flex-[2] rounded-full bg-primary py-6 text-base font-medium text-on-primary hover:shadow-md"
+              className="flex-[2] rounded-full bg-primary py-3 text-sm font-medium text-on-primary shadow-md transition-colors hover:bg-primary/90"
             >
               Apply Filters
-            </Button>
+            </button>
           </div>
-        </SheetFooter>
+        </div>
       </SheetContent>
     </Sheet>
-  );
-}
-
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="mb-4 text-xs font-medium uppercase tracking-widest text-on-surface-variant/70">{title}</h3>
-      {children}
-    </div>
   );
 }
