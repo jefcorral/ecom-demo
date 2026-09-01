@@ -96,7 +96,10 @@ export function OrderFilterDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full border-l border-outline-variant/20 bg-surface-container-lowest p-0 sm:max-w-md">
+      <SheetContent
+        side="right"
+        className="border-l border-outline-variant/20 bg-surface-container-lowest p-0 data-[side=right]:w-3/4 data-[side=right]:sm:max-w-md data-starting-style:opacity-100 data-starting-style:translate-x-0"
+      >
         <SheetHeader className="border-b border-outline-variant/20 p-5">
           <SheetTitle className="font-serif text-2xl text-on-surface">Filters</SheetTitle>
         </SheetHeader>
