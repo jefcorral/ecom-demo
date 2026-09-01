@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Check, Calendar, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,8 @@ export interface OrderFilterValue {
 export interface OrderFilterDraft {
   status: Set<string>;
   date: string | null;
+  dateFrom: string | null;
+  dateTo: string | null;
   fulfillment: Set<string>;
   customer: string | null;
   location: string;
@@ -31,10 +34,25 @@ const fulfillmentOptions = ["Delivery", "Pickup", "Shipping"];
 const customerOptions = ["Retail", "Event", "Subscription"];
 const locationOptions = ["All Locations", "Portland", "NYC", "Seattle"];
 
+function formatDate(value: string) {
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatRange(from: string | null, to: string | null) {
+  if (from && to) return `${formatDate(from)} - ${formatDate(to)}`;
+  if (from) return `From ${formatDate(from)}`;
+  if (to) return `Until ${formatDate(to)}`;
+  return "Custom";
+}
+
 export function getDraft(activeFilters: OrderFilterValue[]): OrderFilterDraft {
   const s = new Set<string>();
   const f = new Set<string>();
   let d: string | null = null;
+  let df: string | null = null;
+  let dt: string | null = null;
   let c: string | null = null;
   let l = "All Locations";
   activeFilters.forEach((filter) => {
@@ -44,13 +62,14 @@ export function getDraft(activeFilters: OrderFilterValue[]): OrderFilterDraft {
     if (filter.key === "Customer Type" && customerOptions.includes(filter.value)) c = filter.value;
     if (filter.key === "Location" && locationOptions.includes(filter.value)) l = filter.value;
   });
-  return { status: s, date: d, fulfillment: f, customer: c, location: l };
+  return { status: s, date: d, dateFrom: df, dateTo: dt, fulfillment: f, customer: c, location: l };
 }
 
 export function buildFilters(draft: OrderFilterDraft): OrderFilterValue[] {
   const filters: OrderFilterValue[] = [];
   draft.status.forEach((value) => filters.push({ key: "Status", value }));
   if (draft.date) filters.push({ key: "Date", value: draft.date });
+  else if (draft.dateFrom || draft.dateTo) filters.push({ key: "Date", value: formatRange(draft.dateFrom, draft.dateTo) });
   draft.fulfillment.forEach((value) => filters.push({ key: "Fulfillment", value }));
   if (draft.customer) filters.push({ key: "Customer Type", value: draft.customer });
   if (draft.location !== "All Locations") filters.push({ key: "Location", value: draft.location });
@@ -65,14 +84,18 @@ export function OrderFilterDrawer({
   onApply,
   onClear,
 }: FilterDrawerProps) {
+  const [showCustom, setShowCustom] = useState(false);
+
   const handleApply = () => {
     onApply(buildFilters(draft));
     onOpenChange(false);
+    setShowCustom(false);
   };
 
   const handleClear = () => {
     onClear();
     onOpenChange(false);
+    setShowCustom(false);
   };
 
   const update = (partial: Partial<OrderFilterDraft>) => {
@@ -84,6 +107,25 @@ export function OrderFilterDrawer({
     if (next.has(value)) next.delete(value);
     else next.add(value);
     update({ [key]: next } as unknown as Partial<OrderFilterDraft>);
+  };
+
+  const setDate = (value: string) => {
+    update({ date: value, dateFrom: null, dateTo: null });
+    setShowCustom(false);
+  };
+
+  const clearDate = () => {
+    update({ date: null, dateFrom: null, dateTo: null });
+    setShowCustom(false);
+  };
+
+  const toggleCustom = () => {
+    if (showCustom) {
+      clearDate();
+    } else {
+      update({ date: null, dateFrom: null, dateTo: null });
+      setShowCustom(true);
+    }
   };
 
   return (
@@ -145,7 +187,7 @@ export function OrderFilterDrawer({
               {dateOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => update({ date: draft.date === option ? null : option })}
+                  onClick={() => setDate(option)}
                   className={cn(
                     "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                     draft.date === option
@@ -157,10 +199,38 @@ export function OrderFilterDrawer({
                 </button>
               ))}
             </div>
-            <button className="relative flex w-full items-center rounded-xl border border-outline-variant/40 bg-surface-container-low py-2.5 pl-10 pr-4 text-left text-sm text-on-surface transition-colors hover:bg-surface-container">
+            <button
+              onClick={toggleCustom}
+              className={cn(
+                "relative flex w-full items-center rounded-xl border border-outline-variant/40 py-2.5 pl-10 pr-4 text-left text-sm transition-colors",
+                showCustom ? "bg-secondary-container/20 text-on-secondary-container" : "bg-surface-container-low text-on-surface hover:bg-surface-container"
+              )}
+            >
               <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant/60" />
-              Select custom range...
+              {showCustom ? "Close custom range" : "Select custom range..."}
             </button>
+            {showCustom && (
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="mb-1 block text-xs text-on-surface-variant">From</span>
+                  <input
+                    type="date"
+                    value={draft.dateFrom ?? ""}
+                    onChange={(e) => update({ dateFrom: e.target.value || null, date: null })}
+                    className="h-11 w-full rounded-xl border border-outline-variant/40 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-on-surface-variant">To</span>
+                  <input
+                    type="date"
+                    value={draft.dateTo ?? ""}
+                    onChange={(e) => update({ dateTo: e.target.value || null, date: null })}
+                    className="h-11 w-full rounded-xl border border-outline-variant/40 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
+                  />
+                </label>
+              </div>
+            )}
           </section>
 
           <section>
