@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { AdminOrder, AdminOrdersData } from "@/lib/admin-orders";
 import { OrdersEmpty } from "./empty";
 import { OrdersNoResults } from "./no-results";
-import { OrderFilterDrawer } from "./filter-drawer";
+import { OrderFilterDrawer, getDraft, buildFilters } from "./filter-drawer";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -80,6 +80,7 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
   const [page, setPage] = useState(1);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterDraft, setFilterDraft] = useState(() => getDraft(activeFilters));
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -144,13 +145,20 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
     setSearch("");
     setStatusChip("all");
     setActiveFilters([]);
+    setFilterDraft(getDraft([]));
     setPage(1);
   };
 
   const applyFilters = (filters: { key: string; value: string }[]) => {
     setActiveFilters(filters);
+    setFilterDraft(getDraft(filters));
     setStatusChip("all");
     setPage(1);
+  };
+
+  const openFilters = () => {
+    setFilterDraft(getDraft(activeFilters));
+    setFilterOpen(true);
   };
 
   if (filtered.length === 0 && (search || statusChip !== "all" || activeFilters.length > 0)) {
@@ -183,7 +191,7 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
           toggleRow={toggleRow}
           bulkOpen={bulkOpen}
           setBulkOpen={setBulkOpen}
-          onOpenFilters={() => setFilterOpen(true)}
+          onOpenFilters={openFilters}
         />
       </div>
       <div className="lg:hidden">
@@ -194,14 +202,14 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
           setSearch={setSearch}
           statusChip={statusChip}
           setStatusChip={setStatusChip}
-          onOpenFilters={() => setFilterOpen(true)}
+          onOpenFilters={openFilters}
         />
       </div>
       <OrderFilterDrawer
-        key={filterOpen ? "open" : "closed"}
         open={filterOpen}
         onOpenChange={setFilterOpen}
-        activeFilters={activeFilters}
+        draft={filterDraft ?? getDraft(activeFilters)}
+        onDraftChange={setFilterDraft}
         onApply={applyFilters}
         onClear={clearFilters}
       />

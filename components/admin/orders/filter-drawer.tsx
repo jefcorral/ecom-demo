@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Calendar, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +16,19 @@ export interface OrderFilterValue {
   value: string;
 }
 
+export interface OrderFilterDraft {
+  status: Set<string>;
+  date: string | null;
+  fulfillment: Set<string>;
+  customer: string | null;
+  location: string;
+}
+
 interface FilterDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  activeFilters: OrderFilterValue[];
+  draft: OrderFilterDraft;
+  onDraftChange: (draft: OrderFilterDraft) => void;
   onApply: (filters: OrderFilterValue[]) => void;
   onClear: () => void;
 }
@@ -31,7 +39,7 @@ const fulfillmentOptions = ["Delivery", "Pickup", "Shipping"];
 const customerOptions = ["Retail", "Event", "Subscription"];
 const locationOptions = ["All Locations", "Portland", "NYC", "Seattle"];
 
-function getDraft(activeFilters: OrderFilterValue[]) {
+export function getDraft(activeFilters: OrderFilterValue[]): OrderFilterDraft {
   const s = new Set<string>();
   const f = new Set<string>();
   let d: string | null = null;
@@ -47,39 +55,43 @@ function getDraft(activeFilters: OrderFilterValue[]) {
   return { status: s, date: d, fulfillment: f, customer: c, location: l };
 }
 
-export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, onClear }: FilterDrawerProps) {
-  const [status, setStatus] = useState(() => getDraft(activeFilters).status);
-  const [date, setDate] = useState<string | null>(() => getDraft(activeFilters).date);
-  const [fulfillment, setFulfillment] = useState(() => getDraft(activeFilters).fulfillment);
-  const [customer, setCustomer] = useState<string | null>(() => getDraft(activeFilters).customer);
-  const [location, setLocation] = useState(() => getDraft(activeFilters).location);
+export function buildFilters(draft: OrderFilterDraft): OrderFilterValue[] {
+  const filters: OrderFilterValue[] = [];
+  draft.status.forEach((value) => filters.push({ key: "Status", value }));
+  if (draft.date) filters.push({ key: "Date", value: draft.date });
+  draft.fulfillment.forEach((value) => filters.push({ key: "Fulfillment", value }));
+  if (draft.customer) filters.push({ key: "Customer Type", value: draft.customer });
+  if (draft.location !== "All Locations") filters.push({ key: "Location", value: draft.location });
+  return filters;
+}
 
+export function OrderFilterDrawer({
+  open,
+  onOpenChange,
+  draft,
+  onDraftChange,
+  onApply,
+  onClear,
+}: FilterDrawerProps) {
   const handleApply = () => {
-    const filters: OrderFilterValue[] = [];
-    status.forEach((value) => filters.push({ key: "Status", value }));
-    if (date) filters.push({ key: "Date", value: date });
-    fulfillment.forEach((value) => filters.push({ key: "Fulfillment", value }));
-    if (customer) filters.push({ key: "Customer Type", value: customer });
-    if (location !== "All Locations") filters.push({ key: "Location", value: location });
-    onApply(filters);
+    onApply(buildFilters(draft));
     onOpenChange(false);
   };
 
   const handleClear = () => {
-    setStatus(new Set());
-    setDate(null);
-    setFulfillment(new Set());
-    setCustomer(null);
-    setLocation("All Locations");
     onClear();
     onOpenChange(false);
   };
 
-  const toggle = (value: string, set: Set<string>, setter: (s: Set<string>) => void) => {
-    const next = new Set(set);
+  const update = (partial: Partial<OrderFilterDraft>) => {
+    onDraftChange({ ...draft, ...partial });
+  };
+
+  const toggle = (value: string, key: keyof OrderFilterDraft, current: Set<string>) => {
+    const next = new Set(current);
     if (next.has(value)) next.delete(value);
     else next.add(value);
-    setter(next);
+    update({ [key]: next } as unknown as Partial<OrderFilterDraft>);
   };
 
   return (
@@ -97,18 +109,18 @@ export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, 
                   <div
                     className={cn(
                       "flex h-5 w-5 items-center justify-center rounded border transition-colors",
-                      status.has(option)
+                      draft.status.has(option)
                         ? "border-secondary bg-secondary text-on-secondary"
                         : "border-outline-variant bg-surface-container-low"
                     )}
                   >
-                    {status.has(option) && <X className="h-3.5 w-3.5" />}
+                    {draft.status.has(option) && <X className="h-3.5 w-3.5" />}
                   </div>
                   <input
                     type="checkbox"
                     className="sr-only"
-                    checked={status.has(option)}
-                    onChange={() => toggle(option, status, setStatus)}
+                    checked={draft.status.has(option)}
+                    onChange={() => toggle(option, "status", draft.status)}
                   />
                   <span className="text-sm text-on-surface">{option}</span>
                 </label>
@@ -121,10 +133,10 @@ export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, 
               {dateOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => setDate(date === option ? null : option)}
+                  onClick={() => update({ date: draft.date === option ? null : option })}
                   className={cn(
                     "h-12 rounded-full text-sm font-medium transition-colors",
-                    date === option
+                    draft.date === option
                       ? "bg-secondary-container text-on-secondary-container border border-secondary/20"
                       : "bg-surface-container text-on-surface border border-outline-variant/30"
                   )}
@@ -144,10 +156,10 @@ export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, 
               {fulfillmentOptions.map((option) => (
                 <button
                   key={option}
-                  onClick={() => toggle(option, fulfillment, setFulfillment)}
+                  onClick={() => toggle(option, "fulfillment", draft.fulfillment)}
                   className={cn(
                     "h-10 rounded-full px-4 text-sm font-medium transition-colors",
-                    fulfillment.has(option)
+                    draft.fulfillment.has(option)
                       ? "bg-secondary-container text-on-secondary-container border border-secondary/20"
                       : "bg-surface-container text-on-surface border border-outline-variant/30"
                   )}
@@ -165,19 +177,19 @@ export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, 
                   <div
                     className={cn(
                       "flex h-5 w-5 items-center justify-center rounded-full border transition-colors",
-                      customer === option
+                      draft.customer === option
                         ? "border-secondary bg-secondary"
                         : "border-outline-variant bg-surface-container-low"
                     )}
                   >
-                    {customer === option && <div className="h-2 w-2 rounded-full bg-on-secondary" />}
+                    {draft.customer === option && <div className="h-2 w-2 rounded-full bg-on-secondary" />}
                   </div>
                   <input
                     type="radio"
                     name="customer-type"
                     className="sr-only"
-                    checked={customer === option}
-                    onChange={() => setCustomer(option)}
+                    checked={draft.customer === option}
+                    onChange={() => update({ customer: option })}
                   />
                   <span className="text-sm text-on-surface">{option}</span>
                 </label>
@@ -188,8 +200,8 @@ export function OrderFilterDrawer({ open, onOpenChange, activeFilters, onApply, 
           <FilterSection title="Location">
             <div className="relative">
               <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={draft.location}
+                onChange={(e) => update({ location: e.target.value })}
                 className="h-12 w-full appearance-none rounded-full border border-outline-variant/40 bg-surface-container-low px-4 pr-10 text-sm text-on-surface outline-none"
               >
                 {locationOptions.map((option) => (
