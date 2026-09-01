@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { AdminOrder, AdminOrdersData } from "@/lib/admin-orders";
 import { OrdersEmpty } from "./empty";
 import { OrdersNoResults } from "./no-results";
+import { OrderFilterDrawer } from "./filter-drawer";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -78,6 +79,7 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -95,15 +97,25 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
       return searchable.includes(term);
     });
 
+    const allowedStatuses = new Set<AdminOrder["status"]>();
     activeFilters.forEach((filter) => {
       if (filter.key === "Status" && filter.value !== "All") {
         const value = filter.value.toLowerCase();
-        list = list.filter((order) => statusConfig[order.status].label.toLowerCase() === value);
-      }
-      if (filter.key === "Date" && filter.value === "This Week") {
-        // mock: keep all
+        const map: Record<string, AdminOrder["status"][]> = {
+          pending: ["pending"],
+          designing: ["designing"],
+          fulfilled: ["delivered"],
+          "in progress": ["in_progress", "sourcing"],
+          delivered: ["delivered"],
+          cancelled: ["cancelled"],
+        };
+        const statuses = map[value];
+        if (statuses) statuses.forEach((s) => allowedStatuses.add(s));
       }
     });
+    if (allowedStatuses.size > 0) {
+      list = list.filter((order) => allowedStatuses.has(order.status));
+    }
 
     return list;
   }, [data.orders, search, statusChip, activeFilters]);
@@ -132,6 +144,12 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
     setSearch("");
     setStatusChip("all");
     setActiveFilters([]);
+    setPage(1);
+  };
+
+  const applyFilters = (filters: { key: string; value: string }[]) => {
+    setActiveFilters(filters);
+    setStatusChip("all");
     setPage(1);
   };
 
@@ -165,6 +183,7 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
           toggleRow={toggleRow}
           bulkOpen={bulkOpen}
           setBulkOpen={setBulkOpen}
+          onOpenFilters={() => setFilterOpen(true)}
         />
       </div>
       <div className="lg:hidden">
@@ -175,8 +194,17 @@ export function OrdersContent({ data }: { data: AdminOrdersData }) {
           setSearch={setSearch}
           statusChip={statusChip}
           setStatusChip={setStatusChip}
+          onOpenFilters={() => setFilterOpen(true)}
         />
       </div>
+      <OrderFilterDrawer
+        key={filterOpen ? "open" : "closed"}
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        activeFilters={activeFilters}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
     </div>
   );
 }
@@ -200,6 +228,7 @@ function DesktopOrders({
   toggleRow,
   bulkOpen,
   setBulkOpen,
+  onOpenFilters,
 }: {
   data: AdminOrdersData;
   paged: AdminOrder[];
@@ -219,6 +248,7 @@ function DesktopOrders({
   toggleRow: (id: string) => void;
   bulkOpen: boolean;
   setBulkOpen: (v: boolean) => void;
+  onOpenFilters: () => void;
 }) {
   const router = useRouter();
 
@@ -264,7 +294,11 @@ function DesktopOrders({
             <FilterButton label="Status" icon={ChevronDown} />
             <FilterButton label="Date Range" icon={ChevronDown} />
             <FilterButton label="Fulfillment" icon={ChevronDown} />
-            <Button variant="outline" className="gap-2 rounded-full border-outline-variant/40 bg-surface-container-low text-on-surface-variant">
+            <Button
+              onClick={onOpenFilters}
+              variant="outline"
+              className="gap-2 rounded-full border-outline-variant/40 bg-surface-container-low text-on-surface-variant"
+            >
               <SlidersHorizontal className="h-4 w-4" />
               More Filters
             </Button>
@@ -474,6 +508,7 @@ function MobileOrders({
   setSearch,
   statusChip,
   setStatusChip,
+  onOpenFilters,
 }: {
   data: AdminOrdersData;
   paged: AdminOrder[];
@@ -481,6 +516,7 @@ function MobileOrders({
   setSearch: (s: string) => void;
   statusChip: "all" | "pending" | "in_progress" | "delivered";
   setStatusChip: (s: "all" | "pending" | "in_progress" | "delivered") => void;
+  onOpenFilters: () => void;
 }) {
   const chips = [
     { key: "all", label: `All`, count: data.statusCounts.all },
@@ -515,7 +551,11 @@ function MobileOrders({
               className="h-12 w-full rounded-full bg-surface-container-low pl-12 pr-4"
             />
           </div>
-          <Button variant="outline" className="h-12 gap-2 rounded-full bg-surface-container px-5 text-on-surface">
+          <Button
+            onClick={onOpenFilters}
+            variant="outline"
+            className="h-12 gap-2 rounded-full bg-surface-container px-5 text-on-surface"
+          >
             <SlidersHorizontal className="h-4 w-4" />
             Filters
           </Button>
