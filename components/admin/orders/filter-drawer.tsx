@@ -87,7 +87,7 @@ export function OrderFilterDrawer({
   };
 
   return (
-    <div className="pointer-events-none">
+    <div>
       <div
         onClick={() => onOpenChange(false)}
         className={cn(
