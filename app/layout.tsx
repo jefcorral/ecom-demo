@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "./providers";
@@ -36,11 +37,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isAdmin = pathname.startsWith("/dashboard");
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -52,11 +56,17 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <SiteHeader />
-          <main className="flex min-h-screen w-full flex-col bg-surface pt-14 lg:pt-16">
-            <div className="flex w-full flex-col">{children}</div>
-          </main>
-          <SiteFooter />
+          {isAdmin ? (
+            children
+          ) : (
+            <>
+              <SiteHeader />
+              <main className="flex min-h-screen w-full flex-col bg-surface pt-14 lg:pt-16">
+                <div className="flex w-full flex-col">{children}</div>
+              </main>
+              <SiteFooter />
+            </>
+          )}
         </Providers>
       </body>
     </html>
