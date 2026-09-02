@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Gift, Info, Leaf, LockKeyhole, Minus, PackageOpen, Plus, ShoppingBag, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { mockProducts } from "@/lib/mock-data";
 
 const initialItems = [
@@ -194,12 +195,5 @@ function TrustBadge({ icon: Icon, label }: { icon: React.ComponentType<{ classNa
 }
 
 function EmptyCart({ onRestore }: { onRestore: () => void }) {
-  return (
-    <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center px-4 py-16 text-center">
-      <span className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-surface-container-low"><PackageOpen className="h-12 w-12 stroke-1 text-primary" /></span>
-      <h1 className="font-serif text-4xl font-semibold text-primary">Your cart is empty</h1>
-      <p className="mt-3 max-w-sm text-on-surface-variant">Discover our seasonal bouquets, plants, and thoughtful gifts.</p>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button render={<Link href="/products" />} className="h-12 rounded-full bg-primary px-7 text-on-primary hover:bg-primary/90"><ShoppingBag className="h-4 w-4" />Shop Best Sellers</Button><Button type="button" variant="outline" onClick={onRestore} className="h-12 rounded-full border-outline-variant px-7">Preview filled cart</Button></div>
-    </div>
-  );
+  return <EmptyState icon={PackageOpen} title="Your cart is empty" description="Discover our seasonal bouquets, plants, and thoughtful gifts." action={<Button render={<Link href="/products" />} className="w-full sm:w-auto"><ShoppingBag className="h-4 w-4" />Shop Best Sellers</Button>} secondaryAction={<Button type="button" variant="outline" onClick={onRestore} className="w-full sm:w-auto">Preview filled cart</Button>} />;
 }

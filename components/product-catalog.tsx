@@ -2,7 +2,7 @@
 
 import { useEffect, useReducer, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { X, Search, ChevronDown, Leaf } from "lucide-react";
+import { X, Search, ChevronDown, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
+import { SkeletonProductGrid } from "@/components/ui/skeleton-patterns";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters } from "@/components/product-filters";
 import { PaginationControls } from "@/components/pagination-controls";
@@ -299,24 +301,15 @@ export function ProductCatalog({ categories }: ProductCatalogProps) {
           )}
 
           {state.status === "loading" ? (
-            <ProductGridSkeleton />
+            <SkeletonProductGrid count={LIMIT} />
           ) : state.status === "error" ? (
-            <EmptyState
-              title="Could not load products"
-              message="Make sure the API is running and try again."
-            />
+            <ErrorState onRetry={() => window.location.reload()} />
           ) : sortedProducts.length === 0 ? (
             <EmptyState
-              title="No arrangements found"
-              message="Try adjusting your search or filters to find what you're looking for."
-              action={
-                <Button
-                  onClick={clearAll}
-                  className="rounded-full bg-primary px-6 text-on-primary hover:bg-primary/90"
-                >
-                  Clear All Filters
-                </Button>
-              }
+              icon={SearchX}
+              title={search ? `No results for “${search}”` : "No arrangements found"}
+              description="Try adjusting your search or filters to find what you're looking for."
+              action={<Button onClick={clearAll}>Browse All Products</Button>}
             />
           ) : (
             <>
@@ -353,36 +346,5 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
         <X className="h-3.5 w-3.5" />
       </button>
     </span>
-  );
-}
-
-function ProductGridSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
-      {Array.from({ length: LIMIT }).map((_, i) => (
-        <Skeleton key={i} className="h-[380px] w-full rounded-[16px]" />
-      ))}
-    </div>
-  );
-}
-
-function EmptyState({
-  title,
-  message,
-  action,
-}: {
-  title: string;
-  message: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-2xl bg-surface-container-low px-6 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-container">
-        <Leaf className="h-8 w-8 text-primary" />
-      </div>
-      <h2 className="mt-6 font-serif text-2xl font-semibold text-on-surface">{title}</h2>
-      <p className="mt-2 max-w-sm text-on-surface-variant">{message}</p>
-      {action && <div className="mt-6">{action}</div>}
-    </div>
   );
 }

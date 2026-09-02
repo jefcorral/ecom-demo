@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { PackageOpen } from "lucide-react";
 import { useAuth } from "@/app/providers";
 import { fetchOrders } from "@/lib/orders";
 import { Order, OrdersResponse } from "@/types";
@@ -9,7 +10,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SkeletonPage } from "@/components/ui/skeleton-patterns";
 import { toast } from "sonner";
 
 export default function OrdersPage() {
@@ -25,14 +27,7 @@ export default function OrdersPage() {
       .finally(() => setLoading(false));
   }, [isLoggedIn]);
 
-  if (authLoading || loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">Orders</h1>
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
-  }
+  if (authLoading || (isLoggedIn && loading)) return <SkeletonPage variant="orders" />;
 
   if (!isLoggedIn) {
     return (
@@ -49,7 +44,7 @@ export default function OrdersPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold">Orders</h1>
       {data?.data.length === 0 ? (
-        <p className="text-center text-muted-foreground">No orders yet.</p>
+        <EmptyState icon={PackageOpen} title="No orders yet" description="When you place an order, it will appear here." action={<Link href="/products" className={buttonVariants()}>Start Shopping</Link>} className="min-h-[55vh] py-10" />
       ) : (
         <div className="space-y-4">
           {data?.data.map((order) => (
