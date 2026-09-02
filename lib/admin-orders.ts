@@ -17,7 +17,7 @@ export interface AdminOrder {
   targetDate: string;
   serviceTime?: string;
   timingNote?: string;
-  status: "pending" | "designing" | "sourcing" | "in_progress" | "delivered" | "cancelled";
+  status: "pending" | "designing" | "sourcing" | "in_progress" | "delivered" | "cancelled" | "refunded";
   payment: "paid" | "partial" | "unpaid";
   total: number;
   items: number;
@@ -25,6 +25,59 @@ export interface AdminOrder {
   productName?: string;
   deliveryText?: string;
   priority?: boolean;
+}
+
+export interface AdminOrderLineItem {
+  id: string;
+  name: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  image: string;
+  options?: string;
+  refunded?: boolean;
+}
+
+export interface AdminOrderNote {
+  id: string;
+  author: string;
+  role: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface AdminOrderPayment {
+  method: string;
+  lastFour?: string;
+  transactionId: string;
+  paidAt: string;
+  status: "paid" | "partial" | "unpaid" | "refunded";
+}
+
+export interface AdminOrderCourier {
+  id?: string;
+  name?: string;
+  phone?: string;
+}
+
+export interface AdminOrderAuditEvent {
+  id: string;
+  status: string;
+  label: string;
+  timestamp: string;
+  note?: string;
+}
+
+export interface AdminOrderDetail extends AdminOrder {
+  customerPhone: string;
+  billingAddress: string;
+  recipientPhone?: string;
+  lineItems: AdminOrderLineItem[];
+  giftMessage?: string;
+  notes: AdminOrderNote[];
+  paymentDetails: AdminOrderPayment;
+  courier?: AdminOrderCourier | null;
+  auditHistory: AdminOrderAuditEvent[];
 }
 
 const orders: AdminOrder[] = [
@@ -144,6 +197,102 @@ const orders: AdminOrder[] = [
   },
 ];
 
+const orderDetails: Record<string, AdminOrderDetail> = {
+  "ord-8924": {
+    ...orders[0],
+    customerPhone: "(555) 123-4567",
+    billingAddress: "124 Valley Rd, Portland, OR 97204",
+    lineItems: [
+      {
+        id: "li-1",
+        name: "The Estate Signature Arrangement",
+        sku: "ESA-GRAND-01",
+        quantity: 1,
+        unitPrice: 245,
+        image: "/product-detail/bouquet-main.png",
+        options: "Size: Grand Luxe",
+      },
+      {
+        id: "li-2",
+        name: "Handwritten Sympathy Card",
+        sku: "CARD-SYM-01",
+        quantity: 1,
+        unitPrice: 8,
+        image: "/product-detail/packaging.png",
+      },
+    ],
+    giftMessage:
+      "Dear Smithson Family, our deepest condolences during this difficult time. May these blooms bring a moment of peace. With love, The Henderson Family.",
+    notes: [
+      {
+        id: "note-1",
+        author: "Sarah J.",
+        role: "Designer",
+        text: "Substituted standard eucalyptus for premium seeded eucalyptus per inventory constraints. Value equivalent.",
+        createdAt: "Oct 24, 3:30 PM",
+      },
+      {
+        id: "note-2",
+        author: "Admin User",
+        role: "Manager",
+        text: "Confirmed delivery window with venue coordinator.",
+        createdAt: "Oct 24, 2:45 PM",
+      },
+    ],
+    paymentDetails: {
+      method: "Credit Card",
+      lastFour: "4242",
+      transactionId: "TXN-88492011",
+      paidAt: "Oct 24",
+      status: "paid",
+    },
+    courier: null,
+    auditHistory: [
+      { id: "a1", status: "pending", label: "Order Placed", timestamp: "Oct 24, 09:15 AM" },
+      { id: "a2", status: "designing", label: "Status updated to Designing", timestamp: "Oct 24, 09:42 AM", note: "Assigned to Sarah J." },
+      { id: "a3", status: "paid", label: "Payment confirmed", timestamp: "Oct 24, 09:43 AM", note: "Paid via Credit Card" },
+    ],
+  },
+  "ord-8923": {
+    ...orders[1],
+    customerPhone: "(555) 987-6543",
+    billingAddress: "842 Pine St, Apt 4B, Portland, OR 97204",
+    lineItems: [
+      {
+        id: "li-3",
+        name: "The Autumn Equinox Bouquet",
+        sku: "AEB-GRAND-01",
+        quantity: 1,
+        unitPrice: 125,
+        image: "/product-detail/bouquet-main.png",
+        options: "Size: Grand",
+      },
+      {
+        id: "li-4",
+        name: "Handwritten Birthday Card",
+        sku: "CARD-BDAY-01",
+        quantity: 1,
+        unitPrice: 5,
+        image: "/product-detail/packaging.png",
+      },
+    ],
+    giftMessage: "Happy Birthday, Mom! Wishing you a wonderful day surrounded by beauty. Love, Eleanor",
+    notes: [],
+    paymentDetails: {
+      method: "Visa",
+      lastFour: "4242",
+      transactionId: "TXN-88492012",
+      paidAt: "Oct 24",
+      status: "paid",
+    },
+    courier: { id: "c1", name: "Alex Rivera", phone: "(555) 019-2831" },
+    auditHistory: [
+      { id: "a1", status: "pending", label: "Order Placed", timestamp: "Oct 24, 08:30 AM" },
+      { id: "a2", status: "paid", label: "Payment confirmed", timestamp: "Oct 24, 08:31 AM" },
+    ],
+  },
+};
+
 export interface AdminOrdersData {
   orders: AdminOrder[];
   total: number;
@@ -175,4 +324,40 @@ export async function fetchAdminOrders(): Promise<AdminOrdersData> {
       delivered: 1100,
     },
   };
+}
+
+export async function fetchAdminOrderById(id: string): Promise<AdminOrderDetail | null> {
+  const existing = orderDetails[id];
+  if (existing) return existing;
+
+  const order = orders.find((o) => o.id === id);
+  if (!order) return null;
+
+  const fallback: AdminOrderDetail = {
+    ...order,
+    customerPhone: "(555) 000-0000",
+    billingAddress: order.address,
+    lineItems: [
+      {
+        id: "li-fb",
+        name: order.productName ?? `${order.category} Arrangement`,
+        sku: "SKU-FALLBACK",
+        quantity: order.items,
+        unitPrice: order.total,
+        image: "/product-detail/lifestyle.png",
+      },
+    ],
+    notes: [],
+    paymentDetails: {
+      method: "Credit Card",
+      transactionId: `TXN-${id.replace(/\D/g, "")}`,
+      paidAt: order.createdAt,
+      status: order.payment === "paid" ? "paid" : "partial",
+    },
+    courier: null,
+    auditHistory: [
+      { id: "a1", status: order.status, label: "Order Placed", timestamp: order.createdAt },
+    ],
+  };
+  return fallback;
 }

@@ -5,9 +5,9 @@ import { Home, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminRouteLabels } from "@/lib/admin";
 
-function labelForSegment(segment: string, index: number, segments: string[]) {
+function labelForSegment(segment: string) {
   if (adminRouteLabels[segment]) return adminRouteLabels[segment];
-  if (segment.startsWith("ord-")) return `Order ${segment.replace("ord-", "#")}`;
+  if (segment.startsWith("ord-")) return `Order #${segment.toUpperCase()}`;
   if (segment.startsWith("cust-")) return "Customer Details";
   if (segment.startsWith("prod-")) return "Product Details";
   return segment.charAt(0).toUpperCase() + segment.slice(1);
@@ -33,7 +33,7 @@ export function AdminBreadcrumbs({ pathname, className }: AdminBreadcrumbsProps)
       </Link>
       {adminSegments.map((segment, index) => {
         const href = "/dashboard/" + adminSegments.slice(0, index + 1).join("/");
-        const label = labelForSegment(segment, index, adminSegments);
+        const label = labelForSegment(segment);
         const isLast = index === adminSegments.length - 1;
         return (
           <div key={href} className="flex items-center gap-2">

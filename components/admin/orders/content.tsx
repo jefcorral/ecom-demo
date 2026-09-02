@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -50,6 +51,7 @@ const statusConfig: Record<
   in_progress: { label: "In Progress", classes: "bg-primary-container/20 text-on-primary-container border border-primary/20", dot: "bg-primary", icon: Truck },
   delivered: { label: "Delivered", classes: "bg-secondary-container text-on-secondary-container border border-secondary/20", dot: "bg-secondary", icon: CheckCircle },
   cancelled: { label: "Cancelled", classes: "bg-error-container/30 text-error border border-error/20", dot: "bg-error", icon: X },
+  refunded: { label: "Refunded", classes: "bg-error-container/30 text-error border border-error/20", dot: "bg-error", icon: X },
 };
 
 const statusLineColors: Record<AdminOrder["status"], string> = {
@@ -59,6 +61,7 @@ const statusLineColors: Record<AdminOrder["status"], string> = {
   in_progress: "bg-primary-container",
   delivered: "bg-secondary-container",
   cancelled: "bg-error-container",
+  refunded: "bg-error-container",
 };
 
 const venueIcons: Record<AdminOrder["venueType"], typeof Home> = {
@@ -425,7 +428,9 @@ function OrderRow({ order, selected, onToggle }: { order: AdminOrder; selected: 
       </td>
       <td className="px-4 py-5 align-top pt-6">
         <div className="flex flex-col gap-1">
-          <span className="font-serif text-base font-medium leading-tight text-on-surface">{order.number}</span>
+          <Link href={`/dashboard/orders/${order.id}`} className="font-serif text-base font-medium leading-tight text-on-surface hover:text-primary hover:underline">
+            {order.number}
+          </Link>
           <span className="text-xs text-on-surface-variant/70">{order.createdAt}</span>
           <span className="mt-2 w-fit rounded bg-surface-container px-2 py-0.5 text-[10px] font-medium text-on-surface-variant">{order.category}</span>
         </div>
@@ -585,8 +590,9 @@ function MobileOrderCard({ order }: { order: AdminOrder }) {
   const status = statusConfig[order.status];
   const StatusIcon = status.icon || Clock;
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-surface-container-lowest p-4 shadow-sm active:scale-[0.98] transition-transform">
-      <div className={cn("absolute top-0 left-0 h-full w-1", statusLineColors[order.status])} />
+    <Link href={`/dashboard/orders/${order.id}`} className="block">
+      <div className="relative overflow-hidden rounded-2xl bg-surface-container-lowest p-4 shadow-sm transition-transform active:scale-[0.98]">
+        <div className={cn("absolute top-0 left-0 h-full w-1", statusLineColors[order.status])} />
       <div className="mb-3 flex items-start justify-between">
         <div>
           <span className="block text-xs font-medium uppercase tracking-wider text-on-surface-variant">{order.number}</span>
@@ -606,11 +612,12 @@ function MobileOrderCard({ order }: { order: AdminOrder }) {
           <p className="truncate text-sm text-on-surface-variant">{order.deliveryText || `Delivery: ${order.targetDate}`}</p>
         </div>
       </div>
-      <div className="relative flex items-end justify-between border-t border-outline-variant/50 pt-3">
-        <span className="text-sm text-on-surface-variant">{order.items} items</span>
-        <span className="font-serif text-2xl text-on-surface">{formatCurrency(order.total)}</span>
+        <div className="relative flex items-end justify-between border-t border-outline-variant/50 pt-3">
+          <span className="text-sm text-on-surface-variant">{order.items} items</span>
+          <span className="font-serif text-2xl text-on-surface">{formatCurrency(order.total)}</span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
