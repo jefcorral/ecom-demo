@@ -1,4 +1,4 @@
-import { Category, Product } from "@/types";
+import { Category, Occasion, Product, Tag } from "@/types";
 
 export const mockCategories: Category[] = [
   { id: "cat-1", name: "Birthday", description: "Celebrate their special day", isActive: true },
@@ -7,6 +7,22 @@ export const mockCategories: Category[] = [
   { id: "cat-4", name: "Plants", description: "Lush green plants", isActive: true },
   { id: "cat-5", name: "Gifts", description: "Curated gift sets", isActive: true },
   { id: "cat-6", name: "Just Because", description: "Spontaneous surprises", isActive: true },
+];
+
+export const mockTags: Tag[] = [
+  { id: "tag-1", name: "White" },
+  { id: "tag-2", name: "Elegant" },
+  { id: "tag-3", name: "Large" },
+  { id: "tag-4", name: "Premium" },
+  { id: "tag-5", name: "Fast" },
+];
+
+export const mockOccasions: Occasion[] = [
+  { id: "occ-1", name: "Birthday" },
+  { id: "occ-2", name: "Wedding" },
+  { id: "occ-3", name: "Sympathy" },
+  { id: "occ-4", name: "Anniversary" },
+  { id: "occ-5", name: "Just Because" },
 ];
 
 const now = new Date().toISOString();
