@@ -104,9 +104,9 @@ export function ProductCard({ product }: { product: Product }) {
             variant="ghost"
             onClick={handleToggleWishlist}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-surface/85 text-[#5C6B58] opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-[#f7dcdc]/80 hover:text-primary md:h-9 md:w-9 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
+            className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-surface/85 text-on-surface-variant opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-surface-container hover:text-primary md:h-9 md:w-9 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
           >
-            <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
+            <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-primary text-primary scale-110" : "text-on-surface-variant"}`} />
           </IconButton>
 
           {!isOutOfStock && (

@@ -51,7 +51,7 @@ export function WishlistCard({
           aria-label={`Remove ${product.name} from wishlist`}
           className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-surface/85 shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <Heart className="h-5 w-5 fill-[#F2B705] text-[#F2B705]" />
+          <Heart className="h-5 w-5 fill-primary text-primary" />
         </button>
         {isOutOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-[2px]">

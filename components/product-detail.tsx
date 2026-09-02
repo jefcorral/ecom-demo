@@ -165,9 +165,9 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                   aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   aria-pressed={isWishlisted}
                   onClick={handleToggleWishlist}
-                  className="absolute right-4 top-4 hidden h-11 w-11 items-center justify-center rounded-full bg-surface-container-lowest/85 text-[#5C6B58] shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-[#f7dcdc]/80 hover:text-primary md:flex"
+                  className="absolute right-4 top-4 hidden h-11 w-11 items-center justify-center rounded-full bg-surface-container-lowest/85 text-on-surface-variant shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-surface-container hover:text-primary md:flex"
                 >
-                  <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
+                  <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-primary text-primary scale-110" : "text-on-surface-variant"}`} />
                 </button>
                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 md:hidden">
                   {gallery.map((image, index) => (
@@ -190,9 +190,9 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                   aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   aria-pressed={isWishlisted}
                   onClick={handleToggleWishlist}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-container-lowest text-[#5C6B58] shadow-sm transition-all duration-300 hover:bg-[#f7dcdc]/80 md:hidden"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-container-lowest text-on-surface-variant shadow-sm transition-all duration-300 hover:bg-surface-container md:hidden"
                 >
-                  <Heart className={`h-6 w-6 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
+                  <Heart className={`h-6 w-6 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-primary text-primary scale-110" : "text-on-surface-variant"}`} />
                 </button>
               </div>
               <div className="my-4 hidden items-center gap-3 md:flex">
@@ -307,9 +307,9 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 aria-pressed={isWishlisted}
                 onClick={handleToggleWishlist}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest text-[#5C6B58] transition-all duration-300 hover:bg-[#f7dcdc]/80 hover:text-primary"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-all duration-300 hover:bg-surface-container hover:text-primary"
               >
-                <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
+                <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-primary text-primary scale-110" : "text-on-surface-variant"}`} />
               </button>
             </div>
 
