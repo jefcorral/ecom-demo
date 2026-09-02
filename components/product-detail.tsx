@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronRight, Heart, ImageIcon, Minus, Plus, ShoppingBag, Star } from "lucide-react";
-import { useCart } from "@/app/providers";
+import { useCart, useWishlist } from "@/app/providers";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,12 +39,13 @@ const addOns = [
 
 export function ProductDetail({ product, relatedProducts }: { product: Product; relatedProducts: Product[] }) {
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const mobileGalleryRef = useRef<HTMLDivElement>(null);
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState("Classic");
   const [note, setNote] = useState("");
   const [noteOpen, setNoteOpen] = useState(false);
-  const [favorite, setFavorite] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -61,6 +62,16 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
   const addOnTotal = addOns.filter((addOn) => selectedAddOns.includes(addOn.name)).reduce((sum, addOn) => sum + addOn.price, 0);
   const totalPrice = unitPrice * quantity + addOnTotal;
   const isOutOfStock = product.stock === 0;
+
+  async function handleToggleWishlist() {
+    try {
+      const wasAdded = await toggleWishlist(product);
+      showSuccessToast(wasAdded ? "Saved to favorites" : "Removed from favorites");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not update wishlist";
+      showErrorToast(msg);
+    }
+  }
 
   function selectMobileImage(index: number) {
     const galleryElement = mobileGalleryRef.current;
@@ -151,12 +162,12 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 </div>
                 <button
                   type="button"
-                  aria-label={favorite ? "Remove from wishlist" : "Add to wishlist"}
-                  aria-pressed={favorite}
-                  onClick={() => setFavorite((value) => !value)}
-                  className="absolute right-4 top-4 hidden h-11 w-11 items-center justify-center rounded-full bg-surface-container-lowest/85 text-on-surface shadow-sm backdrop-blur-md transition hover:scale-95 hover:text-error md:flex"
+                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-pressed={isWishlisted}
+                  onClick={handleToggleWishlist}
+                  className="absolute right-4 top-4 hidden h-11 w-11 items-center justify-center rounded-full bg-surface-container-lowest/85 text-[#5C6B58] shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-[#f7dcdc]/80 hover:text-primary md:flex"
                 >
-                  <Heart className={`h-5 w-5 ${favorite ? "fill-current text-error" : ""}`} />
+                  <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
                 </button>
                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 md:hidden">
                   {gallery.map((image, index) => (
@@ -174,8 +185,14 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
               <p className="mb-2 hidden text-xs font-semibold uppercase tracking-[0.18em] text-primary md:block">{product.category?.name ?? "Signature Collection"}</p>
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-serif text-3xl font-semibold leading-tight text-on-surface md:text-4xl">{product.name}</h1>
-                <button type="button" aria-label={favorite ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={favorite} onClick={() => setFavorite((value) => !value)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-container-lowest text-primary shadow-sm md:hidden">
-                  <Heart className={`h-5 w-5 ${favorite ? "fill-current" : ""}`} />
+                <button
+                  type="button"
+                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-pressed={isWishlisted}
+                  onClick={handleToggleWishlist}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-container-lowest text-[#5C6B58] shadow-sm transition-all duration-300 hover:bg-[#f7dcdc]/80 md:hidden"
+                >
+                  <Heart className={`h-6 w-6 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
                 </button>
               </div>
               <div className="my-4 hidden items-center gap-3 md:flex">
@@ -285,6 +302,15 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
               <Button onClick={handleAddToCart} disabled={isOutOfStock || adding} className="h-12 flex-1 rounded-full bg-primary text-base text-on-primary hover:bg-primary/90">
                 {isOutOfStock ? "Out of stock" : adding ? "Adding..." : <>Add to Cart <span className="opacity-70">•</span> ${totalPrice.toFixed(2)} <ShoppingBag className="h-4 w-4" /></>}
               </Button>
+              <button
+                type="button"
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                aria-pressed={isWishlisted}
+                onClick={handleToggleWishlist}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest text-[#5C6B58] transition-all duration-300 hover:bg-[#f7dcdc]/80 hover:text-primary"
+              >
+                <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-[#F2B705] text-[#F2B705] scale-110" : "text-[#5C6B58]"}`} />
+              </button>
             </div>
 
             <div className="divide-y divide-outline-variant/30 border-b border-outline-variant/30">
