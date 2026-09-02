@@ -299,16 +299,13 @@ function DesktopOrders({
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <FilterButton label="Status" icon={ChevronDown} />
-            <FilterButton label="Date Range" icon={ChevronDown} />
-            <FilterButton label="Fulfillment" icon={ChevronDown} />
             <Button
               onClick={onOpenFilters}
               variant="outline"
               className="gap-2 rounded-full border-outline-variant/40 bg-surface-container-low text-on-surface-variant"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              More Filters
+              Filters
             </Button>
           </div>
         </div>
@@ -494,18 +491,6 @@ function OrderRow({ order, selected, onToggle }: { order: AdminOrder; selected: 
         </button>
       </td>
     </tr>
-  );
-}
-
-function FilterButton({ label, icon: Icon }: { label: string; icon: typeof ChevronDown }) {
-  return (
-    <Button
-      variant="outline"
-      className="gap-2 rounded-full border-transparent bg-surface-container text-[13px] text-on-surface-variant hover:border-outline-variant/30 hover:bg-surface-variant"
-    >
-      {label}
-      <Icon className="h-4 w-4" />
-    </Button>
   );
 }
 
