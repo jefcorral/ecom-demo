@@ -20,7 +20,7 @@ const quickLinks = [
   { label: "Gifts", href: "/products?categoryId=gifts", icon: ShoppingBag },
 ];
 
-export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
+export function MobileMenu({ isLoggedIn, wishlistCount = 0 }: { isLoggedIn: boolean; wishlistCount?: number }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState<string>();
@@ -65,7 +65,23 @@ export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
         <form onSubmit={(event) => { event.preventDefault(); if (zip.trim()) setZipMessage("Great! Same-day delivery is available in your area."); }} className="flex gap-2"><input value={zip} onChange={(event) => setZip(event.target.value)} inputMode="numeric" placeholder="ZIP code" className="h-11 min-w-0 flex-1 rounded-full bg-surface-container-high px-4 outline-none focus:ring-2 focus:ring-primary/30" /><Button type="submit" size="sm">Check</Button></form>
         {zipMessage && <p role="status" className="mt-2 text-xs font-medium text-primary">{zipMessage}</p>}
         <MenuLabel>Your favorites</MenuLabel>
-        <div className="rounded-lg bg-surface-container-lowest p-4 text-sm text-on-surface-variant"><Heart className="mb-2 h-5 w-5 text-primary" />Save bouquets you love for quick access later. <Link href="/products?sort=featured" className="mt-2 block font-semibold text-primary">Browse Best Sellers</Link></div>
+        <Link href="/wishlist" className="block">
+          <div className="flex items-center justify-between rounded-lg bg-surface-container-lowest p-4 text-sm text-on-surface-variant hover:bg-surface-container-high transition-colors">
+            <div className="flex items-center gap-3">
+              <Heart className={cn("h-5 w-5 text-primary", wishlistCount > 0 && "fill-primary")} />
+              <div className="flex flex-col">
+                <span className="font-semibold text-on-surface">Your Favorites</span>
+                <span className="text-xs">{wishlistCount > 0 ? `${wishlistCount} ${wishlistCount === 1 ? 'item' : 'items'} saved` : 'Save bouquets you love for quick access later.'}</span>
+              </div>
+            </div>
+            {wishlistCount > 0 && (
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary-container px-1.5 text-xs font-bold text-on-primary-container">
+                {wishlistCount}
+              </span>
+            )}
+            {!wishlistCount && <ChevronRight className="h-4 w-4" />}
+          </div>
+        </Link>
         <Link href={isLoggedIn ? "/account" : "/login"} className={cn(buttonVariants({ className: "mt-6 w-full" }))}>{isLoggedIn ? "My Account" : "Sign In / Register"}</Link>
       </div>
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-4 border-t border-outline-variant bg-surface-container-low px-1 pb-safe">

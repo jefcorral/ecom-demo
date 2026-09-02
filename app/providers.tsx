@@ -1,12 +1,21 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { fetchMe, login, logout, register } from "@/lib/auth";
 import { isAuthenticated } from "@/lib/api";
 import { addToCart, clearCart, fetchCart, removeCartItem, updateCartItem } from "@/lib/cart";
-import { Cart, User } from "@/types";
+import {
+  addGuestWishlistItem,
+  addWishlistItemApi,
+  fetchWishlistApi,
+  getGuestWishlist,
+  mergeGuestWishlist,
+  removeGuestWishlistItem,
+  removeWishlistItemApi,
+} from "@/lib/wishlist";
+import { Cart, Product, User, WishlistItem } from "@/types";
 
 interface AuthContextValue {
   user: User | null;
@@ -45,6 +54,25 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export function useCart() {
   const ctx = useContext(CartContext);
   if (!ctx) throw new Error("useCart must be used within a CartProvider");
+  return ctx;
+}
+
+interface WishlistContextValue {
+  wishlist: WishlistItem[];
+  loading: boolean;
+  wishlistCount: number;
+  isInWishlist: (productId: string) => boolean;
+  toggleWishlist: (product: Product) => Promise<boolean>;
+  addToWishlist: (product: Product) => Promise<void>;
+  removeFromWishlist: (productId: string) => Promise<void>;
+  refreshWishlist: () => Promise<void>;
+}
+
+const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
+
+export function useWishlist() {
+  const ctx = useContext(WishlistContext);
+  if (!ctx) throw new Error("useWishlist must be used within a WishlistProvider");
   return ctx;
 }
 
@@ -138,13 +166,130 @@ function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+function WishlistProvider({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn, loading: authLoading } = useAuth();
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refreshWishlist = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (isLoggedIn) {
+        await mergeGuestWishlist();
+        const items = await fetchWishlistApi();
+        setWishlist(items);
+      } else {
+        setWishlist(getGuestWishlist());
+      }
+    } catch {
+      setWishlist(getGuestWishlist());
+    } finally {
+      setLoading(false);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    let isMounted = true;
+    const load = async () => {
+      try {
+        if (isLoggedIn) {
+          await mergeGuestWishlist();
+          const items = await fetchWishlistApi();
+          if (isMounted) setWishlist(items);
+        } else {
+          if (isMounted) setWishlist(getGuestWishlist());
+        }
+      } catch {
+        if (isMounted) setWishlist(getGuestWishlist());
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, authLoading]);
+
+  const isInWishlist = useCallback(
+    (productId: string) => {
+      return wishlist.some((item) => item.productId === productId);
+    },
+    [wishlist]
+  );
+
+  const addToWishlist = async (product: Product) => {
+    if (isLoggedIn) {
+      try {
+        const item = await addWishlistItemApi(product.id);
+        setWishlist((prev) => [item, ...prev.filter((i) => i.productId !== product.id)]);
+      } catch (err) {
+        const updated = addGuestWishlistItem(product);
+        setWishlist(updated);
+        const msg = err instanceof Error ? err.message : "";
+        if (msg.includes("already in your wishlist")) {
+          throw err;
+        }
+      }
+    } else {
+      const updated = addGuestWishlistItem(product);
+      setWishlist(updated);
+    }
+  };
+
+  const removeFromWishlist = async (productId: string) => {
+    if (isLoggedIn) {
+      try {
+        await removeWishlistItemApi(productId);
+        setWishlist((prev) => prev.filter((item) => item.productId !== productId));
+      } catch {
+        const updated = removeGuestWishlistItem(productId);
+        setWishlist(updated);
+      }
+    } else {
+      const updated = removeGuestWishlistItem(productId);
+      setWishlist(updated);
+    }
+  };
+
+  const toggleWishlist = async (product: Product): Promise<boolean> => {
+    if (isInWishlist(product.id)) {
+      await removeFromWishlist(product.id);
+      return false;
+    } else {
+      await addToWishlist(product);
+      return true;
+    }
+  };
+
+  return (
+    <WishlistContext.Provider
+      value={{
+        wishlist,
+        loading,
+        wishlistCount: wishlist.length,
+        isInWishlist,
+        toggleWishlist,
+        addToWishlist,
+        removeFromWishlist,
+        refreshWishlist,
+      }}
+    >
+      {children}
+    </WishlistContext.Provider>
+  );
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <AuthProvider>
         <CartProvider>
-          {children}
-          <Toaster position="bottom-right" />
+          <WishlistProvider>
+            {children}
+            <Toaster position="bottom-right" />
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

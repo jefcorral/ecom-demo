@@ -150,3 +150,14 @@ export interface CheckoutResponse {
   requestedDeliveryDate?: string | null;
   requestedDeliverySlot?: string | null;
 }
+
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  product: Product;
+  createdAt: string;
+}
+
+export interface WishlistResponse {
+  data: WishlistItem[];
+}

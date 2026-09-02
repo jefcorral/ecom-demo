@@ -36,7 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useAuth, useCart } from "@/app/providers";
+import { useAuth, useCart, useWishlist } from "@/app/providers";
 
 const navLinks = [
   { href: "/products", label: "Shop All" },
@@ -60,6 +60,7 @@ function useDebounce(value: string, delay = 200) {
 export function SiteHeader() {
   const { user, isLoggedIn, logout } = useAuth();
   const { cart } = useCart();
+  const { wishlistCount } = useWishlist();
   const pathname = usePathname();
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -108,7 +109,7 @@ export function SiteHeader() {
           <div className={cn("flex items-center gap-6 transition-opacity", searchOpen && "lg:opacity-40")}>
             <Sheet>
               <SheetTrigger render={<Button variant="ghost" size="icon" className="text-on-surface hover:bg-surface-container-low lg:hidden" aria-label="Open navigation menu"><Menu className="h-6 w-6" /></Button>} />
-              <MobileMenu isLoggedIn={isLoggedIn} />
+              <MobileMenu isLoggedIn={isLoggedIn} wishlistCount={wishlistCount} />
             </Sheet>
 
             <Link href="/" aria-label="Bloom and Stem home" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap font-serif text-2xl font-semibold tracking-tight text-primary lg:static lg:translate-x-0 lg:text-on-surface">
@@ -163,10 +164,15 @@ export function SiteHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-on-surface-variant hover:text-primary hover:bg-surface-container-low"
+                className="relative text-on-surface-variant hover:text-primary hover:bg-surface-container-low"
                 aria-label="Wishlist"
               >
                 <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-container px-1 text-[10px] font-bold text-on-primary-container">
+                    {wishlistCount}
+                  </span>
+                )}
               </Button>
             </Link>
 
@@ -183,7 +189,7 @@ export function SiteHeader() {
                   </Button>
                 }
               />
-              <AccountDropdown user={user} isLoggedIn={isLoggedIn} logout={logout} cartCount={cartCount} />
+              <AccountDropdown user={user} isLoggedIn={isLoggedIn} logout={logout} cartCount={cartCount} wishlistCount={wishlistCount} />
             </DropdownMenu>
 
             <Link href="/cart">
@@ -345,11 +351,13 @@ function AccountDropdown({
   isLoggedIn,
   logout,
   cartCount,
+  wishlistCount,
 }: {
   user: { firstName: string | null; email: string } | null;
   isLoggedIn: boolean;
   logout: () => Promise<void>;
   cartCount: number;
+  wishlistCount: number;
 }) {
   if (!isLoggedIn) {
     return (
@@ -432,7 +440,13 @@ function AccountDropdown({
             <Heart className="h-4 w-4 fill-current text-primary" />
             Favorites
           </span>
-          <ChevronRight className="h-4 w-4 text-on-surface-variant" />
+          {wishlistCount > 0 ? (
+            <span className="rounded-full bg-primary-container px-2 py-0.5 text-[10px] font-bold text-on-primary-container">
+              {wishlistCount}
+            </span>
+          ) : (
+            <ChevronRight className="h-4 w-4 text-on-surface-variant" />
+          )}
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem className="p-0">

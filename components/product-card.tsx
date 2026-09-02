@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { Price } from "@/components/ui/price";
-import { useCart } from "@/app/providers";
+import { useCart, useWishlist } from "@/app/providers";
 import { useState } from "react";
 import { Heart, ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,11 +16,12 @@ import { useRouter } from "next/navigation";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
   const [imgLoading, setImgLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
+  const isWishlisted = isInWishlist(product.id);
   const isOutOfStock = product.stock === 0;
 
   async function handleQuickAdd(e: React.MouseEvent) {
@@ -43,11 +44,16 @@ export function ProductCard({ product }: { product: Product }) {
     }
   }
 
-  function toggleWishlist(e: React.MouseEvent) {
+  async function handleToggleWishlist(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted((prev) => !prev);
-    showSuccessToast(isWishlisted ? "Removed from favorites" : "Saved to favorites");
+    try {
+      const wasAdded = await toggleWishlist(product);
+      showSuccessToast(wasAdded ? "Saved to favorites" : "Removed from favorites");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not update wishlist";
+      showErrorToast(msg);
+    }
   }
 
   const badge = isOutOfStock ? null : product.salePrice ? "sale" : product.stock <= (product.lowStockThreshold ?? 5) ? "low-stock" : product.sameDayDelivery ? "same-day" : null;
@@ -96,11 +102,11 @@ export function ProductCard({ product }: { product: Product }) {
 
           <IconButton
             variant="ghost"
-            onClick={toggleWishlist}
+            onClick={handleToggleWishlist}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-surface/85 text-on-surface opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-surface-container-lowest hover:text-error md:h-8 md:w-8 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
+            className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-surface/85 text-on-surface-variant opacity-100 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-surface-container hover:text-primary md:h-9 md:w-9 md:translate-y-2 md:opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100"
           >
-            <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current text-error" : ""}`} />
+            <Heart className={`h-5 w-5 transition-transform duration-200 active:scale-125 ${isWishlisted ? "fill-primary text-primary scale-110" : "text-on-surface-variant"}`} />
           </IconButton>
 
           {!isOutOfStock && (
