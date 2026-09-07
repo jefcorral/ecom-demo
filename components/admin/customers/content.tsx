@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import {
   Ban,
   Check,
@@ -9,12 +9,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Eye,
   Filter,
   Mail,
-  MessageSquare,
   MoreVertical,
   Phone,
-  Plus,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -23,15 +22,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   AdminCustomer,
-  CustomerNote,
   CustomerSegment,
-  addAdminCustomerNote,
   disableAdminCustomer,
   enableAdminCustomer,
   exportAdminCustomersCSV,
@@ -68,10 +64,7 @@ export function CustomersContent({ customers: initialCustomers }: { customers: A
   const [sortOpen, setSortOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [detailCustomer, setDetailCustomer] = useState<AdminCustomer | null>(null);
   const [disabling, setDisabling] = useState<AdminCustomer | null>(null);
-  const [noteDraft, setNoteDraft] = useState("");
-  const [noteBusy, setNoteBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [page, setPage] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -188,24 +181,6 @@ export function CustomersContent({ customers: initialCustomers }: { customers: A
       toast.error("Could not enable account.");
     } finally {
       setBusy(false);
-    }
-  };
-
-  const handleAddNote = async () => {
-    if (!detailCustomer || !noteDraft.trim()) return;
-    setNoteBusy(true);
-    try {
-      const note = await addAdminCustomerNote(detailCustomer.id, noteDraft.trim());
-      setCustomers((prev) =>
-        prev.map((c) => (c.id === detailCustomer.id ? { ...c, notes: [note, ...c.notes] } : c))
-      );
-      setDetailCustomer((prev) => (prev ? { ...prev, notes: [note, ...prev.notes] } : null));
-      setNoteDraft("");
-      toast.success("Note saved.");
-    } catch {
-      toast.error("Could not save note.");
-    } finally {
-      setNoteBusy(false);
     }
   };
 
@@ -331,7 +306,6 @@ export function CustomersContent({ customers: initialCustomers }: { customers: A
                 customer={customer}
                 selected={selected.has(customer.id)}
                 onSelect={() => toggleSelect(customer.id)}
-                onView={() => setDetailCustomer(customer)}
                 onDisable={() => setDisabling(customer)}
                 onEnable={() => handleEnable(customer)}
                 busy={busy}
@@ -354,7 +328,6 @@ export function CustomersContent({ customers: initialCustomers }: { customers: A
             customer={customer}
             selected={selected.has(customer.id)}
             onSelect={() => toggleSelect(customer.id)}
-            onView={() => setDetailCustomer(customer)}
             onDisable={() => setDisabling(customer)}
             onEnable={() => handleEnable(customer)}
             busy={busy}
@@ -372,15 +345,6 @@ export function CustomersContent({ customers: initialCustomers }: { customers: A
         sort={sort}
         setSort={updateSort}
         clear={clear}
-      />
-
-      <CustomerSheet
-        customer={detailCustomer}
-        onOpenChange={(o) => !o && setDetailCustomer(null)}
-        noteDraft={noteDraft}
-        setNoteDraft={setNoteDraft}
-        onAddNote={handleAddNote}
-        noteBusy={noteBusy}
       />
 
       <Dialog open={!!disabling} onOpenChange={(o) => !o && setDisabling(null)}>
@@ -417,7 +381,6 @@ function CustomerRow({
   customer,
   selected,
   onSelect,
-  onView,
   onDisable,
   onEnable,
   busy,
@@ -425,7 +388,6 @@ function CustomerRow({
   customer: AdminCustomer;
   selected: boolean;
   onSelect: () => void;
-  onView: () => void;
   onDisable: () => void;
   onEnable: () => void;
   busy: boolean;
@@ -445,20 +407,16 @@ function CustomerRow({
       </td>
       <td className="p-4">
         <div className="flex items-center gap-4">
-          {customer.avatar ? (
-            <Image src={customer.avatar} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-medium">
-              {customer.initials}
-            </div>
-          )}
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-medium">
+            {customer.initials}
+          </div>
           <div>
-            <button
-              onClick={onView}
+            <Link
+              href={`/dashboard/customers/${customer.id}`}
               className="block text-left font-serif text-base font-medium text-on-surface hover:text-primary hover:underline"
             >
               {customer.name}
-            </button>
+            </Link>
             <div className="text-xs text-on-surface-variant">{customer.email}</div>
           </div>
         </div>
@@ -498,13 +456,13 @@ function CustomerRow({
       </td>
       <td className="p-4 text-right">
         <div className="flex items-center justify-end gap-1">
-          <button
+          <Link
             aria-label={`View ${customer.name}`}
-            onClick={onView}
+            href={`/dashboard/customers/${customer.id}`}
             className="grid h-9 w-9 place-items-center rounded-full text-on-surface-variant hover:bg-surface-container"
           >
-            <MessageSquare className="h-4 w-4" />
-          </button>
+            <Eye className="h-4 w-4" />
+          </Link>
           {disabled ? (
             <button
               aria-label={`Enable ${customer.name}`}
@@ -534,7 +492,6 @@ function CustomerCard({
   customer,
   selected,
   onSelect,
-  onView,
   onDisable,
   onEnable,
   busy,
@@ -542,7 +499,6 @@ function CustomerCard({
   customer: AdminCustomer;
   selected: boolean;
   onSelect: () => void;
-  onView: () => void;
   onDisable: () => void;
   onEnable: () => void;
   busy: boolean;
@@ -562,17 +518,13 @@ function CustomerCard({
         {selected && <Check className="h-4 w-4" />}
       </button>
       <div className="flex items-center gap-3">
-        {customer.avatar ? (
-          <Image src={customer.avatar} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
-        ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-medium">
-            {customer.initials}
-          </div>
-        )}
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-medium">
+          {customer.initials}
+        </div>
         <div className="min-w-0 flex-1">
-          <button onClick={onView} className="block text-left font-serif text-lg font-medium text-on-surface hover:text-primary hover:underline">
+          <Link href={`/dashboard/customers/${customer.id}`} className="block text-left font-serif text-lg font-medium text-on-surface hover:text-primary hover:underline">
             {customer.name}
-          </button>
+          </Link>
           <p className="flex items-center gap-1 text-xs text-on-surface-variant">
             <Mail className="h-3 w-3" /> {customer.email}
           </p>
@@ -594,13 +546,13 @@ function CustomerCard({
       <div className="mt-3 flex items-center justify-between">
         <span className="text-xs text-on-surface-variant">{customer.orders} orders · {customer.lastOrder}</span>
         <div className="flex items-center gap-1">
-          <button
+          <Link
             aria-label={`View ${customer.name}`}
-            onClick={onView}
+            href={`/dashboard/customers/${customer.id}`}
             className="grid h-9 w-9 place-items-center rounded-full text-on-surface-variant hover:bg-surface-container"
           >
-            <MoreVertical className="h-4 w-4" />
-          </button>
+            <Eye className="h-4 w-4" />
+          </Link>
           {disabled ? (
             <button
               aria-label={`Enable ${customer.name}`}
@@ -779,121 +731,6 @@ function FilterDrawer({
           </button>
         </div>
       </aside>
-    </div>
-  );
-}
-
-function CustomerSheet({
-  customer,
-  onOpenChange,
-  noteDraft,
-  setNoteDraft,
-  onAddNote,
-  noteBusy,
-}: {
-  customer: AdminCustomer | null;
-  onOpenChange: (o: boolean) => void;
-  noteDraft: string;
-  setNoteDraft: (v: string) => void;
-  onAddNote: () => void;
-  noteBusy: boolean;
-}) {
-  if (!customer) return null;
-  const segment = segmentConfig[customer.segment];
-  const disabled = customer.status === "disabled";
-  return (
-    <Sheet open={!!customer} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg">
-        <SheetHeader>
-          <div className="flex items-center gap-4">
-            {customer.avatar ? (
-              <Image src={customer.avatar} alt="" width={64} height={64} className="h-16 w-16 rounded-full object-cover" />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container text-xl font-medium">
-                {customer.initials}
-              </div>
-            )}
-            <div>
-              <SheetTitle className="font-serif text-2xl">{customer.name}</SheetTitle>
-              <SheetDescription>{customer.email}</SheetDescription>
-            </div>
-          </div>
-        </SheetHeader>
-        <div className="mt-6 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl bg-surface-container p-4">
-              <p className="text-xs text-on-surface-variant">Total Spend</p>
-              <p className="font-serif text-2xl">{money.format(customer.totalSpend)}</p>
-            </div>
-            <div className="rounded-2xl bg-surface-container p-4">
-              <p className="text-xs text-on-surface-variant">Orders</p>
-              <p className="font-serif text-2xl">{customer.orders}</p>
-            </div>
-          </div>
-          <div className="space-y-3 rounded-2xl bg-surface-container p-4">
-            <h3 className="font-medium">Contact &amp; Consent</h3>
-            <p className="flex items-center gap-2 text-sm text-on-surface-variant">
-              <Mail className="h-4 w-4" /> {customer.email}
-            </p>
-            <p className="flex items-center gap-2 text-sm text-on-surface-variant">
-              <Phone className="h-4 w-4" /> {customer.phone}
-            </p>
-            <p className="flex items-center gap-2 text-sm text-on-surface-variant">
-              <ShieldCheck className="h-4 w-4" /> Email: {customer.consent.email ? "Opted in" : "Opted out"}
-            </p>
-            <p className="flex items-center gap-2 text-sm text-on-surface-variant">
-              <ShieldCheck className="h-4 w-4" /> SMS: {customer.consent.sms ? "Opted in" : "Opted out"}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-surface-container p-4">
-            <h3 className="mb-2 font-medium">Status</h3>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
-                segment.chip,
-                disabled && "opacity-60"
-              )}
-            >
-              <span className={cn("h-1.5 w-1.5 rounded-full", segment.dot)} />
-              {disabled ? "Disabled" : segmentLabel(customer.segment)}
-            </span>
-            {disabled && <p className="mt-2 text-sm text-error">This account is disabled.</p>}
-          </div>
-          <div className="rounded-2xl bg-surface-container p-4">
-            <h3 className="mb-3 font-medium">Internal Notes</h3>
-            <div className="space-y-3">
-              {customer.notes.length === 0 && <p className="text-sm text-on-surface-variant">No notes yet.</p>}
-              {customer.notes.map((note) => (
-                <NoteItem key={note.id} note={note} />
-              ))}
-            </div>
-            <div className="mt-3 flex gap-2">
-              <Input
-                value={noteDraft}
-                onChange={(e) => setNoteDraft(e.target.value)}
-                placeholder="Add a note..."
-                className="min-h-11 flex-1 rounded-full"
-                onKeyDown={(e) => e.key === "Enter" && onAddNote()}
-              />
-              <Button disabled={noteBusy || !noteDraft.trim()} onClick={onAddNote} className="min-h-11 rounded-full">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
-function NoteItem({ note }: { note: CustomerNote }) {
-  return (
-    <div className="rounded-xl bg-surface-container-lowest p-3">
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-sm font-medium">{note.author}</span>
-        <span className="text-xs text-on-surface-variant">{note.timestamp}</span>
-      </div>
-      <p className="text-sm text-on-surface-variant">{note.text}</p>
     </div>
   );
 }
