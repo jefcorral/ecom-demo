@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { AlertTriangle, Bell, CalendarDays, Check, ChevronDown, Clock, CreditCard, ExternalLink, Gift, ImagePlus, Link2, LockKeyhole, LogOut, MapPin, Plus, Save, Settings2, ShieldCheck, Store, Trash2, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Bell, CalendarDays, Check, ChevronDown, Clock, CreditCard, ImagePlus, Link2, LockKeyhole, LogOut, Plus, Save, ShieldCheck, Store, Trash2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -27,6 +27,28 @@ export function SettingsContent({ initialSettings }: { initialSettings: AdminSet
   const [holiday, setHoliday] = useState({ name: "", date: "" });
   const [original, setOriginal] = useState(() => JSON.stringify(initialSettings));
   const dirty = JSON.stringify(settings) !== original;
+
+  useEffect(() => {
+    let frame = 0;
+    const syncActiveSection = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const activationLine = 136;
+        let current = sections[0].id;
+        for (const section of sections) {
+          const element = document.getElementById(section.id);
+          if (element && element.getBoundingClientRect().top <= activationLine) current = section.id;
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) current = sections.at(-1)!.id;
+        setActiveSection((active) => active === current ? active : current);
+      });
+    };
+    window.addEventListener("scroll", syncActiveSection, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", syncActiveSection);
+    };
+  }, []);
 
   const validate = () => {
     const next: Errors = {};
