@@ -100,16 +100,12 @@ export function generateCustomers(count: number): AdminCustomer[] {
     const daysSinceJoined = 30 + Math.floor(seededRandom(index + 300) * 700);
     const joinedDate = new Date();
     joinedDate.setDate(joinedDate.getDate() - daysSinceJoined);
-    const hasAvatar = seededRandom(index + 400) > 0.5;
-
     return {
       id: `cust-${String(index).padStart(4, "0")}`,
       name,
       email,
       phone: formatPhone(index),
-      avatar: hasAvatar
-        ? `https://i.pravatar.cc/150?img=${(index % 70) + 1}`
-        : undefined,
+      avatar: undefined,
       initials: `${firstName[0]}${lastName[0]}`,
       segment,
       orders,
