@@ -59,6 +59,43 @@ export interface Product {
   sameDayDelivery?: boolean;
   salePrice?: number | null;
   isBestSeller?: boolean;
+  tags?: string[];
+  occasions?: string[];
+  variants?: ProductVariant[];
+  images?: ProductImage[];
+  backorder?: boolean;
+  featured?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  slug?: string | null;
+  funeralLocation?: boolean;
+  funeralTime?: boolean;
+  allowRibbon?: boolean;
+  leadTime?: number;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+}
+
+export interface Occasion {
+  id: string;
+  name: string;
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+}
+
+export interface ProductImage {
+  id: string;
+  url: string;
+  isPrimary: boolean;
 }
 
 export interface Pagination {
