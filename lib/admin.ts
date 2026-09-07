@@ -77,6 +77,7 @@ export const adminBottomNav: AdminNavItem[] = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBasket },
   { href: "/dashboard/products", label: "Products", icon: Package },
+  { href: "/dashboard/inventory", label: "Inventory", icon: Warehouse },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
 ];
 
