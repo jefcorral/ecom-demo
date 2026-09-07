@@ -6,6 +6,24 @@ export interface User {
   roles: string[];
 }
 
+export interface UserPreferences {
+  phone?: string;
+  birthday?: string;
+  flowerStyles: string[];
+  flowerColors: string[];
+  favoriteBlooms?: string;
+  emailConsent: boolean;
+  smsConsent: boolean;
+  avatarUrl?: string;
+}
+
+export interface UpdateProfileInput {
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  currentPassword?: string;
+}
+
 export interface Tokens {
   accessToken: string;
   refreshToken: string;

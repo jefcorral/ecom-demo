@@ -29,6 +29,8 @@ interface AuthContextValue {
     lastName?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: User) => void;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -78,6 +80,9 @@ export function useWishlist() {
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  // Note: Initializing loading via isAuthenticated() (reading localStorage) causes hydration
+  // mismatch on full refresh / direct URL navigation because SSR evaluates window === undefined
+  // (loading=false, user=null), while client hydrates with loading=true.
   const [loading, setLoading] = useState(() => isAuthenticated());
 
   useEffect(() => {
@@ -86,6 +91,21 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         .then(setUser)
         .catch(() => setUser(null))
         .finally(() => setLoading(false));
+    }
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    if (!isAuthenticated()) {
+      setUser(null);
+      return null;
+    }
+    try {
+      const me = await fetchMe();
+      setUser(me);
+      return me;
+    } catch {
+      setUser(null);
+      return null;
     }
   }, []);
 
@@ -109,6 +129,10 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           await logout();
           setUser(null);
         },
+        updateUser: (updatedUser: User) => {
+          setUser(updatedUser);
+        },
+        refreshUser,
       }}
     >
       {children}
