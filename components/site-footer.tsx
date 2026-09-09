@@ -9,7 +9,7 @@ import { TrustBar } from "@/components/footer/trust-bar";
 const footerLinks = [
   { title: "Shop", links: [{ label: "Shop All", href: "/products" }, { label: "Best Sellers", href: "/products?sort=featured" }, { label: "New Arrivals", href: "/products?sort=newest" }, { label: "Same-Day", href: "/products?search=Same-Day" }, { label: "Plants", href: "/products?categoryId=plants" }, { label: "Gifts", href: "/products?categoryId=gifts" }] },
   { title: "Occasions", links: [{ label: "Birthday", href: "/products?search=Birthday" }, { label: "Romance", href: "/products?search=Romance" }, { label: "Sympathy", href: "/products?search=Sympathy" }, { label: "Just Because", href: "/products?search=Just%20Because" }, { label: "Weddings", href: "/products?search=Weddings" }, { label: "Corporate", href: "/products?search=Corporate" }] },
-  { title: "Help", links: [{ label: "Delivery Info", href: "/help#delivery" }, { label: "Care Guide", href: "/help#care" }, { label: "Returns", href: "/help#returns" }, { label: "FAQ", href: "/help" }, { label: "Track Order", href: "/track-order" }, { label: "Contact", href: "/contact" }] },
+  { title: "Help", links: [{ label: "Track Order", href: "/track-order" }] },
   // { title: "Company", links: [{ label: "About Us", href: "/about" }, { label: "Our Florists", href: "/about#florists" }, { label: "Sustainability", href: "/about#sustainability" }, { label: "Careers", href: "/careers" }, { label: "Press", href: "/press" }] },
 ];
 
