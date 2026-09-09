@@ -43,7 +43,7 @@ const navLinks = [
   { href: "/products?categoryId=occasions", label: "Occasions" },
   { href: "/products?categoryId=plants", label: "Plants" },
   { href: "/products?categoryId=gifts", label: "Gifts" },
-  { href: "/about", label: "About" },
+  // { href: "/about", label: "About" },
 ];
 
 const trending = ["Peonies", "Birthday Bouquets", "Same-Day"];
