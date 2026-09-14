@@ -217,4 +217,6 @@ export interface WishlistResponse {
   data: WishlistItem[];
 }
 export * from "./gift-card";
+export * from "./about";
+
 
