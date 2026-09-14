@@ -43,6 +43,7 @@ const navLinks = [
   { href: "/products?categoryId=occasions", label: "Occasions" },
   { href: "/products?categoryId=plants", label: "Plants" },
   { href: "/products?categoryId=gifts", label: "Gifts" },
+  { href: "/gift-cards", label: "Gift Cards" },
   // { href: "/about", label: "About" },
 ];
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { ChevronDown, ChevronRight, CircleHelp, Flower2, Heart, Mail, MapPin, Package, Phone, Search, ShoppingBag, Sparkles, Store, X } from "lucide-react";
+import { ChevronDown, ChevronRight, CircleHelp, Flower2, Gift, Heart, Mail, MapPin, Package, Phone, Search, ShoppingBag, Sparkles, Store, X } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const quickLinks = [
   { label: "Best Sellers", href: "/products?sort=featured", icon: Flower2 },
   { label: "Plants", href: "/products?categoryId=plants", icon: Flower2 },
   { label: "Gifts", href: "/products?categoryId=gifts", icon: ShoppingBag },
+  { label: "Gift Cards", href: "/gift-cards", icon: Gift },
 ];
 
 export function MobileMenu({ isLoggedIn, wishlistCount = 0 }: { isLoggedIn: boolean; wishlistCount?: number }) {

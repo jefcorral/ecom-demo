@@ -216,3 +216,5 @@ export interface WishlistItem {
 export interface WishlistResponse {
   data: WishlistItem[];
 }
+export * from "./gift-card";
+

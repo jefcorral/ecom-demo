@@ -100,4 +100,20 @@ function generateProducts(count: number): Product[] {
   });
 }
 
-export const mockProducts: Product[] = generateProducts(124);
+export const mockGiftCardProduct: Product = {
+  id: "prod-gift-card",
+  name: "Bloom & Stem Gift Card",
+  sku: "SKU-GIFT-CARD",
+  description: "Share the botanical elegance of Bloom & Stem with an artisanal digital or physical gift voucher, redeemable for all floral arrangements, plants, and bespoke gifts.",
+  imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&h=600&fit=crop",
+  price: 100,
+  stock: 999,
+  isActive: true,
+  categoryId: "cat-5",
+  category: mockCategories[4],
+  createdAt: now,
+  updatedAt: now,
+  sameDayDelivery: true,
+};
+
+export const mockProducts: Product[] = [mockGiftCardProduct, ...generateProducts(124)];
