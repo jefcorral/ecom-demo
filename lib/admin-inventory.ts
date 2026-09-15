@@ -1,5 +1,4 @@
-import { mockProducts } from "@/lib/mock-data";
-import { Product } from "@/types";
+import { fetchApi } from "@/lib/api";
 
 export type InventoryStatus = "healthy" | "low" | "critical" | "out" | "in_transit";
 
@@ -90,57 +89,7 @@ export interface ImportResult {
   totalErrors?: number;
 }
 
-const suppliers = [
-  "Green Canopy Wholesale",
-  "Desert Bloom Nursery",
-  "Local Growers Co-op",
-  "Evergreen Floral Supply",
-  "Artisan Ceramics Studio",
-];
-
-const inventoryTypes: InventoryType[] = ["Plant", "Vessel", "Dried", "Bundle", "Arrangement"];
-
-const seasonalItems: SeasonalItem[] = [
-  { id: "sea-1", name: "Peonies", status: "in_season", progress: 75, timeline: "Ends in 2 weeks" },
-  { id: "sea-2", name: "Dahlias", status: "approaching", progress: 30, timeline: "Starts next month" },
-  { id: "sea-3", name: "Ranunculus", status: "out_of_season", progress: 0, timeline: "Returns Feb" },
-  { id: "sea-4", name: "Tulips", status: "approaching", progress: 45, timeline: "Starts in 3 weeks" },
-];
-
-const activitySeed: InventoryActivity[] = [
-  {
-    id: "act-1",
-    type: "adjustment",
-    title: "Stock Adjusted",
-    description: "Monstera Deliciosa increased by 12 units.",
-    delta: 12,
-    timestamp: "Just now",
-  },
-  {
-    id: "act-2",
-    type: "shipment",
-    title: "Shipment Received",
-    description: "Order #PO-8824 from Greenhouse Co. processed.",
-    supplier: "Greenhouse Co.",
-    timestamp: "2 hrs ago",
-  },
-  {
-    id: "act-3",
-    type: "alert",
-    title: "Low Stock Alert",
-    description: "Fiddle Leaf Fig dropped below threshold (15 units).",
-    timestamp: "Yesterday",
-  },
-  {
-    id: "act-4",
-    type: "audit",
-    title: "Monthly Audit",
-    description: "Michael T. completed monthly stock audit.",
-    timestamp: "Oct 24, 9:00 AM",
-  },
-];
-
-const adjustmentReasons = [
+export const adjustmentReasons = [
   "Received shipment",
   "Inventory count",
   "Damaged stock",
@@ -151,66 +100,10 @@ const adjustmentReasons = [
   "Other",
 ];
 
-function getInventoryType(index: number, categoryName: string): InventoryType {
-  if (categoryName === "Plants") return "Plant";
-  if (categoryName === "Gifts") return "Bundle";
-  return inventoryTypes[index % inventoryTypes.length];
-}
-
-function getStatus(stock: number, threshold: number): InventoryStatus {
-  if (stock === 0) return "out";
-  if (stock <= threshold / 2) return "critical";
-  if (stock <= threshold) return "low";
-  return "healthy";
-}
-
-export function getInventoryItems(): InventoryItem[] {
-  return mockProducts.map((product, index) => {
-    const type = getInventoryType(index, product.category?.name ?? "Arrangement");
-    const threshold = product.lowStockThreshold ?? 5;
-    const stock = product.stock;
-    return {
-      id: `inv-${product.id}`,
-      productId: product.id,
-      name: product.name,
-      sku: product.sku,
-      type,
-      category: product.category?.name ?? "Uncategorized",
-      stock,
-      threshold,
-      status: getStatus(stock, threshold),
-      supplier: suppliers[index % suppliers.length],
-      image: product.imageUrl ?? "/product-detail/bouquet-main.png",
-      price: product.price,
-      isBundle: type === "Bundle",
-      committed: Math.max(0, Math.floor(stock * 0.1)),
-    };
-  });
-}
-
-export function getInventoryMetrics(items: InventoryItem[]): InventoryMetrics {
-  const totalSkus = items.length;
-  const healthy = items.filter((i) => i.status === "healthy").length;
-  const low = items.filter((i) => i.status === "low" || i.status === "critical").length;
-  const out = items.filter((i) => i.status === "out").length;
-  const inTransit = 0;
-  const totalValue = items.reduce((sum, i) => sum + i.stock * i.price, 0);
-  return { totalSkus, healthy, low, out, inTransit, totalValue };
-}
-
 export async function fetchAdminInventory(): Promise<InventoryData> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const items = getInventoryItems();
-  return {
-    items,
-    metrics: getInventoryMetrics(items),
-    adjustments: [],
-    seasonal: seasonalItems,
-    activity: activitySeed,
-    total: items.length,
-    limit: 24,
-    page: 1,
-  };
+  const res = await fetchApi("/admin/inventory");
+  if (!res.ok) throw new Error("Failed to load inventory");
+  return (await res.json()) as InventoryData;
 }
 
 export async function adjustAdminInventoryItem(
@@ -218,25 +111,12 @@ export async function adjustAdminInventoryItem(
   delta: number,
   reason: string
 ): Promise<InventoryAdjustment> {
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  const product = mockProducts.find((p) => `inv-${p.id}` === itemId);
-  if (!product) throw new Error("Item not found");
-  const previousStock = product.stock;
-  const newStock = Math.max(0, previousStock + delta);
-  product.stock = newStock;
-  product.updatedAt = new Date().toISOString();
-  return {
-    id: `adj-${Date.now()}`,
-    itemId,
-    productName: product.name,
-    sku: product.sku,
-    previousStock,
-    newStock,
-    delta,
-    reason: reason || "Manual adjustment",
-    author: "Admin User",
-    timestamp: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
-  };
+  const res = await fetchApi(`/admin/inventory/${itemId}/adjust`, {
+    method: "PATCH",
+    body: JSON.stringify({ delta, reason }),
+  });
+  if (!res.ok) throw new Error("Adjustment failed");
+  return (await res.json()) as InventoryAdjustment;
 }
 
 export async function bulkAdjustAdminInventory(
@@ -244,45 +124,30 @@ export async function bulkAdjustAdminInventory(
   delta: number,
   reason: string
 ): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  for (const itemId of itemIds) {
-    const product = mockProducts.find((p) => `inv-${p.id}` === itemId);
-    if (product) {
-      product.stock = Math.max(0, product.stock + delta);
-      product.updatedAt = new Date().toISOString();
-    }
-  }
+  const res = await fetchApi("/admin/inventory/bulk-adjust", {
+    method: "POST",
+    body: JSON.stringify({
+      reason,
+      items: itemIds.map((itemId) => ({ itemId, delta })),
+    }),
+  });
+  if (!res.ok) throw new Error("Bulk adjustment failed");
 }
 
 export async function importAdminInventoryCSV(file: File): Promise<ImportResult> {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  const success = Math.random() > 0.5;
-  if (success) {
-    return {
-      success: true,
-      filename: file.name,
-      size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-      uploadedAt: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
-    };
-  }
-  return {
-    success: false,
-    filename: file.name,
-    size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-    uploadedAt: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
-    errors: [
-      { row: 42, issue: "Invalid SKU format. Expected format: CAT-XXX-YY", value: "MONSTERA_XL" },
-      { row: 89, issue: "Missing required field: 'Wholesale Price'", value: "null" },
-      { row: 112, issue: "Duplicate Barcode detected in system", value: "849120045" },
-    ],
-    totalErrors: 12,
-  };
+  const csv = await file.text();
+  const res = await fetchApi("/admin/inventory/import", {
+    method: "POST",
+    body: JSON.stringify({ csv }),
+  });
+  if (!res.ok) throw new Error("Import failed");
+  return (await res.json()) as ImportResult;
 }
 
 export function exportAdminInventoryCSV(items: InventoryItem[]): string {
   const headers = ["SKU", "Product Name", "Type", "Category", "Stock", "Threshold", "Supplier", "Price"];
-  const rows = items.map((i) => [i.sku, i.name, i.type, i.category, i.stock, i.threshold, i.supplier, i.price].join(","));
+  const rows = items.map((i) =>
+    [i.sku, `"${i.name.replace(/"/g, '""')}"`, i.type, i.category, i.stock, i.threshold, i.supplier, i.price].join(",")
+  );
   return [headers.join(","), ...rows].join("\n");
 }
-
-export { adjustmentReasons };
