@@ -204,6 +204,12 @@ export interface Address {
   country: string;
 }
 
+export interface SavedAddress extends Address {
+  id: string;
+  label: string;
+  isDefault: boolean;
+}
+
 export interface CheckoutResponse {
   orderId: string;
   status: OrderStatus;

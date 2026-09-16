@@ -2,8 +2,10 @@ import { fetchApi } from "@/lib/api";
 import { Address, CheckoutResponse } from "@/types";
 
 export interface CheckoutInput {
-  shippingAddress: Address;
-  billingAddress: Address;
+  shippingAddressId?: string;
+  billingAddressId?: string;
+  shippingAddress?: Address;
+  billingAddress?: Address;
   requestedDeliveryDate?: string;
   requestedDeliverySlot?: string;
   discountCode?: string;
