@@ -1,3 +1,5 @@
+import { fetchApi } from "@/lib/api";
+
 export type ContentSectionId = "announcement" | "hero" | "campaign" | "featured" | "occasions" | "spotlights" | "testimonials";
 export type ContentStatus = "draft" | "published";
 
@@ -38,7 +40,7 @@ const catalog: FeaturedContentProduct[] = [
   { id: "prod-6", name: "Spring Peony Atelier Vase", price: 195, image: images[5], stock: 10 },
 ];
 
-const content: StorefrontContentData = {
+const defaultContent: StorefrontContentData = {
   status: "published",
   lastPublished: "Today at 4:18 PM by Eleanor Vance",
   announcement: { enabled: true, message: "Complimentary cold-chain delivery on bespoke seasonal orders over $120", linkLabel: "Use code SOLSTICE", linkUrl: "/collections/solstice", theme: "forest", startsAt: "2026-11-01", endsAt: "2026-12-31" },
@@ -57,6 +59,42 @@ const content: StorefrontContentData = {
   ],
 };
 
-export async function fetchStorefrontContent(): Promise<StorefrontContentData> { await new Promise((resolve) => setTimeout(resolve, 450)); return structuredClone(content); }
-export async function saveStorefrontDraft(next: StorefrontContentData): Promise<void> { await new Promise((resolve) => setTimeout(resolve, 350)); Object.assign(content, structuredClone(next), { status: "draft" }); }
-export async function publishStorefrontContent(next: StorefrontContentData): Promise<void> { await new Promise((resolve) => setTimeout(resolve, 500)); Object.assign(content, structuredClone(next), { status: "published", lastPublished: "Just now by Eleanor Vance" }); }
+function mergeDefaults(data: Partial<StorefrontContentData>): StorefrontContentData {
+  return {
+    status: data.status ?? defaultContent.status,
+    lastPublished: data.lastPublished ?? defaultContent.lastPublished,
+    announcement: data.announcement ?? defaultContent.announcement,
+    hero: data.hero ?? defaultContent.hero,
+    campaign: data.campaign ?? defaultContent.campaign,
+    featured: data.featured ?? defaultContent.featured,
+    catalog: data.catalog ?? defaultContent.catalog,
+    occasions: data.occasions ?? defaultContent.occasions,
+    spotlights: data.spotlights ?? defaultContent.spotlights,
+    testimonials: data.testimonials ?? defaultContent.testimonials,
+  };
+}
+
+export async function fetchStorefrontContent(): Promise<StorefrontContentData> {
+  const res = await fetchApi("/storefront-content");
+  if (!res.ok) return defaultContent;
+  const data = (await res.json()) as Partial<StorefrontContentData>;
+  return mergeDefaults(data);
+}
+
+export async function saveStorefrontDraft(next: StorefrontContentData): Promise<StorefrontContentData> {
+  const res = await fetchApi("/admin/storefront-content/draft", {
+    method: "POST",
+    body: JSON.stringify(next),
+  });
+  if (!res.ok) throw new Error("Failed to save draft");
+  return mergeDefaults((await res.json()) as Partial<StorefrontContentData>);
+}
+
+export async function publishStorefrontContent(next: StorefrontContentData): Promise<StorefrontContentData> {
+  const res = await fetchApi("/admin/storefront-content/publish", {
+    method: "POST",
+    body: JSON.stringify(next),
+  });
+  if (!res.ok) throw new Error("Failed to publish content");
+  return mergeDefaults((await res.json()) as Partial<StorefrontContentData>);
+}
