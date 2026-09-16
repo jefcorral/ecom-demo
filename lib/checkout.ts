@@ -4,6 +4,7 @@ import { Address, CheckoutResponse } from "@/types";
 export interface CheckoutInput {
   shippingAddressId?: string;
   billingAddressId?: string;
+  paymentMethodId?: string;
   shippingAddress?: Address;
   billingAddress?: Address;
   requestedDeliveryDate?: string;
