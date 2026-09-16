@@ -210,6 +210,17 @@ export interface SavedAddress extends Address {
   isDefault: boolean;
 }
 
+export interface SavedPaymentMethod {
+  id: string;
+  gateway: string;
+  label?: string | null;
+  last4?: string | null;
+  brand?: string | null;
+  expMonth?: number | null;
+  expYear?: number | null;
+  isDefault: boolean;
+}
+
 export interface CheckoutResponse {
   orderId: string;
   status: OrderStatus;
