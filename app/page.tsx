@@ -2,11 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, Check, Flower2, Leaf, Palette, ShoppingBag, Truck } from "lucide-react";
+import { ArrowRight, Flower2, Leaf, Palette, ShoppingBag, Truck } from "lucide-react";
 import type { Product } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { mockProducts } from "@/lib/mock-data";
 
 const occasions = ["Mother's Day", "Birthday", "Anniversary", "Sympathy", "Just Because", "Romance", "New Baby", "Weddings", "Same-Day"];
@@ -18,15 +16,6 @@ const trust = [
   { icon: Palette, title: "Artisan Crafted", text: "Hand-arranged for every occasion." },
 ];
 export default function HomePage() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  function subscribe(event: React.FormEvent) {
-    event.preventDefault();
-    setSubscribed(true);
-    setEmail("");
-  }
-
   return (
     <div className="overflow-hidden">
       <section className="relative flex h-[90vh] min-h-[600px] w-full flex-col justify-end bg-surface-container pb-2xl md:h-[700px] md:items-center md:justify-center md:pb-0">
@@ -64,10 +53,6 @@ export default function HomePage() {
       <section className="mx-auto max-w-[980px] px-4 py-16 md:hidden" aria-labelledby="how-title">
         <div className="text-center"><h2 id="how-title" className="font-serif text-3xl font-semibold">How It Works</h2><p className="mt-2 text-on-surface-variant">Sending joy is simple.</p></div>
         <ol className="relative mt-10 grid gap-8 md:grid-cols-3 md:gap-12 before:absolute before:left-[16.66%] before:right-[16.66%] before:top-6 before:hidden before:h-px before:bg-outline-variant md:before:block">{[["Choose Your Blooms", "Select from seasonal arrangements curated by our floral designers."], ["Add a Personal Touch", "Write a custom note and choose a delivery date."], ["We Hand-Deliver", "Your flowers arrive fresh, beautiful, and on time."]].map(([title, text], index) => <li key={title} className="relative flex gap-4 md:flex-col md:items-center md:text-center"><span className="z-10 flex size-12 shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-on-primary">{index + 1}</span><div><h3 className="font-serif text-xl font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-on-surface-variant">{text}</p></div></li>)}</ol>
-      </section>
-
-      <section className="bg-secondary-container py-16 md:hidden">
-        <div className="mx-auto grid max-w-[1140px] gap-8 px-4 md:grid-cols-2 md:items-center md:px-6"><div><h2 className="font-serif text-3xl font-semibold text-on-secondary-container">Join the Bloom Club</h2><p className="mt-3 max-w-lg leading-7 text-on-secondary-container/80">Subscribe for 10% off your first order, seasonal flower care tips, and early access to new collections.</p></div>{subscribed ? <div role="status" className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-6 py-4 text-on-surface"><Check className="h-5 w-5 text-primary" />You&apos;re on the list. Welcome to the club.</div> : <form onSubmit={subscribe}><label htmlFor="newsletter-email" className="sr-only">Email address</label><div className="flex flex-col gap-3 sm:flex-row"><Input id="newsletter-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" /><Button type="submit" className="sm:min-w-36">Subscribe</Button></div></form>}</div>
       </section>
 
     </div>

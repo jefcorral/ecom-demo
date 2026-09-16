@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Clock3, Flower2, MapPin, Phone } from "lucide-react";
-import { NewsletterSignup } from "@/components/footer/newsletter-signup";
 import { TrustBar } from "@/components/footer/trust-bar";
 
 const footerLinks = [
@@ -23,7 +22,6 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto pb-16 md:pb-0">
       {showTrust && <TrustBar />}
-      <NewsletterSignup />
       <div className="bg-[#2c3e2a] px-4 pb-10 pt-12 text-[#fbf9f4] md:px-6 md:pb-8 md:pt-16">
         <div className="mx-auto max-w-[1140px]">
           <div className="hidden grid-cols-4 gap-6 md:grid">

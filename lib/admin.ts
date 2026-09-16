@@ -8,7 +8,6 @@ import {
   Users,
   Star,
   Tag,
-  Mail,
   FileText,
   Truck,
   Settings,
@@ -40,7 +39,6 @@ export const adminNavGroups: { title: string; items: AdminNavItem[] }[] = [
   {
     title: "Marketing",
     items: [
-      { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail },
       { href: "/dashboard/content", label: "Content", icon: FileText },
     ],
   },
