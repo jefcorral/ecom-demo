@@ -170,6 +170,14 @@ export interface Payment {
   createdAt: string;
 }
 
+export interface OrderStatusHistoryItem {
+  id: string;
+  status: OrderStatus;
+  changedBy?: string | null;
+  note?: string | null;
+  createdAt: string;
+}
+
 export interface Order {
   id: string;
   userId: string;
@@ -188,6 +196,7 @@ export interface Order {
   discountCode?: string | null;
   requestedDeliveryDate?: string | null;
   requestedDeliverySlot?: string | null;
+  history?: OrderStatusHistoryItem[];
 }
 
 export interface OrdersResponse {
