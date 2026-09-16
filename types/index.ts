@@ -3,6 +3,14 @@ export interface User {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  phone: string | null;
+  birthday: string | null;
+  flowerStyles: string[];
+  flowerColors: string[];
+  favoriteBlooms: string | null;
+  emailConsent: boolean;
+  smsConsent: boolean;
+  avatarUrl: string | null;
   roles: string[];
 }
 
@@ -20,6 +28,14 @@ export interface UserPreferences {
 export interface UpdateProfileInput {
   firstName?: string;
   lastName?: string;
+  phone?: string;
+  birthday?: string;
+  flowerStyles?: string[];
+  flowerColors?: string[];
+  favoriteBlooms?: string;
+  emailConsent?: boolean;
+  smsConsent?: boolean;
+  avatarUrl?: string;
   password?: string;
   currentPassword?: string;
 }

@@ -10,6 +10,8 @@ import { ProfileNav } from "@/components/profile/profile-nav";
 import {
   getUserPreferences,
   saveUserPreferences,
+  userToPreferences,
+  DEFAULT_USER_PREFERENCES,
   FLOWER_STYLE_OPTIONS,
   COLOR_PALETTE_OPTIONS,
 } from "@/lib/profile";
@@ -18,17 +20,18 @@ import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const { user, isLoggedIn, loading: authLoading } = useAuth();
-  const [preferences, setPreferences] = useState<UserPreferences>(() => getUserPreferences(user?.id));
+  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
 
   useEffect(() => {
-    const sync = () => setPreferences(getUserPreferences(user?.id));
-    sync();
-    window.addEventListener("bloom-user-preferences", sync);
-    return () => window.removeEventListener("bloom-user-preferences", sync);
-  }, [user?.id]);
+    let active = true;
+    getUserPreferences(user).then((prefs) => {
+      if (active) setPreferences(prefs);
+    });
+    return () => { active = false; };
+  }, [user]);
 
-  const handleAvatarChange = (avatarUrl: string) => {
-    const updated = saveUserPreferences(user?.id, { avatarUrl });
+  const handleAvatarChange = async (avatarUrl: string) => {
+    const updated = await saveUserPreferences(user?.id, { avatarUrl });
     setPreferences(updated);
   };
 

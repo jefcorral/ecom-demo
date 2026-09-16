@@ -71,8 +71,8 @@ export async function logout(): Promise<void> {
 }
 // Note: ecom-api has no self-service account deletion endpoint yet;
 // this attempts deletion via /users/:id (requires admin) and will fail for normal users until DELETE /auth/me is added.
-export async function deleteAccount(userId: string): Promise<void> {
-  const res = await fetchApi(`/users/${userId}`, { method: "DELETE" });
+export async function deleteAccount(): Promise<void> {
+  const res = await fetchApi("/auth/me", { method: "DELETE" });
   if (!res.ok) {
     const err = (await res.json().catch(() => ({}))) as { message?: string };
     throw new Error(err.message ?? `Failed to delete account (status ${res.status})`);

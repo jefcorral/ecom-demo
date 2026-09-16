@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/app/providers";
 import { updateProfile, deleteAccount } from "@/lib/auth";
-import { getUserPreferences, saveUserPreferences, DEFAULT_USER_PREFERENCES } from "@/lib/profile";
+import { getUserPreferences, saveUserPreferences, userToPreferences, DEFAULT_USER_PREFERENCES } from "@/lib/profile";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileNav } from "@/components/profile/profile-nav";
 import { PersonalInfoCard, PersonalInfoFormState } from "@/components/profile/personal-info-card";
@@ -32,36 +32,18 @@ import { UserPreferences } from "@/types";
 export default function ProfileEditPage() {
   const { user, isLoggedIn, loading: authLoading, refreshUser, logout } = useAuth();
   const router = useRouter();
-  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
-  const [personalInfo, setPersonalInfo] = useState<PersonalInfoFormState>(() => ({
+  const preferences = useMemo(() => (user ? userToPreferences(user) : DEFAULT_USER_PREFERENCES), [user]);
+  const initialPersonalInfo = useMemo<PersonalInfoFormState>(() => ({
     firstName: user?.firstName ?? "",
     lastName: user?.lastName ?? "",
-    phone: DEFAULT_USER_PREFERENCES.phone ?? "",
-    birthday: DEFAULT_USER_PREFERENCES.birthday ?? "",
-  }));
-  const [savedPersonalInfo, setSavedPersonalInfo] = useState<PersonalInfoFormState>(() => ({
-    firstName: user?.firstName ?? "",
-    lastName: user?.lastName ?? "",
-    phone: DEFAULT_USER_PREFERENCES.phone ?? "",
-    birthday: DEFAULT_USER_PREFERENCES.birthday ?? "",
-  }));
+    phone: preferences.phone ?? "",
+    birthday: preferences.birthday ?? "",
+  }), [user?.firstName, user?.lastName, preferences.phone, preferences.birthday]);
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfoFormState>(initialPersonalInfo);
+  const [savedPersonalInfo, setSavedPersonalInfo] = useState<PersonalInfoFormState>(initialPersonalInfo);
 
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string>("/profile");
-
-  const [prevUserId, setPrevUserId] = useState(user?.id);
-  if (user && user.id !== prevUserId) {
-    setPrevUserId(user.id);
-    const userPrefs = getUserPreferences(user.id);
-    const initial = {
-      firstName: user.firstName ?? "",
-      lastName: user.lastName ?? "",
-      phone: userPrefs.phone ?? "",
-      birthday: userPrefs.birthday ?? "",
-    };
-    setPersonalInfo(initial);
-    setSavedPersonalInfo(initial);
-  }
   const [personalInfoErrors, setPersonalInfoErrors] = useState<Partial<Record<keyof PersonalInfoFormState, string>>>({});
   const [savingPersonal, setSavingPersonal] = useState(false);
 
@@ -94,36 +76,9 @@ export default function ProfileEditPage() {
     }
   };
 
-  useEffect(() => {
-    let active = true;
-    const sync = () => {
-      if (!active) return;
-      const loadedPrefs = getUserPreferences(user?.id);
-      setPreferences(loadedPrefs);
-      setSavedPersonalInfo((prev) => ({
-        ...prev,
-        phone: loadedPrefs.phone ?? prev.phone,
-        birthday: loadedPrefs.birthday ?? prev.birthday,
-      }));
-      setPersonalInfo((prev) => ({
-        ...prev,
-        phone: loadedPrefs.phone ?? prev.phone,
-        birthday: loadedPrefs.birthday ?? prev.birthday,
-      }));
-    };
-
-    const timer = setTimeout(sync, 0);
-    window.addEventListener("bloom-user-preferences", sync);
-    return () => {
-      active = false;
-      clearTimeout(timer);
-      window.removeEventListener("bloom-user-preferences", sync);
-    };
-  }, [user?.id]);
-
-  const handleAvatarChange = (avatarUrl: string) => {
-    const updated = saveUserPreferences(user?.id, { avatarUrl });
-    setPreferences(updated);
+  const handleAvatarChange = async (avatarUrl: string) => {
+    await saveUserPreferences(user?.id, { avatarUrl });
+    await refreshUser();
     successToast("Botanical avatar updated");
   };
 
@@ -149,12 +104,14 @@ export default function ProfileEditPage() {
       await updateProfile({
         firstName: personalInfo.firstName.trim(),
         lastName: personalInfo.lastName.trim(),
-      });
-      const updated = saveUserPreferences(user?.id, {
         phone: personalInfo.phone.trim(),
         birthday: personalInfo.birthday,
       });
-      setPreferences(updated);
+      await saveUserPreferences(user?.id, {
+        phone: personalInfo.phone.trim(),
+        birthday: personalInfo.birthday,
+      });
+      await refreshUser();
       setSavedPersonalInfo({
         firstName: personalInfo.firstName.trim(),
         lastName: personalInfo.lastName.trim(),
@@ -170,46 +127,46 @@ export default function ProfileEditPage() {
     }
   };
 
-  const handleResetPreferences = () => {
-    const updated = saveUserPreferences(user?.id, {
+  const handleResetPreferences = async () => {
+    await saveUserPreferences(user?.id, {
       flowerStyles: [],
       flowerColors: [],
       favoriteBlooms: "",
     });
-    setPreferences(updated);
+    await refreshUser();
     successToast("Floral preferences reset to defaults");
   };
 
-  const handleToggleStyle = (styleLabel: string) => {
+  const handleToggleStyle = async (styleLabel: string) => {
     const current = preferences.flowerStyles ?? [];
     const exists = current.includes(styleLabel);
     const next = exists ? current.filter((s) => s !== styleLabel) : [...current, styleLabel];
-    const updated = saveUserPreferences(user?.id, { flowerStyles: next });
-    setPreferences(updated);
+    await saveUserPreferences(user?.id, { flowerStyles: next });
+    await refreshUser();
   };
 
-  const handleTogglePalette = (paletteLabel: string) => {
+  const handleTogglePalette = async (paletteLabel: string) => {
     const current = preferences.flowerColors ?? [];
     const exists = current.includes(paletteLabel);
     const next = exists ? current.filter((p) => p !== paletteLabel) : [...current, paletteLabel];
-    const updated = saveUserPreferences(user?.id, { flowerColors: next });
-    setPreferences(updated);
+    await saveUserPreferences(user?.id, { flowerColors: next });
+    await refreshUser();
   };
 
-  const handleChangeFavoriteBlooms = (val: string) => {
-    const updated = saveUserPreferences(user?.id, { favoriteBlooms: val });
-    setPreferences(updated);
+  const handleChangeFavoriteBlooms = async (val: string) => {
+    await saveUserPreferences(user?.id, { favoriteBlooms: val });
+    await refreshUser();
   };
 
-  const handleChangeEmailConsent = (enabled: boolean) => {
-    const updated = saveUserPreferences(user?.id, { emailConsent: enabled });
-    setPreferences(updated);
+  const handleChangeEmailConsent = async (enabled: boolean) => {
+    await saveUserPreferences(user?.id, { emailConsent: enabled });
+    await refreshUser();
     successToast(enabled ? "Subscribed to seasonal catalogs" : "Unsubscribed from email catalog");
   };
 
-  const handleChangeSmsConsent = (enabled: boolean) => {
-    const updated = saveUserPreferences(user?.id, { smsConsent: enabled });
-    setPreferences(updated);
+  const handleChangeSmsConsent = async (enabled: boolean) => {
+    await saveUserPreferences(user?.id, { smsConsent: enabled });
+    await refreshUser();
     successToast(enabled ? "Subscribed to SMS delivery alerts" : "Unsubscribed from SMS alerts");
   };
 
@@ -227,8 +184,7 @@ export default function ProfileEditPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!user?.id) return;
-    await deleteAccount(user.id);
+    await deleteAccount();
     await logout();
     router.push("/");
   };
