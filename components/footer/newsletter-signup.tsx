@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { Check, LoaderCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { subscribeToNewsletter } from "@/lib/newsletter";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,9 +22,14 @@ export function NewsletterSignup() {
     }
     setError("");
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 650));
-    setLoading(false);
-    setSubscribed(true);
+    try {
+      await subscribeToNewsletter({ email, source: "footer" });
+      setSubscribed(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
