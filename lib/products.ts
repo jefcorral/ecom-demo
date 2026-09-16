@@ -9,6 +9,8 @@ type ProductFilterParams = {
   search?: string;
   priceRange?: string;
   inStock?: string;
+  sortBy?: "price" | "name" | "newest";
+  sortOrder?: "asc" | "desc";
 };
 
 export function fetchMockProducts(params?: ProductFilterParams): ProductsResponse {
@@ -73,6 +75,8 @@ export async function fetchProducts(params?: ProductFilterParams): Promise<Produ
   if (params?.search) searchParams.set("search", params.search);
   if (params?.priceRange) searchParams.set("priceRange", params.priceRange);
   if (params?.inStock) searchParams.set("inStock", params.inStock);
+  if (params?.sortBy) searchParams.set("sortBy", params.sortBy);
+  if (params?.sortOrder) searchParams.set("sortOrder", params.sortOrder);
 
   try {
     const res = await fetch(`${API_URL}/products?${searchParams.toString()}`, {
