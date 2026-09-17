@@ -218,6 +218,8 @@ export interface SavedAddress extends Address {
   label: string;
   isDefault: boolean;
 }
+export * from "./contact";
+
 
 export interface SavedPaymentMethod {
   id: string;
