@@ -1,4 +1,4 @@
-import { API_URL } from "@/lib/env";
+import { API_URL, USE_MOCK_DATA } from "@/lib/env";
 import { mockProducts } from "@/lib/mock-data";
 import { Product, ProductsResponse } from "@/types";
 
@@ -68,6 +68,8 @@ export function fetchMockProducts(params?: ProductFilterParams): ProductsRespons
 }
 
 export async function fetchProducts(params?: ProductFilterParams): Promise<ProductsResponse> {
+  if (USE_MOCK_DATA) return fetchMockProducts(params);
+
   const searchParams = new URLSearchParams();
   if (params?.page) searchParams.set("page", String(params.page));
   if (params?.limit) searchParams.set("limit", String(params.limit));
@@ -94,6 +96,12 @@ export async function fetchProducts(params?: ProductFilterParams): Promise<Produ
 }
 
 export async function fetchProduct(id: string): Promise<Product> {
+  if (USE_MOCK_DATA) {
+    const product = mockProducts.find((item) => item.id === id);
+    if (!product) throw new Error("Product not found");
+    return product;
+  }
+
   try {
     const res = await fetch(`${API_URL}/products/${id}`, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load product");

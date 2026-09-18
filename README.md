@@ -21,13 +21,13 @@ A Next.js 16 storefront that consumes the [ecom-api](../ecom-api) Fastify backen
 
 ## Getting Started
 
-1. Copy environment variables and fill in the real values:
+1. The storefront uses its built-in product catalog and browser-persisted cart when no environment variables are configured. To connect the Fastify backend instead, copy the environment variables and fill in the real values:
 
    ```bash
    cp .env.example .env.local
    ```
 
-2. Make sure the Fastify API is running on `http://localhost:3000` and its `FRONTEND_URL` is set to `http://localhost:3001`.
+2. When using the backend, make sure it is running on `http://localhost:3000` and its `FRONTEND_URL` is set to `http://localhost:3001`.
 
 3. Install dependencies and run the dev server:
 
@@ -62,7 +62,8 @@ public/              # Static assets
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_API_URL` | Base URL of the ecom-api (default: `http://localhost:3000`) |
+| `NEXT_PUBLIC_USE_MOCK_DATA` | Set to `true` to use the built-in catalog and browser-persisted cart |
+| `NEXT_PUBLIC_API_URL` | Base URL of the ecom-api; mock mode is enabled when omitted |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key for checkout |
 
 ## Notes
