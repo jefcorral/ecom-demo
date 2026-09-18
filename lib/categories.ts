@@ -1,8 +1,10 @@
-import { API_URL } from "@/lib/env";
+import { API_URL, USE_MOCK_DATA } from "@/lib/env";
 import { mockCategories } from "@/lib/mock-data";
 import { Category } from "@/types";
 
 export async function fetchCategories(): Promise<{ data: Category[] }> {
+  if (USE_MOCK_DATA) return { data: mockCategories };
+
   try {
     const res = await fetch(`${API_URL}/categories`, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load categories");
