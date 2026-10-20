@@ -11,27 +11,28 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
+  icons: { icon: "/4u-flowers-gifts-logo.png", apple: "/4u-flowers-gifts-logo.png" },
   title: {
-    default: "Bloom & Stem",
-    template: "%s | Bloom & Stem",
+    default: "4U Flowers & Gifts",
+    template: "%s | 4U Flowers & Gifts",
   },
   description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://bloomandstem.example.com",
-    siteName: "Bloom & Stem",
+    siteName: "4U Flowers & Gifts",
     title: {
-      default: "Bloom & Stem",
-      template: "%s | Bloom & Stem",
+      default: "4U Flowers & Gifts",
+      template: "%s | 4U Flowers & Gifts",
     },
     description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   },
   twitter: {
     card: "summary_large_image",
     title: {
-      default: "Bloom & Stem",
-      template: "%s | Bloom & Stem",
+      default: "4U Flowers & Gifts",
+      template: "%s | 4U Flowers & Gifts",
     },
     description: "Artisanal florals for life's most beautiful moments. Hand-tied bouquets, plants, and gifts delivered with care.",
   },

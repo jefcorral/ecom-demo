@@ -35,7 +35,7 @@ function LoginForm() {
   }
 
   return (
-    <AuthCard title="Welcome Back" description="Sign in to your Bloom & Stem account">
+    <AuthCard title="Welcome Back" description="Sign in to your 4U Flowers & Gifts account">
       <form onSubmit={submit} className="space-y-5" noValidate>
         <FormErrorSummary message={Object.keys(errors).length ? "Please check the highlighted fields and try again." : undefined} />
         <FormField id="email" label="Email address" error={errors.email}>

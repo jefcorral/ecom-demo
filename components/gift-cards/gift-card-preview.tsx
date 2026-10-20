@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Flower2, Mail, Package, QrCode, RefreshCw, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Mail, Package, QrCode, RefreshCw, Sparkles } from "lucide-react";
 import { GIFT_CARD_THEMES } from "@/lib/gift-cards";
 import { GiftCardFormData } from "@/types";
 import { cn } from "@/lib/utils";
@@ -45,11 +46,11 @@ export function GiftCardPreview({ formData }: { formData: GiftCardFormData }) {
           <div className="flex flex-col justify-between h-full relative z-10">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
-                <div className={cn("flex size-7 items-center justify-center rounded-full border", theme.badgeBgClass)}>
-                  <Flower2 className="size-3.5" />
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface p-0.5">
+                  <Image src="/4u-flowers-gifts-logo.png" alt="" width={32} height={30} className="h-8 w-8 object-contain" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-sm sm:text-base font-semibold leading-none text-current">Bloom &amp; Stem</h3>
+                  <h3 className="font-serif text-sm sm:text-base font-semibold leading-none text-current">4U Flowers &amp; Gifts</h3>
                   <p className={cn("text-[9px] uppercase tracking-wider mt-0.5", theme.subtextColorClass)}>Artisanal Florist</p>
                 </div>
               </div>

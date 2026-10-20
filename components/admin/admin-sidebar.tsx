@@ -1,6 +1,7 @@
 "use client";
 
-import { Flower2, PanelLeft, PanelRight } from "lucide-react";
+import Image from "next/image";
+import { PanelLeft, PanelRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AdminNav } from "./admin-nav";
@@ -31,10 +32,10 @@ export function AdminSidebar({
         )}
       >
         <div className="flex items-center gap-2">
-          <Flower2 className="h-8 w-8 shrink-0 text-primary" />
+          <Image src="/4u-flowers-gifts-logo.png" alt={collapsed ? "4U Flowers & Gifts" : ""} width={40} height={38} className="h-10 w-10 shrink-0 rounded-full bg-surface p-0.5 object-contain" />
           {!collapsed && (
-            <span className="font-serif text-xl font-semibold text-white">
-              Bloom &amp; Stem
+            <span className="font-serif text-base font-semibold leading-tight text-white">
+              4U Flowers &amp; Gifts
             </span>
           )}
         </div>

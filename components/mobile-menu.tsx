@@ -42,7 +42,7 @@ export function MobileMenu({ isLoggedIn, wishlistCount = 0 }: { isLoggedIn: bool
       <SheetHeader className="border-b border-outline-variant/50 px-4 pb-4 pt-3">
         <div className="flex items-center justify-between">
           <SheetClose render={<Button variant="ghost" size="icon" aria-label="Close navigation menu" />}><X className="h-5 w-5" /></SheetClose>
-          <Link href="/" className="flex items-center gap-2 font-serif text-lg font-semibold text-on-surface"><Flower2 className="h-5 w-5 text-primary" />Bloom &amp; Stem</Link>
+          <Link href="/" className="flex items-center gap-2 font-serif text-base font-semibold text-on-surface"><Image src="/4u-flowers-gifts-logo.png" alt="" width={40} height={38} className="h-10 w-auto object-contain" />4U Flowers &amp; Gifts</Link>
         </div>
         <SheetTitle className="mt-4 font-serif text-2xl font-semibold leading-8 text-on-surface">Hi there, what are you shopping for today?</SheetTitle>
         <SheetDescription className="sr-only">Browse products, occasions, account actions, and store utilities.</SheetDescription>

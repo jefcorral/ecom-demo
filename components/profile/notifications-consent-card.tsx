@@ -28,7 +28,7 @@ export function NotificationsConsentCard({
           </h2>
         </div>
         <p className="mt-1 text-xs text-on-surface-variant">
-          Control how Bloom & Stem communicates bouquet dispatches, seasonal offers, and care tips.
+          Control how 4U Flowers & Gifts communicates bouquet dispatches, seasonal offers, and care tips.
         </p>
       </div>
 

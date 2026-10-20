@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Clock3, Flower2, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
+import { ChevronDown, Clock3, MapPin, Phone } from "lucide-react";
 import { TrustBar } from "@/components/footer/trust-bar";
 
 const footerLinks = [
@@ -33,7 +34,7 @@ export function SiteFooter() {
 
           <div className="mt-12 grid gap-8 border-t border-white/10 pt-8 md:grid-cols-[1.25fr_1fr]">
             <div>
-              <Link href="/" className="inline-flex items-center gap-2 font-serif text-2xl font-semibold"><Flower2 className="h-6 w-6 text-primary-fixed" />Bloom &amp; Stem</Link>
+              <Link href="/" className="inline-flex items-center gap-3 font-serif text-2xl font-semibold"><Image src="/4u-flowers-gifts-logo.png" alt="" width={80} height={76} className="h-20 w-auto rounded-full bg-surface p-1 object-contain" />4U Flowers &amp; Gifts</Link>
               <p className="mt-3 max-w-sm text-sm leading-6 text-white/65">Artisanal florals for life&apos;s most beautiful moments. Hand-tied with care and delivered with love.</p>
             </div>
             <StoreInformation />
@@ -45,7 +46,7 @@ export function SiteFooter() {
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-4 text-center text-xs text-white/45 md:flex-row md:justify-between md:text-left">
-            <p>© {new Date().getFullYear()} Bloom &amp; Stem. All Rights Reserved.</p>
+            <p>© {new Date().getFullYear()} 4U Flowers &amp; Gifts. All Rights Reserved.</p>
             <nav aria-label="Legal" className="flex items-center gap-3 uppercase tracking-wider"><Link href="/privacy" className="hover:text-primary-fixed">Privacy</Link><span>|</span><Link href="/terms" className="hover:text-primary-fixed">Terms</Link><span>|</span><Link href="/cookies" className="hover:text-primary-fixed">Cookies</Link></nav>
           </div>
         </div>

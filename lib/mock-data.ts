@@ -102,9 +102,9 @@ function generateProducts(count: number): Product[] {
 
 export const mockGiftCardProduct: Product = {
   id: "prod-gift-card",
-  name: "Bloom & Stem Gift Card",
+  name: "4U Flowers & Gifts Gift Card",
   sku: "SKU-GIFT-CARD",
-  description: "Share the botanical elegance of Bloom & Stem with an artisanal digital or physical gift voucher, redeemable for all floral arrangements, plants, and bespoke gifts.",
+  description: "Share the botanical elegance of 4U Flowers & Gifts with an artisanal digital or physical gift voucher, redeemable for all floral arrangements, plants, and bespoke gifts.",
   imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&h=600&fit=crop",
   price: 100,
   stock: 999,

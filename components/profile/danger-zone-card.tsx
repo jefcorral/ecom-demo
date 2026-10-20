@@ -117,7 +117,7 @@ export function DangerZoneCard({
               <DialogTitle className="font-serif text-xl">Delete Your Account</DialogTitle>
             </div>
             <DialogDescription className="text-xs text-on-surface-variant pt-2 leading-relaxed">
-              This will permanently delete your Bloom &amp; Stem account
+              This will permanently delete your 4U Flowers &amp; Gifts account
               {userEmail ? ` (${userEmail})` : ""}, including your profile information, saved addresses, and curated floral preferences.
             </DialogDescription>
           </DialogHeader>

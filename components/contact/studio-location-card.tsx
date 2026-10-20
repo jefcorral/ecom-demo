@@ -24,7 +24,7 @@ export function StudioLocationCard() {
             <div className="flex size-12 items-center justify-center rounded-full bg-primary text-on-primary shadow-md mb-2 animate-bounce motion-reduce:animate-none">
               <MapPin className="size-6" />
             </div>
-            <p className="font-serif font-semibold text-sm text-on-surface">Bloom &amp; Stem Atelier</p>
+            <p className="font-serif font-semibold text-sm text-on-surface">4U Flowers &amp; Gifts Atelier</p>
             <p className="text-xs text-on-surface-variant font-mono mt-0.5">128 Botanical Way, Portland</p>
           </div>
         </div>

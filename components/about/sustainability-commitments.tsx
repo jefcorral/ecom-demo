@@ -57,7 +57,7 @@ export function SustainabilityCommitments() {
       <div className="rounded-3xl bg-[#2c3e2a] text-[#fbf9f4] p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center md:text-left">
           <p className="text-xs uppercase tracking-widest text-[#f9bd14] font-semibold">
-            The Bloom &amp; Stem Eco-Pledge
+            The 4U Flowers &amp; Gifts Eco-Pledge
           </p>
           <h3 className="font-serif text-xl sm:text-2xl font-bold">
             Zero Floral Foam. Zero Toxic Dyes. 100% Compostable.

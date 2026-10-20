@@ -54,7 +54,7 @@ const defaultContent: StorefrontContentData = {
     { id: "spot-3", title: "Rare Dutch Bulb Subscriptions", description: "Quarterly releases of dormant collector bulbs.", link: "/subscriptions", image: images[5], enabled: true },
   ],
   testimonials: [
-    { id: "test-1", quote: "Bloom & Stem’s Solstice collection converted our conservatory into an ethereal winter sanctuary.", customer: "Lady Cornelia Fox, Kensington", rating: 5, product: "The Nocturne Grand Urn", published: true },
+    { id: "test-1", quote: "4U Flowers & Gifts’s Solstice collection converted our conservatory into an ethereal winter sanctuary.", customer: "Lady Cornelia Fox, Kensington", rating: 5, product: "The Nocturne Grand Urn", published: true },
     { id: "test-2", quote: "The tactile sensation of the Hydra-Silk wrap and cold-chain precision is unmatched anywhere in Mayfair.", customer: "Architectural Digest", rating: 5, product: "Tuscan Olive Wreath", published: true },
   ],
 };
