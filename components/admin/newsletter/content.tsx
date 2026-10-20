@@ -187,7 +187,7 @@ export function NewsletterContent({ data: initialData }: { data: NewsletterData 
               <Field id="sender-name" label="Sender Name"><Input id="sender-name" value={draft.senderName} onChange={(e) => updateDraft({ senderName: e.target.value })} className="min-h-11 rounded-xl bg-surface-container" /></Field>
             </div>
             <Field id="sender-email" label="Sender Email" error={senderError}><Input id="sender-email" type="email" value={draft.senderEmail} onChange={(e) => updateDraft({ senderEmail: e.target.value })} aria-invalid={senderError} className="min-h-11 rounded-xl bg-surface-container" /></Field>
-            <Field id="subject" label="Subject Line" error={subjectError}><Input id="subject" value={draft.subject} onChange={(e) => updateDraft({ subject: e.target.value })} placeholder="A private preview from Bloom & Stem" aria-invalid={subjectError} className="min-h-11 rounded-xl bg-surface-container" /></Field>
+            <Field id="subject" label="Subject Line" error={subjectError}><Input id="subject" value={draft.subject} onChange={(e) => updateDraft({ subject: e.target.value })} placeholder="A private preview from 4U Flowers & Gifts" aria-invalid={subjectError} className="min-h-11 rounded-xl bg-surface-container" /></Field>
             <Field id="preview" label="Preview Text" error={previewError}><Textarea id="preview" value={draft.previewText} onChange={(e) => updateDraft({ previewText: e.target.value })} placeholder="A concise line that follows the subject in the inbox." aria-invalid={previewError} className="rounded-xl bg-surface-container" /></Field>
             <Field id="test-email" label="Test Email"><Input id="test-email" type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} className="min-h-11 rounded-xl bg-surface-container" /></Field>
             <div>
@@ -429,13 +429,13 @@ function EmailPreview({ draft, mode }: { draft: CampaignDraft; mode: PreviewMode
         {draft.blocks.map((block) => {
           if (block.type === "hero") return <div key={block.id} aria-hidden className="h-40 w-full rounded-xl bg-cover bg-center" style={{ backgroundImage: `url(https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800&h=400&fit=crop)` }} />;
           if (block.type === "heading") return <h3 key={block.id} className="font-serif text-2xl text-on-surface">{draft.name || "Your seasonal preview"}</h3>;
-          if (block.type === "text") return <p key={block.id} className="mx-auto max-w-md text-sm leading-relaxed text-on-surface-variant">Hand-tied arrangements from Bloom & Stem arrive fresh from the atelier, chosen for the season and delivered with care.</p>;
+          if (block.type === "text") return <p key={block.id} className="mx-auto max-w-md text-sm leading-relaxed text-on-surface-variant">Hand-tied arrangements from 4U Flowers & Gifts arrive fresh from the atelier, chosen for the season and delivered with care.</p>;
           if (block.type === "products") return <div key={block.id} className="grid grid-cols-3 gap-2">{products.map((product) => <div key={product.id} className="text-left"><div className="aspect-square rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${product.imageUrl})` }} /><p className="mt-1 truncate text-xs font-medium">{product.name}</p><p className="text-xs text-on-surface-variant">${product.price}</p></div>)}</div>;
           if (block.type === "button") return <a key={block.id} href="#" className="inline-flex min-h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-on-primary">Shop the Edit</a>;
           if (block.type === "divider") return <hr key={block.id} className="border-outline-variant/30" />;
           return null;
         })}
-        <p className="text-xs text-on-surface-variant">Bloom & Stem Atelier · 12 Chelsea Embankment, London</p>
+        <p className="text-xs text-on-surface-variant">4U Flowers & Gifts Atelier · 12 Chelsea Embankment, London</p>
       </div>
     </div>
   );

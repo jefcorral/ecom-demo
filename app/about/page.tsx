@@ -10,9 +10,9 @@ import { PressQuotes } from "@/components/about/press-quotes";
 import { AboutCTA } from "@/components/about/about-cta";
 
 export const metadata: Metadata = {
-  title: "About Us | Bloom & Stem Artisanal Florist",
+  title: "About Us | 4U Flowers & Gifts Artisanal Florist",
   description:
-    "Learn about Bloom & Stem, our Portland floral atelier, founder Eleanor Vance, sustainable grower partnerships, and slow-flower craftsmanship.",
+    "Learn about 4U Flowers & Gifts, our Portland floral atelier, founder Eleanor Vance, sustainable grower partnerships, and slow-flower craftsmanship.",
 };
 
 export default function AboutPage() {

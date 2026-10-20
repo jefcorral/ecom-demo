@@ -29,7 +29,7 @@ export function AdminMobileDrawer({
         <div className="flex h-full flex-col">
           <div className="flex h-14 items-center justify-between px-4">
             <span className="font-serif text-xl font-semibold text-primary">
-              Bloom &amp; Stem
+              4U Flowers &amp; Gifts
             </span>
             <Button
               variant="ghost"

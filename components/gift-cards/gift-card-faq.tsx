@@ -11,12 +11,12 @@ export function GiftCardFAQ() {
       a: "Physical gift cards are hand-inscribed and dispatched via standard postal carrier within 1 business day. Delivery within the Pacific Northwest typically takes 2–3 business days, and 3–5 business days nationwide. Priority shipping options are also available at checkout.",
     },
     {
-      q: "How do I redeem my Bloom & Stem gift card?",
+      q: "How do I redeem my 4U Flowers & Gifts gift card?",
       a: "To redeem online, enter your 16-character voucher code during Step 2 (Payment) at checkout. The card value will be immediately deducted from your order subtotal. In-person shoppers can present their digital email barcode or physical card at our Portland studio.",
     },
     {
-      q: "Do Bloom & Stem gift cards expire?",
-      a: "Never. Bloom & Stem gift cards have zero expiration dates, zero dormancy fees, and zero maintenance penalties. Any unused balance remains on the card until spent.",
+      q: "Do 4U Flowers & Gifts gift cards expire?",
+      a: "Never. 4U Flowers & Gifts gift cards have zero expiration dates, zero dormancy fees, and zero maintenance penalties. Any unused balance remains on the card until spent.",
     },
     {
       q: "Can I use multiple gift cards or combine with promotional codes?",

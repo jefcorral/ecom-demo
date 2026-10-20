@@ -116,7 +116,7 @@ export default function GiftCardsPage() {
 
         <PageHeader
           eyebrow="The Art of Giving"
-          title="Bloom & Stem Gift Cards"
+          title="4U Flowers & Gifts Gift Cards"
           description="Give the timeless elegance of fresh bouquets, botanical plants, and bespoke gifts. Send a digital voucher instantly by email or order an embossed keepsake card in our signature envelope."
         />
 

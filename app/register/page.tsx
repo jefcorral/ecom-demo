@@ -40,7 +40,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthCard title="Create Your Account" description="Join Bloom & Stem for exclusive offers and easy ordering." icon={Tag} className="bg-transparent shadow-none hover:scale-100 sm:bg-surface-container-lowest sm:shadow-md">
+    <AuthCard title="Create Your Account" description="Join 4U Flowers & Gifts for exclusive offers and easy ordering." icon={Tag} className="bg-transparent shadow-none hover:scale-100 sm:bg-surface-container-lowest sm:shadow-md">
       {success ? (
         <AuthSuccess title="Check your email" message={`We sent a confirmation link to ${form.email}.`}><Button render={<Link href="/login" />} className="w-full">Continue to Sign In</Button></AuthSuccess>
       ) : (

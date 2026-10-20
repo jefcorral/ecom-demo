@@ -13,7 +13,7 @@ export const FOUNDER_STORY = {
   location: "Portland, Oregon",
   headline: "Born from a love of untamed Pacific Northwest flora.",
   storyParagraphs: [
-    "Bloom & Stem began in the spring of 2018 inside a sun-drenched greenhouse in Northwest Portland. Disillusioned by mass-produced, chemically preserved imports wrapped in single-use plastic, founder Eleanor Vance envisioned a slower, more deliberate floral atelier—one rooted in seasonal honesty, architectural form, and ecological care.",
+    "4U Flowers & Gifts began in the spring of 2018 inside a sun-drenched greenhouse in Northwest Portland. Disillusioned by mass-produced, chemically preserved imports wrapped in single-use plastic, founder Eleanor Vance envisioned a slower, more deliberate floral atelier—one rooted in seasonal honesty, architectural form, and ecological care.",
     "What started as bespoke bouquets delivered to local neighborhood cafes has grown into a premier Pacific Northwest florist studio. Yet our ethos remains unchanged: every single arrangement is treated as a fleeting piece of living art, composed by master florists using stems cut just hours before delivery.",
   ],
   quote:
@@ -29,7 +29,7 @@ export const FLORISTS_DATA: FloristProfile[] = [
     id: "eleanor",
     name: "Eleanor Vance",
     role: "Founder & Creative Director",
-    bio: "Trained in classical Dutch botanical painting and English naturalism, Eleanor leads the creative direction and seasonal collections at Bloom & Stem.",
+    bio: "Trained in classical Dutch botanical painting and English naturalism, Eleanor leads the creative direction and seasonal collections at 4U Flowers & Gifts.",
     quote: "Every stem carries a natural gesture. Our work is simply listening to how it wants to curve.",
     favoriteBloom: "Garden Peonies & Tree Dahlia",
     imageUrl:
@@ -53,7 +53,7 @@ export const FLORISTS_DATA: FloristProfile[] = [
     id: "sophia",
     name: "Sophia Rossi",
     role: "Botanical Stylist",
-    bio: "Sophia brings an interior design background to Bloom & Stem, focusing on vessel selection, dried botanical sculpture, and living plant curation.",
+    bio: "Sophia brings an interior design background to 4U Flowers & Gifts, focusing on vessel selection, dried botanical sculpture, and living plant curation.",
     quote: "The vessel should embrace the flora as naturally as the soil it came from.",
     favoriteBloom: "Coral Charm Peony & Slipper Orchid",
     imageUrl:
@@ -177,7 +177,7 @@ export const PRESS_QUOTES: PressQuote[] = [
   {
     id: "ad",
     publication: "Architectural Digest",
-    quote: "Bloom & Stem transforms the classic bouquet into a sculptural celebration of Pacific Northwest flora.",
+    quote: "4U Flowers & Gifts transforms the classic bouquet into a sculptural celebration of Pacific Northwest flora.",
     year: "2026",
     featuredArticle: "The New Wave of Botanical Atelier Design",
   },

@@ -113,8 +113,9 @@ export function SiteHeader() {
               <MobileMenu isLoggedIn={isLoggedIn} wishlistCount={wishlistCount} />
             </Sheet>
 
-            <Link href="/" aria-label="Bloom and Stem home" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap font-serif text-2xl font-semibold tracking-tight text-primary lg:static lg:translate-x-0 lg:text-on-surface">
-              <Flower2 className="hidden h-6 w-6 text-primary lg:block" />Bloom &amp; Stem
+            <Link href="/" aria-label="4U Flowers & Gifts home" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap font-serif font-semibold tracking-tight text-on-surface lg:static lg:translate-x-0">
+              <Image src="/4u-flowers-gifts-logo.png" alt="" width={48} height={46} priority className="h-10 w-auto shrink-0 object-contain lg:h-12" />
+              <span className="text-sm leading-tight lg:text-base">4U Flowers<br />&amp; Gifts</span>
             </Link>
 
             <nav className="hidden items-center gap-6 lg:flex xl:gap-8">

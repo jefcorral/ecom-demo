@@ -10,7 +10,7 @@ export function FounderStory() {
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl shadow-lg border border-outline-variant/40 bg-surface-container-low">
             <Image
               src={FOUNDER_STORY.portraitUrl}
-              alt="Eleanor Vance, Founder and Creative Director of Bloom and Stem"
+              alt="Eleanor Vance, Founder and Creative Director of 4U Flowers & Gifts"
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 40vw"

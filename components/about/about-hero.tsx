@@ -22,7 +22,7 @@ export function AboutHero() {
           </h1>
 
           <p className="text-base sm:text-lg text-on-surface-variant leading-relaxed max-w-2xl font-sans">
-            We believe flowers should evoke the untamed poetry of the seasons. From morning harvests in the Willamette Valley to hand-tied bouquets in our Portland studio, Bloom &amp; Stem crafts living art with zero floral foam and boundless care.
+            We believe flowers should evoke the untamed poetry of the seasons. From morning harvests in the Willamette Valley to hand-tied bouquets in our Portland studio, 4U Flowers &amp; Gifts crafts living art with zero floral foam and boundless care.
           </p>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
@@ -54,14 +54,14 @@ export function AboutHero() {
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-xl border border-outline-variant/30">
             <Image
               src="https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&w=1000&q=80"
-              alt="Florist arranging a seasonal bouquet at the Bloom and Stem sunlit workbench"
+              alt="Florist arranging a seasonal bouquet at the 4U Flowers & Gifts sunlit workbench"
               fill
               priority
               className="object-cover transition-transform duration-700 hover:scale-105"
               sizes="(max-width: 1024px) 100vw, 40vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1b1c19]/80 via-transparent to-transparent opacity-80" />
-            
+
             <div className="absolute bottom-6 inset-x-6 text-white space-y-1 backdrop-blur-xs bg-black/25 p-4 rounded-2xl border border-white/15">
               <span className="text-[11px] uppercase tracking-widest text-[#f2b705] font-semibold block">
                 Atelier No. 128
